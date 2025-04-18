@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Trash2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { deleteMeal } from '@/lib/firebase';
 
 type MealEntryProps = {
   id: string;
@@ -21,20 +22,7 @@ export default function MealEntry({ id, userId, mealType, food, calories, protei
   const handleDelete = async () => {
     try {
       setIsDeleting(true);
-      
-      // Converti l'ID da stringa a numerico
-      const numericId = parseInt(id);
-      if (isNaN(numericId)) {
-        throw new Error("Invalid meal ID format");
-      }
-      
-      const response = await fetch(`/api/meals/${numericId}`, {
-        method: 'DELETE',
-      });
-      
-      if (!response.ok) {
-        throw new Error(`Error ${response.status}: ${response.statusText}`);
-      }
+      await deleteMeal(userId, id);
       
       toast({
         title: "Success",

@@ -8,6 +8,7 @@ import MealPlan from '@/components/MealPlan';
 import ActiveNutritionGoal from '@/components/ActiveNutritionGoal';
 import WeightTracker from '@/components/WeightTracker';
 import Chart from 'chart.js/auto';
+import { getMeals, getMealsByDateRange } from '@/lib/firebase';
 
 type HomeProps = {
   user: {
@@ -49,40 +50,33 @@ export default function Home({ user }: HomeProps) {
 
   // Load meals based on filter
   useEffect(() => {
-    const fetchMeals = async () => {
+    const fetchMeals = () => {
       try {
-        let url = `/api/meals?userId=${user.uid}`;
-        
         if (filter !== 'all') {
           const days = filter === 'week' ? 7 : parseInt(filter);
           const endDate = new Date();
           const startDate = new Date();
           startDate.setDate(startDate.getDate() - days);
           
-          url += `&startDate=${startDate.toISOString()}&endDate=${endDate.toISOString()}`;
+          getMealsByDateRange(user.uid, startDate, endDate, (fetchedMeals) => {
+            setMeals(fetchedMeals);
+          });
+        } else {
+          getMeals(user.uid, (fetchedMeals) => {
+            setMeals(fetchedMeals);
+          });
         }
-        
-        const response = await fetch(url);
-        
-        if (!response.ok) {
-          throw new Error(`Error ${response.status}: ${response.statusText}`);
-        }
-        
-        const fetchedMeals = await response.json();
-        
-        // Trasformiamo i dati per assicurarci che siano nel formato corretto
-        const processedMeals = fetchedMeals.map((meal: any) => ({
-          ...meal,
-          id: meal.id.toString() // Assicuriamoci che l'ID sia una stringa
-        }));
-        
-        setMeals(processedMeals);
       } catch (error) {
         console.error("Error fetching meals:", error);
       }
     };
     
     fetchMeals();
+    
+    // Cleanup function to stop listening to real-time updates
+    return () => {
+      // Firebase listeners cleanup will be handled by the Firebase SDK
+    };
   }, [user.uid, filter]);
   
   // Calculate totals when meals change
