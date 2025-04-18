@@ -56,11 +56,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Pre-processing dei dati per garantire formati corretti
       const processedData = {
         ...req.body,
-        // Assicura che tutti i valori numerici siano numeri
-        calories: Number(req.body.calories) || 0,
-        proteins: Number(req.body.proteins) || 0,
-        carbs: Number(req.body.carbs) || 0,
-        fats: Number(req.body.fats) || 0,
+        // Assicura che tutti i valori numerici siano numeri e arrotondati a interi
+        calories: Math.round(Number(req.body.calories) || 0),
+        proteins: Math.round(Number(req.body.proteins) || 0),
+        carbs: Math.round(Number(req.body.carbs) || 0),
+        fats: Math.round(Number(req.body.fats) || 0),
         // Assicura che userId sia una stringa
         userId: String(req.body.userId),
         // Converte il timestamp in Date se c'è, altrimenti usa la data attuale
@@ -202,7 +202,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Create nutritional goal (route protetta)
   app.post("/api/nutrition-goals", isAuthenticated, async (req, res) => {
     try {
-      const goalData = insertNutritionGoalSchema.parse(req.body);
+      // Pre-processing dei dati per garantire formati corretti
+      const processedData = {
+        ...req.body,
+        // Assicura che tutti i valori numerici siano numeri e arrotondati a interi
+        calories: Math.round(Number(req.body.calories) || 0),
+        proteins: Math.round(Number(req.body.proteins) || 0),
+        carbs: Math.round(Number(req.body.carbs) || 0),
+        fats: Math.round(Number(req.body.fats) || 0),
+        // Assicura che userId sia una stringa
+        userId: String(req.body.userId)
+      };
+      
+      const goalData = insertNutritionGoalSchema.parse(processedData);
       
       // Se l'utente non ha specificato un valore per isActive, impostiamo come true di default
       if (goalData.isActive === undefined) {
