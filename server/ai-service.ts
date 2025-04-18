@@ -202,7 +202,7 @@ export async function generateNutritionGoalRecommendations(
     else if (recommendations && typeof recommendations === 'object') {
       // Check per la struttura 'objectives' che OpenAI potrebbe restituire
       if (recommendations.objectives && Array.isArray(recommendations.objectives)) {
-        processedRecommendations = recommendations.objectives.map(rec => ({
+        processedRecommendations = recommendations.objectives.map((rec: any) => ({
           title: rec.title,
           description: rec.description,
           calories: Math.round(Number(rec.calories)),
