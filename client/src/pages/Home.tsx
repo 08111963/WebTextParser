@@ -264,10 +264,18 @@ export default function Home() {
                       const formData = new FormData(e.currentTarget);
                       
                       try {
+                        // Se è stato selezionato "Altro" e c'è un valore personalizzato, usa quello
+                        let foodName = formData.get('food') as string;
+                        const customFood = formData.get('customFood') as string;
+                        
+                        if (foodName === "Altro (personalizzato)" && customFood && customFood.trim() !== '') {
+                          foodName = customFood.trim();
+                        }
+                        
                         const mealData = {
                           userId: user.id.toString(),
                           mealType: formData.get('mealType') as string,
-                          food: formData.get('food') as string,
+                          food: foodName,
                           calories: parseInt(formData.get('calories') as string),
                           proteins: parseInt(formData.get('proteins') as string),
                           carbs: parseInt(formData.get('carbs') as string),
@@ -327,13 +335,155 @@ export default function Home() {
                       <label htmlFor="food" className="text-sm font-medium">
                         Alimento
                       </label>
+                      <select
+                        name="food"
+                        id="food"
+                        className="w-full rounded-md border border-input bg-background px-3 py-2"
+                        onChange={(e) => {
+                          // Preset valori in base all'alimento selezionato
+                          const formEl = e.target.form;
+                          if (!formEl) return;
+                          
+                          const selectedValue = e.target.value;
+                          const caloriesInput = formEl.querySelector('#calories') as HTMLInputElement;
+                          const proteinsInput = formEl.querySelector('#proteins') as HTMLInputElement;
+                          const carbsInput = formEl.querySelector('#carbs') as HTMLInputElement;
+                          const fatsInput = formEl.querySelector('#fats') as HTMLInputElement;
+                          
+                          // Preimpostazioni per i vari alimenti
+                          switch(selectedValue) {
+                            case "Pizza Margherita (1 fetta)":
+                              caloriesInput.value = "285";
+                              proteinsInput.value = "12";
+                              carbsInput.value = "39";
+                              fatsInput.value = "10";
+                              break;
+                            case "Pasta al pomodoro (100g)":
+                              caloriesInput.value = "180";
+                              proteinsInput.value = "7";
+                              carbsInput.value = "35";
+                              fatsInput.value = "2";
+                              break;
+                            case "Insalata mista (100g)":
+                              caloriesInput.value = "20";
+                              proteinsInput.value = "1";
+                              carbsInput.value = "3";
+                              fatsInput.value = "0";
+                              break;
+                            case "Pollo alla griglia (100g)":
+                              caloriesInput.value = "165";
+                              proteinsInput.value = "31";
+                              carbsInput.value = "0";
+                              fatsInput.value = "3";
+                              break;
+                            case "Salmone (100g)":
+                              caloriesInput.value = "208";
+                              proteinsInput.value = "22";
+                              carbsInput.value = "0";
+                              fatsInput.value = "13";
+                              break;
+                            case "Uova (1 uovo)":
+                              caloriesInput.value = "70";
+                              proteinsInput.value = "6";
+                              carbsInput.value = "1";
+                              fatsInput.value = "5";
+                              break;
+                            case "Pane integrale (1 fetta)":
+                              caloriesInput.value = "80";
+                              proteinsInput.value = "3";
+                              carbsInput.value = "15";
+                              fatsInput.value = "1";
+                              break;
+                            case "Yogurt greco (150g)":
+                              caloriesInput.value = "150";
+                              proteinsInput.value = "15";
+                              carbsInput.value = "6";
+                              fatsInput.value = "7";
+                              break;
+                            case "Mela (1 media)":
+                              caloriesInput.value = "72";
+                              proteinsInput.value = "0";
+                              carbsInput.value = "19";
+                              fatsInput.value = "0";
+                              break;
+                            case "Banana (1 media)":
+                              caloriesInput.value = "105";
+                              proteinsInput.value = "1";
+                              carbsInput.value = "27";
+                              fatsInput.value = "0";
+                              break;
+                            case "Avocado (1/2)":
+                              caloriesInput.value = "160";
+                              proteinsInput.value = "2";
+                              carbsInput.value = "8";
+                              fatsInput.value = "15";
+                              break;
+                            case "Cioccolato fondente (30g)":
+                              caloriesInput.value = "160";
+                              proteinsInput.value = "2";
+                              carbsInput.value = "13";
+                              fatsInput.value = "11";
+                              break;
+                            case "Patate al forno (100g)":
+                              caloriesInput.value = "130";
+                              proteinsInput.value = "3";
+                              carbsInput.value = "30";
+                              fatsInput.value = "0";
+                              break;
+                            case "Formaggio (30g)":
+                              caloriesInput.value = "110";
+                              proteinsInput.value = "7";
+                              carbsInput.value = "1";
+                              fatsInput.value = "9";
+                              break;
+                            case "Riso bianco (100g cotto)":
+                              caloriesInput.value = "130";
+                              proteinsInput.value = "3";
+                              carbsInput.value = "28";
+                              fatsInput.value = "0";
+                              break;
+                            case "Altro (personalizzato)":
+                              // Lascia i valori di default o resetta
+                              caloriesInput.value = "0";
+                              proteinsInput.value = "0";
+                              carbsInput.value = "0";
+                              fatsInput.value = "0";
+                              break;
+                          }
+                        }}
+                        required
+                      >
+                        <option value="">Seleziona un alimento</option>
+                        <option value="Pizza Margherita (1 fetta)">Pizza Margherita (1 fetta)</option>
+                        <option value="Pasta al pomodoro (100g)">Pasta al pomodoro (100g)</option>
+                        <option value="Insalata mista (100g)">Insalata mista (100g)</option>
+                        <option value="Pollo alla griglia (100g)">Pollo alla griglia (100g)</option>
+                        <option value="Salmone (100g)">Salmone (100g)</option>
+                        <option value="Uova (1 uovo)">Uova (1 uovo)</option>
+                        <option value="Pane integrale (1 fetta)">Pane integrale (1 fetta)</option>
+                        <option value="Yogurt greco (150g)">Yogurt greco (150g)</option>
+                        <option value="Mela (1 media)">Mela (1 media)</option>
+                        <option value="Banana (1 media)">Banana (1 media)</option>
+                        <option value="Avocado (1/2)">Avocado (1/2)</option>
+                        <option value="Cioccolato fondente (30g)">Cioccolato fondente (30g)</option>
+                        <option value="Patate al forno (100g)">Patate al forno (100g)</option>
+                        <option value="Formaggio (30g)">Formaggio (30g)</option>
+                        <option value="Riso bianco (100g cotto)">Riso bianco (100g cotto)</option>
+                        <option value="Altro (personalizzato)">Altro (personalizzato)</option>
+                      </select>
                       <input 
                         type="text" 
-                        name="food" 
-                        id="food"
-                        placeholder="Es. Pizza Margherita"
-                        className="w-full rounded-md border border-input bg-background px-3 py-2"
-                        required
+                        name="customFood" 
+                        id="customFood"
+                        placeholder="Inserisci qui se hai selezionato 'Altro'"
+                        className="w-full rounded-md border border-input bg-background px-3 py-2 mt-2"
+                        onFocus={() => {
+                          const foodSelect = document.querySelector('#food') as HTMLSelectElement;
+                          if (foodSelect && foodSelect.value !== "Altro (personalizzato)") {
+                            foodSelect.value = "Altro (personalizzato)";
+                            foodSelect.dispatchEvent(new Event('change'));
+                          }
+                        }}
                       />
                     </div>
                     
