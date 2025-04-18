@@ -19,7 +19,7 @@ type HomeProps = {
 };
 
 type Meal = {
-  id: string;
+  id: string | number;
   userId: string;
   food: string;
   calories: number;
@@ -27,7 +27,8 @@ type Meal = {
   carbs: number;
   fats: number;
   mealType: string;
-  timestamp: Timestamp;
+  timestamp?: Timestamp | string;
+  date?: string;
 };
 
 export default function Home({ user }: HomeProps) {
@@ -99,7 +100,10 @@ export default function Home({ user }: HomeProps) {
     // Get unique days count
     const uniqueDays = new Set(
       meals.map(meal => {
-        const date = meal.timestamp.toDate();
+        // Gestione sia per Timestamp di Firebase che per date in formato stringa
+        const date = typeof meal.timestamp === 'object' && meal.timestamp.toDate 
+          ? meal.timestamp.toDate() 
+          : new Date(meal.date || meal.timestamp);
         return `${date.getFullYear()}-${date.getMonth()}-${date.getDate()}`;
       })
     ).size;
