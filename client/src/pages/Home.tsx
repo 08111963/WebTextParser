@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { getMeals, getMealsByDateRange, Timestamp } from '@/lib/firebase';
+import type { Timestamp } from 'firebase/firestore';
 import Header from '@/components/Header';
 import MealForm from '@/components/MealForm';
 import NutritionSummary from '@/components/NutritionSummary';
@@ -45,26 +45,34 @@ export default function Home({ user }: HomeProps) {
   
   // Load meals based on filter
   useEffect(() => {
-    let unsubscribe: () => void;
-    
-    if (filter === 'all') {
-      unsubscribe = getMeals(user.uid, (fetchedMeals) => {
-        setMeals(fetchedMeals);
-      });
-    } else {
-      const days = filter === 'week' ? 7 : parseInt(filter);
-      const endDate = new Date();
-      const startDate = new Date();
-      startDate.setDate(startDate.getDate() - days);
-      
-      unsubscribe = getMealsByDateRange(user.uid, startDate, endDate, (fetchedMeals) => {
-        setMeals(fetchedMeals);
-      });
-    }
-    
-    return () => {
-      if (unsubscribe) unsubscribe();
+    const fetchMeals = async () => {
+      try {
+        let url = `/api/meals?userId=${user.uid}`;
+        
+        if (filter !== 'all') {
+          const days = filter === 'week' ? 7 : parseInt(filter);
+          const endDate = new Date();
+          const startDate = new Date();
+          startDate.setDate(startDate.getDate() - days);
+          
+          url += `&startDate=${startDate.toISOString().split('T')[0]}&endDate=${endDate.toISOString().split('T')[0]}`;
+        }
+        
+        const response = await fetch(url);
+        
+        if (!response.ok) {
+          throw new Error(`Error ${response.status}: ${response.statusText}`);
+        }
+        
+        const data = await response.json();
+        setMeals(data || []);
+      } catch (error) {
+        console.error("Failed to fetch meals:", error);
+        setMeals([]);
+      }
     };
+    
+    fetchMeals();
   }, [user.uid, filter]);
   
   // Calculate totals when meals change
