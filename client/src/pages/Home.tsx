@@ -4,6 +4,7 @@ import MealForm from '@/components/MealForm';
 import MealList from '@/components/MealList';
 import NutritionGoalForm from '@/components/NutritionGoalForm';
 import NutritionGoalHistory from '@/components/NutritionGoalHistory';
+import NutritionChart from '@/components/NutritionChart';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/use-auth';
 import { useQuery } from '@tanstack/react-query';
@@ -247,6 +248,11 @@ export default function Home() {
                       </Button>
                     </CardFooter>
                   </Card>
+                </div>
+
+                {/* Grafico dei valori nutrizionali */}
+                <div className="mt-6">
+                  <NutritionChart userId={user.id.toString()} />
                 </div>
               </>
             )}
