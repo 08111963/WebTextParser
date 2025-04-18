@@ -160,8 +160,9 @@ export default function MealsChatbot({ userId }: MealsChatbotProps) {
                         ? "bg-primary text-primary-foreground"
                         : "bg-muted"
                     }`}
+                    style={{ maxWidth: "95%" }}
                   >
-                    <p className="text-sm whitespace-pre-wrap">{message.content}</p>
+                    <p className="text-sm whitespace-pre-wrap break-words leading-relaxed">{message.content}</p>
                     <p className="text-xs opacity-50 mt-1">
                       {message.timestamp.toLocaleTimeString([], {
                         hour: "2-digit",

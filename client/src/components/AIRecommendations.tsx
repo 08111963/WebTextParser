@@ -218,8 +218,8 @@ export default function AIRecommendations({ userId }: AIRecommendationsProps) {
           </div>
           
           <TabsContent value="goals" className="mt-0">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-4">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <div className="space-y-4 flex-shrink-0">
                 {isLoadingGoals ? (
                   <div className="flex justify-center py-8">
                     <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
@@ -227,15 +227,15 @@ export default function AIRecommendations({ userId }: AIRecommendationsProps) {
                 ) : nutritionGoalRecommendations?.recommendations && nutritionGoalRecommendations.recommendations.length > 0 ? (
                   <>
                     {nutritionGoalRecommendations.recommendations.map((rec, index) => (
-                      <div key={index} className="border rounded-lg p-4 bg-card">
+                      <div key={index} className="border rounded-lg p-4 bg-card shadow-sm">
                         <h3 className="text-lg font-medium flex items-center gap-2">
-                          <Star className="h-5 w-5 text-yellow-500" />
-                          {rec.title}
+                          <Star className="h-5 w-5 text-yellow-500 flex-shrink-0" />
+                          <span className="break-words">{rec.title}</span>
                         </h3>
                         
-                        <p className="text-sm text-muted-foreground mt-1 mb-3">{rec.description}</p>
+                        <p className="text-sm text-muted-foreground mt-1 mb-3 leading-relaxed">{rec.description}</p>
                         
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mt-2">
+                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mt-2">
                           <div className="bg-muted/40 p-2 rounded text-center">
                             <div className="text-xs text-muted-foreground">Calorie</div>
                             <div className="text-lg font-semibold">{rec.calories}</div>
@@ -300,15 +300,15 @@ export default function AIRecommendations({ userId }: AIRecommendationsProps) {
                 )}
               </div>
               
-              <div>
+              <div className="flex-grow">
                 <GoalsChatbot userId={userId} />
               </div>
             </div>
           </TabsContent>
           
           <TabsContent value="meals" className="mt-0">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-4">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <div className="space-y-4 flex-shrink-0">
                 <div className="flex justify-between items-center mb-4">
                   <Select value={selectedMealType} onValueChange={handleMealTypeChange}>
                     <SelectTrigger className="w-[180px]">
@@ -331,16 +331,16 @@ export default function AIRecommendations({ userId }: AIRecommendationsProps) {
                 ) : mealSuggestions?.suggestions && mealSuggestions.suggestions.length > 0 ? (
                   <>
                     {mealSuggestions.suggestions.map((meal, index) => (
-                      <div key={index} className="border rounded-lg p-4 bg-card">
+                      <div key={index} className="border rounded-lg p-4 bg-card shadow-sm">
                         <div className="flex justify-between items-start">
-                          <h3 className="text-lg font-medium">{meal.name}</h3>
-                          <Badge className="flex items-center gap-1" variant="outline">
+                          <h3 className="text-lg font-medium break-words pr-2">{meal.name}</h3>
+                          <Badge className="flex items-center gap-1 flex-shrink-0" variant="outline">
                             {mealTypeIcons[meal.mealType.toLowerCase()] || <Utensils className="h-3 w-3" />}
                             {mealTypeMap[meal.mealType.toLowerCase()] || meal.mealType}
                           </Badge>
                         </div>
                         
-                        <p className="text-sm text-muted-foreground mt-1 mb-3">{meal.description}</p>
+                        <p className="text-sm text-muted-foreground mt-1 mb-3 leading-relaxed">{meal.description}</p>
                         
                         <div className="flex flex-wrap gap-2 mt-2">
                           <Badge variant="secondary">{meal.calories} kcal</Badge>
@@ -391,7 +391,7 @@ export default function AIRecommendations({ userId }: AIRecommendationsProps) {
                 )}
               </div>
               
-              <div>
+              <div className="flex-grow">
                 <MealsChatbot userId={userId} />
               </div>
             </div>
