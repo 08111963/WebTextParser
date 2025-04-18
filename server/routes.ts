@@ -10,6 +10,7 @@ import {
 } from "@shared/schema";
 import { z } from "zod";
 import { setupAuth } from "./auth";
+import { generateNutritionGoalRecommendations, generateMealSuggestions } from "./ai-service";
 
 // Middleware per proteggere le route che richiedono autenticazione
 function isAuthenticated(req: Request, res: Response, next: NextFunction) {
@@ -412,6 +413,90 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       res.status(500).json({ 
         message: "Failed to fetch user profile", 
+        error: error instanceof Error ? error.message : String(error)
+      });
+    }
+  });
+  
+  // === AI RECOMMENDATIONS ROUTES ===
+  
+  // Genera raccomandazioni per obiettivi nutrizionali personalizzati (route protetta)
+  app.get("/api/recommendations/nutrition-goals", isAuthenticated, async (req, res) => {
+    try {
+      const userId = req.query.userId as string;
+      
+      if (!userId) {
+        return res.status(400).json({ message: "User ID is required" });
+      }
+      
+      // Recupera il profilo utente
+      const profile = await storage.getUserProfile(userId);
+      
+      if (!profile) {
+        return res.status(404).json({ message: "User profile not found" });
+      }
+      
+      // Recupera obiettivo nutrizionale attuale se presente
+      const currentGoal = await storage.getActiveNutritionGoal(userId);
+      
+      // Recupera pasti recenti se disponibili
+      const recentMeals = await storage.getMealsByUserId(userId);
+      
+      // Genera raccomandazioni personalizzate
+      const recommendations = await generateNutritionGoalRecommendations(
+        profile, 
+        currentGoal, 
+        recentMeals
+      );
+      
+      res.json({ recommendations });
+    } catch (error) {
+      console.error("Error generating nutrition goal recommendations:", error);
+      res.status(500).json({ 
+        message: "Failed to generate nutrition goal recommendations", 
+        error: error instanceof Error ? error.message : String(error)
+      });
+    }
+  });
+  
+  // Genera suggerimenti per pasti personalizzati (route protetta)
+  app.get("/api/recommendations/meals", isAuthenticated, async (req, res) => {
+    try {
+      const userId = req.query.userId as string;
+      const mealType = req.query.mealType as string;
+      const preferences = req.query.preferences 
+        ? Array.isArray(req.query.preferences) 
+          ? req.query.preferences as string[] 
+          : [req.query.preferences as string]
+        : undefined;
+      
+      if (!userId) {
+        return res.status(400).json({ message: "User ID is required" });
+      }
+      
+      // Recupera il profilo utente
+      const profile = await storage.getUserProfile(userId);
+      
+      if (!profile) {
+        return res.status(404).json({ message: "User profile not found" });
+      }
+      
+      // Recupera obiettivo nutrizionale attuale se presente
+      const nutritionGoal = await storage.getActiveNutritionGoal(userId);
+      
+      // Genera suggerimenti personalizzati per i pasti
+      const suggestions = await generateMealSuggestions(
+        profile, 
+        nutritionGoal,
+        mealType,
+        preferences
+      );
+      
+      res.json({ suggestions });
+    } catch (error) {
+      console.error("Error generating meal suggestions:", error);
+      res.status(500).json({ 
+        message: "Failed to generate meal suggestions", 
         error: error instanceof Error ? error.message : String(error)
       });
     }
