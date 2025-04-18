@@ -36,28 +36,26 @@ export default function WeightTracker({ userId }: WeightTrackerProps) {
   
   // Fetching weight entries
   const { data: weightEntries = [], isLoading } = useQuery({
-    queryKey: ['/api/progress', userId],
-    queryFn: async () => {
-      const thirtyDaysAgo = format(subDays(new Date(), 30), "yyyy-MM-dd");
-      const today = format(new Date(), "yyyy-MM-dd");
-      return await apiRequest(`/api/progress?userId=${userId}&startDate=${thirtyDaysAgo}&endDate=${today}`);
-    },
+    queryKey: [`/api/progress?userId=${userId}&startDate=${format(subDays(new Date(), 30), "yyyy-MM-dd")}&endDate=${format(new Date(), "yyyy-MM-dd")}`],
     enabled: !!userId
   });
   
   // Create weight entry mutation
   const createWeightEntry = useMutation({
     mutationFn: async (values: WeightEntryValues & { userId: string }) => {
-      return apiRequest('/api/progress', {
-        method: 'POST',
-        body: JSON.stringify({
+      return apiRequest(
+        'POST',
+        '/api/progress',
+        {
           ...values,
           date: format(values.date, "yyyy-MM-dd"),
-        }),
-      });
+        }
+      );
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/progress', userId] });
+      queryClient.invalidateQueries({ 
+        queryKey: [`/api/progress?userId=${userId}`]
+      });
       setDialogOpen(false);
       toast({
         title: "Peso registrato",
@@ -76,12 +74,15 @@ export default function WeightTracker({ userId }: WeightTrackerProps) {
   // Delete weight entry mutation
   const deleteWeightEntry = useMutation({
     mutationFn: async (id: number) => {
-      return apiRequest(`/api/progress/${id}`, {
-        method: 'DELETE',
-      });
+      return apiRequest(
+        'DELETE',
+        `/api/progress/${id}`
+      );
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/progress', userId] });
+      queryClient.invalidateQueries({ 
+        queryKey: [`/api/progress?userId=${userId}`]
+      });
       toast({
         title: "Peso eliminato",
         description: "Il tuo record di peso è stato eliminato con successo.",

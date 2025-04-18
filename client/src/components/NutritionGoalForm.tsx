@@ -78,19 +78,23 @@ export default function NutritionGoalForm({
       };
       
       if (isEditing && goalId) {
-        await apiRequest(`/api/nutrition-goals/${goalId}`, {
-          method: "PATCH",
-          body: JSON.stringify(formattedValues),
-        });
+        await apiRequest(
+          "PATCH",
+          `/api/nutrition-goals/${goalId}`,
+          formattedValues
+        );
+        
         toast({
           title: "Obiettivo aggiornato",
           description: "L'obiettivo nutrizionale è stato aggiornato con successo.",
         });
       } else {
-        await apiRequest("/api/nutrition-goals", {
-          method: "POST",
-          body: JSON.stringify(formattedValues),
-        });
+        await apiRequest(
+          "POST",
+          "/api/nutrition-goals",
+          formattedValues
+        );
+        
         toast({
           title: "Obiettivo creato",
           description: "Nuovo obiettivo nutrizionale creato con successo.",

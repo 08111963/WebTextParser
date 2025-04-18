@@ -6,6 +6,8 @@ import NutritionSummary from '@/components/NutritionSummary';
 import FilterSelect from '@/components/FilterSelect';
 import MealEntry from '@/components/MealEntry';
 import MealPlan from '@/components/MealPlan';
+import ActiveNutritionGoal from '@/components/ActiveNutritionGoal';
+import WeightTracker from '@/components/WeightTracker';
 import Chart from 'chart.js/auto';
 
 type HomeProps = {
@@ -151,6 +153,16 @@ export default function Home({ user }: HomeProps) {
             totalCarbs={total.carbs}
             totalFats={total.fats}
           />
+          
+          <div className="mt-4">
+            <ActiveNutritionGoal 
+              userId={user.uid}
+              dailyCalories={total.calories}
+              dailyProteins={total.proteins}
+              dailyCarbs={total.carbs}
+              dailyFats={total.fats}
+            />
+          </div>
         </div>
         
         {/* Main Content */}
@@ -196,6 +208,11 @@ export default function Home({ user }: HomeProps) {
           </div>
           
           <MealPlan userId={user.uid} />
+          
+          {/* Weight Tracker */}
+          <div className="mt-4">
+            <WeightTracker userId={user.uid} />
+          </div>
         </div>
       </div>
     </div>

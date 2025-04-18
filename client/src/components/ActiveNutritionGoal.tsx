@@ -33,10 +33,7 @@ export default function ActiveNutritionGoal({
     error,
     refetch
   } = useQuery({
-    queryKey: ['/api/nutrition-goals/active', userId],
-    queryFn: async () => {
-      return await apiRequest(`/api/nutrition-goals/active?userId=${userId}`);
-    },
+    queryKey: [`/api/nutrition-goals/active?userId=${userId}`],
     enabled: !!userId
   });
   
