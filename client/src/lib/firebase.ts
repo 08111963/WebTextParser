@@ -1,4 +1,4 @@
-import { initializeApp } from "firebase/app";
+import { initializeApp, getApp } from "firebase/app";
 import { 
   getAuth, 
   signInWithEmailAndPassword, 
@@ -27,7 +27,7 @@ import {
   onSnapshot
 } from "firebase/firestore";
 
-// Initialize Firebase
+// Firebase configuration
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
   authDomain: `${import.meta.env.VITE_FIREBASE_PROJECT_ID}.firebaseapp.com`,
@@ -36,8 +36,17 @@ const firebaseConfig = {
   appId: import.meta.env.VITE_FIREBASE_APP_ID
 };
 
-// Initialize Firebase with the application
-const app = initializeApp(firebaseConfig);
+// Initialize Firebase only once - prevent duplicate initialization
+let app;
+try {
+  app = initializeApp(firebaseConfig);
+} catch (error) {
+  // If an app is already initialized, use that one
+  console.info("Firebase app already initialized, using existing app");
+  app = getApp();
+}
+
+// Get Firebase services
 const auth = getAuth(app);
 const db = getFirestore(app);
 const googleProvider = new GoogleAuthProvider();
