@@ -197,7 +197,7 @@ export default function Welcome() {
             Registrati ora e inizia subito a tracciare la tua nutrizione per raggiungere i tuoi obiettivi di salute.
           </p>
           <Button 
-            onClick={() => navigate('/login')} 
+            onClick={() => navigate('/auth')} 
             size="lg"
             className="bg-white text-primary hover:bg-gray-100 font-bold py-3 px-8 rounded-md text-lg"
           >
