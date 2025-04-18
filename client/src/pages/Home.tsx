@@ -277,14 +277,26 @@ export default function Home() {
                           foodName = customFood.trim();
                         }
                         
+                        // Assicuriamoci che tutti i valori numerici siano validi
+                        const caloriesStr = formData.get('calories') as string;
+                        const proteinsStr = formData.get('proteins') as string;
+                        const carbsStr = formData.get('carbs') as string;
+                        const fatsStr = formData.get('fats') as string;
+                        
+                        // Verifica e converti valori numerici
+                        const calories = parseInt(caloriesStr) || 0;
+                        const proteins = parseInt(proteinsStr) || 0;
+                        const carbs = parseInt(carbsStr) || 0;
+                        const fats = parseInt(fatsStr) || 0;
+                        
                         const mealData = {
                           userId: user.id.toString(),
                           mealType: formData.get('mealType') as string,
                           food: foodName,
-                          calories: parseInt(formData.get('calories') as string),
-                          proteins: parseInt(formData.get('proteins') as string),
-                          carbs: parseInt(formData.get('carbs') as string),
-                          fats: parseInt(formData.get('fats') as string),
+                          calories: calories,
+                          proteins: proteins,
+                          carbs: carbs,
+                          fats: fats,
                           timestamp: new Date().toISOString()
                         };
                         
@@ -640,13 +652,25 @@ export default function Home() {
                           throw new Error('Utente non autenticato. Effettua il login per creare un obiettivo.');
                         }
                         
+                        // Assicuriamoci che tutti i valori numerici siano validi
+                        const caloriesStr = formData.get('calories') as string;
+                        const proteinsStr = formData.get('proteins') as string;
+                        const carbsStr = formData.get('carbs') as string;
+                        const fatsStr = formData.get('fats') as string;
+                        
+                        // Verifica e converti valori numerici
+                        const calories = parseInt(caloriesStr) || 0;
+                        const proteins = parseInt(proteinsStr) || 0;
+                        const carbs = parseInt(carbsStr) || 0;
+                        const fats = parseInt(fatsStr) || 0;
+                        
                         const goalData = {
                           userId: user.id.toString(),
                           name: formData.get('name') as string,
-                          calories: parseInt(formData.get('calories') as string),
-                          proteins: parseInt(formData.get('proteins') as string),
-                          carbs: parseInt(formData.get('carbs') as string),
-                          fats: parseInt(formData.get('fats') as string),
+                          calories: calories,
+                          proteins: proteins,
+                          carbs: carbs,
+                          fats: fats,
                           startDate: new Date().toISOString().split('T')[0],
                           isActive: true,
                           description: formData.get('description') as string || null
