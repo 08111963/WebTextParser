@@ -40,7 +40,8 @@ import {
   MessageCircle
 } from "lucide-react";
 
-import SimpleChatbot from "./SimpleChatbot";
+import GoalsChatbotSpecialized from "./GoalsChatbotSpecialized";
+import MealsChatbotSpecialized from "./MealsChatbotSpecialized";
 
 type NutritionGoalRecommendation = {
   title: string;
@@ -219,7 +220,7 @@ export default function AIRecommendations({ userId }: AIRecommendationsProps) {
           <TabsContent value="goals" className="mt-0">
             <div className="space-y-6">
               <div className="mb-2">
-                <SimpleChatbot userId={userId} type="goals" />
+                <GoalsChatbotSpecialized userId={userId} />
               </div>
               
               <div className="border-t pt-6 mt-4">
@@ -314,7 +315,7 @@ export default function AIRecommendations({ userId }: AIRecommendationsProps) {
           <TabsContent value="meals" className="mt-0">
             <div className="space-y-6">
               <div className="mb-2">
-                <SimpleChatbot userId={userId} type="meals" />
+                <MealsChatbotSpecialized userId={userId} />
               </div>
               
               <div className="border-t pt-6 mt-4">
