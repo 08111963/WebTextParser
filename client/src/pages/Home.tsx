@@ -6,10 +6,11 @@ import NutritionGoalForm from '@/components/NutritionGoalForm';
 import NutritionGoalHistory from '@/components/NutritionGoalHistory';
 import NutritionChart from '@/components/NutritionChart';
 import UserProfile from '@/components/UserProfile';
+import AIRecommendations from '@/components/AIRecommendations';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/use-auth';
 import { useQuery } from '@tanstack/react-query';
-import { Loader2, Plus, Calendar, BarChart, UserRound } from 'lucide-react';
+import { Loader2, Plus, Calendar, BarChart, UserRound, Sparkles } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -263,7 +264,12 @@ export default function Home() {
           <TabsContent value="meals">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               {/* Form per aggiungere un nuovo pasto */}
-              <MealForm userId={user.id.toString()} />
+              <div className="space-y-4">
+                <MealForm userId={user.id.toString()} />
+                
+                {/* Raccomandazioni IA per pasti */}
+                <AIRecommendations userId={user.id.toString()} />
+              </div>
               
               {/* Lista dei pasti */}
               <Card className="md:col-span-2">
@@ -284,8 +290,13 @@ export default function Home() {
 
           <TabsContent value="goals">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {/* Form per aggiungere un nuovo obiettivo */}
-              <NutritionGoalForm userId={user.id.toString()} />
+              <div className="space-y-4">
+                {/* Form per aggiungere un nuovo obiettivo */}
+                <NutritionGoalForm userId={user.id.toString()} />
+                
+                {/* Raccomandazioni IA per obiettivi nutrizionali */}
+                <AIRecommendations userId={user.id.toString()} />
+              </div>
               
               {/* Visualizzazione dell'obiettivo attivo e cronologia */}
               <Card className="md:col-span-2">

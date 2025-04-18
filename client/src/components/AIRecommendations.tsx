@@ -31,7 +31,7 @@ import {
   Target, 
   Utensils,
   Star,
-  Scales,
+  Scale,
   CircleCheck,
   Loader2,
   Coffee,

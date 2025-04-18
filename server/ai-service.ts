@@ -1,10 +1,10 @@
-import OpenAI from 'openai';
-import { User, UserProfile, NutritionGoal, Meal } from '@shared/schema';
+import OpenAI from "openai";
+import { Meal, NutritionGoal, UserProfile } from "@shared/schema";
 
-// Inizializza il client OpenAI
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
+// Inizializza OpenAI SDK client
+const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+// the newest OpenAI model is "gpt-4o" which was released May 13, 2024. do not change this unless explicitly requested by the user
+const MODEL = "gpt-4o";
 
 /**
  * Genera consigli personalizzati per obiettivi nutrizionali basati sul profilo utente
@@ -12,106 +12,103 @@ const openai = new OpenAI({
 export async function generateNutritionGoalRecommendations(
   profile: UserProfile,
   currentGoal?: NutritionGoal,
-  recentMeals?: Meal[],
+  recentMeals?: Meal[]
 ) {
   try {
-    // Calcola attività fisica in italiano
-    const activityLevelMap: Record<string, string> = {
-      'sedentaria': 'livello di attività sedentario (poco o nessun esercizio)',
-      'leggera': 'attività fisica leggera (esercizio 1-3 volte/settimana)',
-      'moderata': 'attività fisica moderata (esercizio 3-5 volte/settimana)',
-      'attiva': 'attività fisica attiva (esercizio intenso 6-7 volte/settimana)',
-      'molto attiva': 'attività fisica molto intensa (esercizio o lavoro fisico quotidiano)',
+    // Calcola BMI per analisi preliminare
+    const bmi = profile.weight && profile.height 
+      ? Math.round((profile.weight / ((profile.height / 100) * (profile.height / 100))) * 10) / 10
+      : null;
+      
+    // Costruisci un prompt dettagliato con tutte le informazioni disponibili
+    const systemPrompt = `Tu sei un esperto nutrizionista che fornisce consigli personalizzati. 
+    Esamina il seguente profilo utente e genera 3 diversi obiettivi nutrizionali adatti alle sue caratteristiche. 
+    Rispondi in italiano.`;
+    
+    const userInfo = {
+      profilo: {
+        età: profile.age || "Non specificata",
+        peso: profile.weight ? `${profile.weight} kg` : "Non specificato",
+        altezza: profile.height ? `${profile.height} cm` : "Non specificata",
+        genere: profile.gender || "Non specificato",
+        livelloAttività: profile.activityLevel || "Non specificato",
+        bmi: bmi || "Non calcolabile",
+        obiettivi: profile.goals || "Non specificati",
+      },
+      obiettivoAttuale: currentGoal ? {
+        nome: currentGoal.name,
+        calorie: currentGoal.calories,
+        proteine: currentGoal.proteins,
+        carboidrati: currentGoal.carbs,
+        grassi: currentGoal.fats,
+      } : "Nessun obiettivo attualmente impostato",
+      pastiRecenti: recentMeals && recentMeals.length > 0 
+        ? recentMeals.slice(0, 5).map(m => ({
+            cibo: m.food,
+            tipo: m.mealType,
+            calorie: m.calories,
+            proteine: m.proteins,
+            carboidrati: m.carbs,
+            grassi: m.fats
+          }))
+        : "Nessun pasto registrato recentemente"
     };
+    
+    const userPrompt = `
+    Analizza queste informazioni sull'utente e genera 3 obiettivi nutrizionali personalizzati:
+    ${JSON.stringify(userInfo, null, 2)}
+    
+    Per ciascun obiettivo nutrizionale, fornisci:
+    1. Un titolo breve e chiaro
+    2. Una breve descrizione che spieghi perché questo obiettivo è adatto all'utente
+    3. Calorie giornaliere raccomandate
+    4. Distribuzione di macronutrienti (proteine, carboidrati, grassi) in grammi
+    
+    Rispondi con un JSON nel seguente formato:
+    [
+      {
+        "title": "Titolo obiettivo 1",
+        "description": "Descrizione e motivazione",
+        "calories": numero_calorie,
+        "proteins": grammi_proteine,
+        "carbs": grammi_carboidrati,
+        "fats": grammi_grassi
+      },
+      ...
+    ]
+    
+    Assicurati che tutti i valori numerici siano ragionevoli e arrotondati all'intero più vicino, e che ciascun obiettivo sia distinto dagli altri.
+    Usa il contesto e le informazioni disponibili per generare consigli il più possibile personalizzati.
+    `;
 
-    // Costruisci il prompt con il profilo utente
-    const userContext = `
-Profilo utente:
-- Nome: ${profile.name}
-- Età: ${profile.age} anni
-- Genere: ${profile.gender}
-- Peso: ${profile.weight} kg
-- Altezza: ${profile.height} cm
-- Attività fisica: ${activityLevelMap[profile.activityLevel] || profile.activityLevel}
-`;
-
-    // Aggiungi informazioni sugli obiettivi correnti se disponibili
-    let currentGoalContext = '';
-    if (currentGoal) {
-      currentGoalContext = `
-Obiettivo nutrizionale attuale:
-- Calorie giornaliere: ${currentGoal.calories} kcal
-- Proteine: ${currentGoal.proteins}g
-- Carboidrati: ${currentGoal.carbs}g
-- Grassi: ${currentGoal.fats}g
-`;
-    }
-
-    // Aggiungi informazioni sui pasti recenti se disponibili
-    let recentMealsContext = '';
-    if (recentMeals && recentMeals.length > 0) {
-      recentMealsContext = `
-Pasti recenti (ultimi ${Math.min(recentMeals.length, 5)}):
-${recentMeals.slice(0, 5).map(meal => `- ${meal.food} (${meal.calories} kcal, ${meal.proteins}g proteine, ${meal.carbs}g carboidrati, ${meal.fats}g grassi)`).join('\n')}
-`;
-    }
-
-    // Costruisci il prompt completo
-    const prompt = `
-Sei un esperto nutrizionista che deve fornire raccomandazioni personalizzate per obiettivi alimentari. Scrivi in italiano. 
-${userContext}
-${currentGoalContext}
-${recentMealsContext}
-
-Basandoti su queste informazioni, genera 3 possibili obiettivi nutrizionali personalizzati per questo utente. Per ciascun obiettivo, fornisci:
-1. Un titolo descrittivo conciso
-2. Un apporto calorico giornaliero consigliato
-3. Una distribuzione macronutriente raccomandata (proteine, carboidrati, grassi in grammi)
-4. Una breve spiegazione di come questo obiettivo aiuterà l'utente a migliorare la sua salute e benessere
-
-Ogni obiettivo dovrebbe seguire uno dei seguenti scenari:
-- Mantenimento del peso attuale
-- Perdita di peso graduale e salutare
-- Aumento della massa muscolare
-
-Fornisci la risposta in formato JSON che rispetti questa struttura:
-{
-  "recommendations": [
-    {
-      "title": "Titolo dell'obiettivo",
-      "description": "Breve descrizione",
-      "calories": 0000,
-      "proteins": 000,
-      "carbs": 000,
-      "fats": 000
-    },
-    // altri obiettivi...
-  ]
-}
-`;
-
-    // Chiamata a OpenAI
     const response = await openai.chat.completions.create({
-      model: "gpt-4o", // the newest OpenAI model is "gpt-4o" which was released May 13, 2024. do not change this unless explicitly requested by the user
+      model: MODEL,
       messages: [
-        { role: "system", content: "Sei un esperto nutrizionista che fornisce consigli personalizzati." },
-        { role: "user", content: prompt }
+        { role: "system", content: systemPrompt },
+        { role: "user", content: userPrompt }
       ],
       response_format: { type: "json_object" },
       temperature: 0.7,
     });
 
-    const responseContent = response.choices[0].message.content;
-    if (!responseContent) {
-      throw new Error("Nessuna risposta ricevuta dall'AI");
-    }
-
-    // Analizza la risposta JSON
-    const data = JSON.parse(responseContent);
-    return data.recommendations;
+    const recommendations = JSON.parse(response.choices[0].message.content);
+    
+    // Assicurati che i valori siano tutti numeri interi
+    const processedRecommendations = Array.isArray(recommendations) 
+      ? recommendations.map(rec => ({
+          title: rec.title,
+          description: rec.description,
+          calories: Math.round(Number(rec.calories)),
+          proteins: Math.round(Number(rec.proteins)),
+          carbs: Math.round(Number(rec.carbs)),
+          fats: Math.round(Number(rec.fats))
+        }))
+      : [];
+      
+    return processedRecommendations;
   } catch (error) {
-    console.error("Errore nella generazione delle raccomandazioni:", error);
-    throw new Error("Impossibile generare raccomandazioni nutrizionali");
+    console.error("Error generating nutrition goal recommendations:", error);
+    throw new Error(`Failed to generate nutrition goal recommendations: ${error.message}`);
   }
 }
 
@@ -125,102 +122,91 @@ export async function generateMealSuggestions(
   preferences?: string[]
 ) {
   try {
-    // Costruisci il prompt con il profilo utente
-    const userContext = `
-Profilo utente:
-- Nome: ${profile.name}
-- Età: ${profile.age} anni
-- Genere: ${profile.gender}
-- Peso: ${profile.weight} kg
-- Altezza: ${profile.height} cm
-- Attività fisica: ${profile.activityLevel}
-`;
+    const systemPrompt = `Tu sei un esperto di nutrizione che suggerisce pasti sani e deliziosi. 
+    Esamina il profilo dell'utente e il suo obiettivo nutrizionale, quindi suggerisci pasti adatti.
+    Rispondi in italiano.`;
+    
+    const userInfo = {
+      profilo: {
+        età: profile.age || "Non specificata",
+        peso: profile.weight ? `${profile.weight} kg` : "Non specificato",
+        altezza: profile.height ? `${profile.height} cm` : "Non specificata",
+        genere: profile.gender || "Non specificato",
+        livelloAttività: profile.activityLevel || "Non specificato",
+        obiettivi: profile.goals || "Non specificati",
+      },
+      obiettivoNutrizionale: nutritionGoal ? {
+        calorie: nutritionGoal.calories,
+        proteine: nutritionGoal.proteins,
+        carboidrati: nutritionGoal.carbs,
+        grassi: nutritionGoal.fats,
+      } : "Obiettivo non impostato",
+      tipoPasto: mealType || "Qualsiasi",
+      preferenze: preferences && preferences.length > 0 ? preferences : "Nessuna preferenza specificata"
+    };
+    
+    const userPrompt = `
+    Analizza queste informazioni sull'utente:
+    ${JSON.stringify(userInfo, null, 2)}
+    
+    Genera 3 idee per pasti che:
+    ${mealType ? `- Siano adatti per ${mealType}` : '- Siano adatti per qualsiasi pasto'}
+    - Rispettino i limiti calorici e i macronutrienti dell'obiettivo nutrizionale (se presente)
+    - Tengano conto dell'età, peso, altezza e livello di attività dell'utente
+    ${preferences && preferences.length > 0 ? `- Considerino le preferenze: ${preferences.join(', ')}` : ''}
+    
+    Per ciascun pasto, fornisci:
+    1. Un nome breve e appetitoso
+    2. Una breve descrizione che includa ingredienti principali e benefici nutrizionali
+    3. Il tipo di pasto (colazione, pranzo, cena, spuntino)
+    4. Il contenuto calorico e i macronutrienti (proteine, carboidrati, grassi)
+    
+    Rispondi con un JSON nel seguente formato:
+    [
+      {
+        "name": "Nome del pasto",
+        "description": "Descrizione con ingredienti e benefici",
+        "mealType": "Tipo di pasto",
+        "calories": numero_calorie,
+        "proteins": grammi_proteine,
+        "carbs": grammi_carboidrati,
+        "fats": grammi_grassi
+      },
+      ...
+    ]
+    
+    Assicurati che tutti i valori numerici siano ragionevoli e arrotondati all'intero più vicino.
+    Sii creativo ma realistico, suggerendo pasti che siano effettivamente preparabili e appetitosi.
+    `;
 
-    // Aggiungi obiettivi nutrizionali se disponibili
-    let nutritionGoalContext = '';
-    if (nutritionGoal) {
-      nutritionGoalContext = `
-Obiettivo nutrizionale:
-- Calorie giornaliere: ${nutritionGoal.calories} kcal
-- Proteine: ${nutritionGoal.proteins}g
-- Carboidrati: ${nutritionGoal.carbs}g
-- Grassi: ${nutritionGoal.fats}g
-`;
-    }
-
-    // Aggiungi il tipo di pasto se specificato
-    let mealTypeContext = '';
-    if (mealType) {
-      mealTypeContext = `Tipo di pasto richiesto: ${mealType}`;
-    } else {
-      mealTypeContext = 'Genera suggerimenti per colazione, pranzo e cena.';
-    }
-
-    // Aggiungi preferenze alimentari se specificate
-    let preferencesContext = '';
-    if (preferences && preferences.length > 0) {
-      preferencesContext = `Preferenze alimentari: ${preferences.join(', ')}`;
-    }
-
-    // Costruisci il prompt completo
-    const prompt = `
-Sei un esperto chef nutrizionista che deve fornire suggerimenti per pasti sani e gustosi. Scrivi in italiano.
-${userContext}
-${nutritionGoalContext}
-${mealTypeContext}
-${preferencesContext}
-
-Basandoti su queste informazioni, genera 3 idee di pasti personalizzati. Per ciascun pasto, fornisci:
-1. Nome del piatto
-2. Breve descrizione
-3. Valori nutrizionali stimati (calorie, proteine, carboidrati, grassi)
-4. Indicazione del pasto (colazione, pranzo, cena o spuntino)
-
-Assicurati che i pasti:
-- Siano adatti al profilo fisico dell'utente
-- Rispettino gli obiettivi nutrizionali, se specificati
-- Siano pratici da preparare
-- Utilizzino ingredienti comuni e facilmente reperibili
-- Rispettino le eventuali preferenze alimentari indicate
-
-Fornisci la risposta in formato JSON che rispetti questa struttura:
-{
-  "suggestions": [
-    {
-      "name": "Nome del piatto",
-      "description": "Breve descrizione e ingredienti principali",
-      "mealType": "colazione/pranzo/cena/spuntino",
-      "calories": 000,
-      "proteins": 00,
-      "carbs": 00,
-      "fats": 00
-    },
-    // altri pasti...
-  ]
-}
-`;
-
-    // Chiamata a OpenAI
     const response = await openai.chat.completions.create({
-      model: "gpt-4o", // the newest OpenAI model is "gpt-4o" which was released May 13, 2024. do not change this unless explicitly requested by the user
+      model: MODEL,
       messages: [
-        { role: "system", content: "Sei un esperto chef nutrizionista che fornisce suggerimenti per pasti sani e gustosi." },
-        { role: "user", content: prompt }
+        { role: "system", content: systemPrompt },
+        { role: "user", content: userPrompt }
       ],
       response_format: { type: "json_object" },
-      temperature: 0.7,
+      temperature: 0.8,
     });
 
-    const responseContent = response.choices[0].message.content;
-    if (!responseContent) {
-      throw new Error("Nessuna risposta ricevuta dall'AI");
-    }
-
-    // Analizza la risposta JSON
-    const data = JSON.parse(responseContent);
-    return data.suggestions;
+    const suggestions = JSON.parse(response.choices[0].message.content);
+    
+    // Assicurati che i valori siano tutti numeri interi
+    const processedSuggestions = Array.isArray(suggestions) 
+      ? suggestions.map(sug => ({
+          name: sug.name,
+          description: sug.description,
+          mealType: sug.mealType,
+          calories: Math.round(Number(sug.calories)),
+          proteins: Math.round(Number(sug.proteins)),
+          carbs: Math.round(Number(sug.carbs)),
+          fats: Math.round(Number(sug.fats))
+        }))
+      : [];
+      
+    return processedSuggestions;
   } catch (error) {
-    console.error("Errore nella generazione dei suggerimenti per i pasti:", error);
-    throw new Error("Impossibile generare suggerimenti per i pasti");
+    console.error("Error generating meal suggestions:", error);
+    throw new Error(`Failed to generate meal suggestions: ${error.message}`);
   }
 }
