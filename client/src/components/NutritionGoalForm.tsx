@@ -12,9 +12,9 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter }
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { CalendarIcon } from "lucide-react";
-import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
+import { addNutritionGoal, updateNutritionGoal } from "@/lib/firebase";
 
 const nutritionGoalSchema = z.object({
   name: z.string().min(1, "Il nome è richiesto"),
@@ -69,31 +69,24 @@ export default function NutritionGoalForm({
     try {
       setIsSubmitting(true);
       
-      // Formattiamo le date come stringhe
-      const formattedValues = {
+      // Utilizziamo direttamente le date senza formattarle come stringhe
+      // per Firebase che supporta i tipi di data direttamente
+      const goalData = {
         ...values,
-        userId,
-        startDate: format(values.startDate, "yyyy-MM-dd"),
-        endDate: values.endDate ? format(values.endDate, "yyyy-MM-dd") : undefined
+        userId
       };
       
       if (isEditing && goalId) {
-        await apiRequest(
-          "PATCH",
-          `/api/nutrition-goals/${goalId}`,
-          formattedValues
-        );
+        // Convertiamo l'ID numerico in stringa per compatibilità con Firebase
+        const goalIdString = String(goalId);
+        await updateNutritionGoal(userId, goalIdString, goalData);
         
         toast({
           title: "Obiettivo aggiornato",
           description: "L'obiettivo nutrizionale è stato aggiornato con successo.",
         });
       } else {
-        await apiRequest(
-          "POST",
-          "/api/nutrition-goals",
-          formattedValues
-        );
+        await addNutritionGoal(goalData);
         
         toast({
           title: "Obiettivo creato",
