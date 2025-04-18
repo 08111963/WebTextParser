@@ -203,9 +203,10 @@ export default function UserProfile() {
           <div className="flex justify-center items-center h-32">
             <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
           </div>
-        ) : profileError ? (
+        ) : profileError && profileError.message !== "User profile not found" ? (
           <div className="text-center py-4 text-destructive">
             <p>Si è verificato un errore nel caricamento del profilo</p>
+            <p className="text-sm">{profileError.message}</p>
           </div>
         ) : profile ? (
           <div className="space-y-4">
