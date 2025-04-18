@@ -1,5 +1,4 @@
 import { useState, useEffect, useRef } from 'react';
-import { getMeals, getMealsByDateRange, Timestamp } from '@/lib/firebase';
 import Header from '@/components/Header';
 import MealForm from '@/components/MealForm';
 import NutritionSummary from '@/components/NutritionSummary';
@@ -18,6 +17,11 @@ type HomeProps = {
   };
 };
 
+// Definiamo un tipo Timestamp compatibile con il database
+interface Timestamp {
+  toDate: () => Date;
+}
+
 type Meal = {
   id: string;
   userId: string;
@@ -27,7 +31,7 @@ type Meal = {
   carbs: number;
   fats: number;
   mealType: string;
-  timestamp: Timestamp;
+  timestamp: string | Timestamp;
 };
 
 export default function Home({ user }: HomeProps) {
