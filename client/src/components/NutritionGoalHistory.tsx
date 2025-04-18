@@ -1,14 +1,15 @@
 import { useState } from "react";
 import { format } from "date-fns";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { NutritionGoal } from "@shared/schema";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
-import { ArrowUpDown, History, Info, Loader2 } from "lucide-react";
+import { Dialog, DialogContent, DialogTrigger, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
+import { ArrowUpDown, History, Info, Loader2, Trash2, Edit } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 import NutritionGoalForm from "./NutritionGoalForm";
 
 type NutritionGoalHistoryProps = {
@@ -16,8 +17,12 @@ type NutritionGoalHistoryProps = {
 };
 
 export default function NutritionGoalHistory({ userId }: NutritionGoalHistoryProps) {
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
   const [editingGoal, setEditingGoal] = useState<NutritionGoal | null>(null);
+  const [goalToDelete, setGoalToDelete] = useState<NutritionGoal | null>(null);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [sortConfig, setSortConfig] = useState<{
     key: keyof NutritionGoal | null;
     direction: 'ascending' | 'descending';
@@ -71,10 +76,54 @@ export default function NutritionGoalHistory({ userId }: NutritionGoalHistoryPro
     return 0;
   }) : [];
 
+  // Mutazione per eliminare un obiettivo
+  const deleteGoalMutation = useMutation({
+    mutationFn: async (goalId: number) => {
+      const res = await apiRequest('DELETE', `/api/nutrition-goals/${goalId}`);
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.message || 'Errore durante l\'eliminazione dell\'obiettivo');
+      }
+      return res.json();
+    },
+    onSuccess: () => {
+      // Invalida le query per ricaricare gli obiettivi
+      queryClient.invalidateQueries({ queryKey: ['/api/nutrition-goals'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/nutrition-goals/active'] });
+      
+      toast({
+        title: "Obiettivo eliminato",
+        description: "L'obiettivo nutrizionale è stato eliminato con successo",
+      });
+      
+      setDeleteDialogOpen(false);
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Errore",
+        description: `Impossibile eliminare l'obiettivo: ${error.message}`,
+        variant: "destructive",
+      });
+    }
+  });
+
   // Gestisce il click sul pulsante di modifica
   const handleEditClick = (goal: NutritionGoal) => {
     setEditingGoal(goal);
     setEditDialogOpen(true);
+  };
+
+  // Apre il dialog di conferma eliminazione
+  const openDeleteDialog = (goal: NutritionGoal) => {
+    setGoalToDelete(goal);
+    setDeleteDialogOpen(true);
+  };
+
+  // Gestisce la conferma di eliminazione
+  const handleDeleteConfirm = () => {
+    if (goalToDelete) {
+      deleteGoalMutation.mutate(goalToDelete.id);
+    }
   };
 
   // Callback dopo il salvataggio di un obiettivo
@@ -287,7 +336,17 @@ export default function NutritionGoalHistory({ userId }: NutritionGoalHistoryPro
                         variant="outline"
                         onClick={() => handleEditClick(goal)}
                       >
+                        <Edit className="h-4 w-4 mr-1" />
                         Modifica
+                      </Button>
+                      <Button 
+                        size="sm" 
+                        variant="outline"
+                        className="text-destructive hover:bg-destructive/10"
+                        onClick={() => openDeleteDialog(goal)}
+                      >
+                        <Trash2 className="h-4 w-4 mr-1" />
+                        Elimina
                       </Button>
                     </div>
                   </TableCell>
@@ -321,6 +380,42 @@ export default function NutritionGoalHistory({ userId }: NutritionGoalHistoryPro
             </DialogContent>
           </Dialog>
         )}
+
+        {/* Dialog per confermare l'eliminazione */}
+        <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Conferma eliminazione</DialogTitle>
+              <DialogDescription>
+                Sei sicuro di voler eliminare l'obiettivo nutrizionale "{goalToDelete?.name}"?
+                Questa azione non può essere annullata.
+              </DialogDescription>
+            </DialogHeader>
+            <DialogFooter>
+              <Button
+                variant="outline"
+                onClick={() => setDeleteDialogOpen(false)}
+                disabled={deleteGoalMutation.isPending}
+              >
+                Annulla
+              </Button>
+              <Button 
+                variant="destructive" 
+                onClick={handleDeleteConfirm}
+                disabled={deleteGoalMutation.isPending}
+              >
+                {deleteGoalMutation.isPending ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Eliminazione...
+                  </>
+                ) : (
+                  "Elimina"
+                )}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </CardContent>
     </Card>
   );
