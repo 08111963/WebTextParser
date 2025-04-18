@@ -32,7 +32,7 @@ export default function Home() {
   const { data: meals, isLoading: mealsLoading, error: mealsError } = useQuery({
     queryKey: ['/api/meals', user.id],
     queryFn: async () => {
-      const res = await fetch(`/api/meals?userId=${user.id}`);
+      const res = await apiRequest('GET', `/api/meals?userId=${user.id}`);
       if (!res.ok) throw new Error('Failed to fetch meals');
       return res.json();
     },
@@ -43,7 +43,7 @@ export default function Home() {
     queryKey: ['/api/nutrition-goals/active', user.id],
     queryFn: async () => {
       try {
-        const res = await fetch(`/api/nutrition-goals/active?userId=${user.id}`);
+        const res = await apiRequest('GET', `/api/nutrition-goals/active?userId=${user.id}`);
         if (res.status === 404) return null;
         if (!res.ok) throw new Error('Failed to fetch nutrition goal');
         return res.json();
