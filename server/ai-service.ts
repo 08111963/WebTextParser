@@ -16,11 +16,12 @@ export async function generateAIResponse(
   query: string,
   profile: UserProfile,
   currentGoal?: NutritionGoal,
-  recentMeals?: Meal[]
+  recentMeals?: Meal[],
+  customSystemPrompt?: string
 ) {
   try {
-    // Costruisci un prompt dettagliato con tutte le informazioni disponibili
-    const systemPrompt = `Sei un nutrizionista esperto che risponde a domande in italiano sulla nutrizione, alimentazione e salute.
+    // Utilizza il prompt personalizzato se fornito, altrimenti usa quello predefinito
+    const systemPrompt = customSystemPrompt || `Sei un nutrizionista esperto che risponde a domande in italiano sulla nutrizione, alimentazione e salute.
     Hai accesso al profilo dell'utente e ai suoi dati nutrizionali, che dovresti utilizzare per personalizzare le tue risposte.
     Rispondi in modo colloquiale ma professionale, fornendo informazioni accurate ed esaurienti.
     Basa le tue risposte su informazioni scientifiche aggiornate.

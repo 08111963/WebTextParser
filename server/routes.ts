@@ -532,7 +532,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Endpoint per richiedere una risposta al chatbot AI (route protetta)
   app.post("/api/ai-chat", isAuthenticated, async (req, res) => {
     try {
-      const { userId, query } = req.body;
+      const { userId, query, chatType } = req.body;
       
       if (!userId || !query) {
         return res.status(400).json({ message: "User ID and query are required" });
@@ -553,9 +553,32 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       console.log("Processing AI chat request for user:", userId);
       console.log("User query:", query);
+      console.log("Chat type:", chatType || "general");
       
-      // Genera risposta personalizzata
-      const answer = await generateAIResponse(query, profile, currentGoal, recentMeals);
+      // Adatta il prompt in base al tipo di chatbot
+      let systemPrompt = "";
+      
+      if (chatType === "goals") {
+        systemPrompt = `Sei un nutrizionista specializzato in obiettivi nutrizionali e metabolismo. 
+          Rispondi solo a domande riguardanti obiettivi di salute, obiettivi di peso, 
+          macronutrienti, calorie, metabolismo, e strategie per il raggiungimento di obiettivi nutrizionali.
+          Se l'utente chiede informazioni su altri argomenti, gentilmente reindirizza la conversazione 
+          verso gli obiettivi nutrizionali. Rispondi in italiano in modo dettagliato ma conciso.`;
+      } else if (chatType === "meals") {
+        systemPrompt = `Sei un esperto di alimentazione e cucina specializzato in pasti, alimenti e ricette.
+          Rispondi solo a domande riguardanti alimenti, pasti, ricette, valori nutrizionali dei cibi,
+          preparazione di cibo, alternative alimentari, e consigli per pasti specifici.
+          Se l'utente chiede informazioni su altri argomenti, gentilmente reindirizza la conversazione 
+          verso argomenti di alimentazione e pasti. Rispondi in italiano in modo dettagliato ma conciso.`;
+      } else {
+        systemPrompt = `Sei un nutrizionista esperto che risponde a domande in italiano sulla nutrizione, alimentazione e salute.
+          Hai accesso al profilo dell'utente e ai suoi dati nutrizionali, che dovresti utilizzare per personalizzare le tue risposte.
+          Rispondi in modo colloquiale ma professionale, fornendo informazioni accurate ed esaurienti.
+          Basa le tue risposte su informazioni scientifiche aggiornate.`;
+      }
+      
+      // Genera risposta personalizzata con il prompt specializzato
+      const answer = await generateAIResponse(query, profile, currentGoal, recentMeals, systemPrompt);
       
       res.json({ 
         answer,
