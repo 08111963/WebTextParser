@@ -1,4 +1,4 @@
-import { pgTable, text, serial, integer, boolean, timestamp, json } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, integer, boolean, timestamp, json, date } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
@@ -30,6 +30,32 @@ export const mealPlans = pgTable("meal_plans", {
   timestamp: timestamp("timestamp").notNull(),
 });
 
+// Nuovo schema per gli obiettivi nutrizionali
+export const nutritionGoals = pgTable("nutrition_goals", {
+  id: serial("id").primaryKey(),
+  userId: text("user_id").notNull(),
+  calories: integer("calories").notNull(),
+  proteins: integer("proteins").notNull(),
+  carbs: integer("carbs").notNull(),
+  fats: integer("fats").notNull(),
+  startDate: date("start_date").notNull(),
+  endDate: date("end_date"),
+  isActive: boolean("is_active").notNull().default(true),
+  name: text("name").notNull(),
+  description: text("description"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
+// Nuovo schema per il tracciamento dei progressi
+export const progressEntries = pgTable("progress_entries", {
+  id: serial("id").primaryKey(),
+  userId: text("user_id").notNull(),
+  date: date("date").notNull(),
+  weight: integer("weight"),  // in grammi
+  notes: text("notes"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
 export const insertUserSchema = createInsertSchema(users).pick({
   username: true,
   password: true,
@@ -55,6 +81,26 @@ export const insertMealPlanSchema = createInsertSchema(mealPlans).pick({
   timestamp: true,
 });
 
+export const insertNutritionGoalSchema = createInsertSchema(nutritionGoals).pick({
+  userId: true,
+  calories: true,
+  proteins: true,
+  carbs: true,
+  fats: true,
+  startDate: true,
+  endDate: true,
+  isActive: true,
+  name: true,
+  description: true,
+});
+
+export const insertProgressEntrySchema = createInsertSchema(progressEntries).pick({
+  userId: true,
+  date: true,
+  weight: true,
+  notes: true,
+});
+
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type User = typeof users.$inferSelect;
 
@@ -63,3 +109,9 @@ export type Meal = typeof meals.$inferSelect;
 
 export type InsertMealPlan = z.infer<typeof insertMealPlanSchema>;
 export type MealPlan = typeof mealPlans.$inferSelect;
+
+export type InsertNutritionGoal = z.infer<typeof insertNutritionGoalSchema>;
+export type NutritionGoal = typeof nutritionGoals.$inferSelect;
+
+export type InsertProgressEntry = z.infer<typeof insertProgressEntrySchema>;
+export type ProgressEntry = typeof progressEntries.$inferSelect;
