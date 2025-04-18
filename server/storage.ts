@@ -1,5 +1,6 @@
 import { 
   users, type User, type InsertUser, 
+  userProfiles, type UserProfile, type InsertUserProfile,
   meals, type Meal, type InsertMeal, 
   mealPlans, type MealPlan, type InsertMealPlan,
   nutritionGoals, type NutritionGoal, type InsertNutritionGoal,
@@ -12,6 +13,11 @@ export interface IStorage {
   getUser(id: number): Promise<User | undefined>;
   getUserByUsername(username: string): Promise<User | undefined>;
   createUser(user: InsertUser): Promise<User>;
+  
+  // Funzioni per il profilo utente
+  getUserProfile(userId: string): Promise<UserProfile | undefined>;
+  createUserProfile(profile: InsertUserProfile): Promise<UserProfile>;
+  updateUserProfile(userId: string, profile: Partial<InsertUserProfile>): Promise<UserProfile | undefined>;
   
   getMealsByUserId(userId: string): Promise<Meal[]>;
   getMealsByUserIdAndDateRange(userId: string, startDate: Date, endDate: Date): Promise<Meal[]>;
@@ -38,11 +44,13 @@ export interface IStorage {
 
 export class MemStorage implements IStorage {
   private users: Map<number, User>;
+  private userProfiles: Map<string, UserProfile>;
   private meals: Map<number, Meal>;
   private mealPlans: Map<number, MealPlan>;
   private nutritionGoals: Map<number, NutritionGoal>;
   private progressEntries: Map<number, ProgressEntry>;
   private currentUserId: number;
+  private currentUserProfileId: number;
   private currentMealId: number;
   private currentMealPlanId: number;
   private currentNutritionGoalId: number;
@@ -50,11 +58,13 @@ export class MemStorage implements IStorage {
 
   constructor() {
     this.users = new Map();
+    this.userProfiles = new Map();
     this.meals = new Map();
     this.mealPlans = new Map();
     this.nutritionGoals = new Map();
     this.progressEntries = new Map();
     this.currentUserId = 1;
+    this.currentUserProfileId = 1;
     this.currentMealId = 1;
     this.currentMealPlanId = 1;
     this.currentNutritionGoalId = 1;
@@ -78,6 +88,46 @@ export class MemStorage implements IStorage {
     const user: User = { ...insertUser, id };
     this.users.set(id, user);
     return user;
+  }
+
+  // Implementazione dei metodi per il profilo utente
+  async getUserProfile(userId: string): Promise<UserProfile | undefined> {
+    return this.userProfiles.get(userId);
+  }
+
+  async createUserProfile(profile: InsertUserProfile): Promise<UserProfile> {
+    const id = this.currentUserProfileId++;
+    const createdAt = new Date();
+    const updatedAt = new Date();
+    
+    const userProfile: UserProfile = {
+      id,
+      userId: profile.userId,
+      name: profile.name,
+      age: profile.age,
+      gender: profile.gender,
+      weight: profile.weight,
+      height: profile.height,
+      activityLevel: profile.activityLevel,
+      createdAt,
+      updatedAt
+    };
+    
+    this.userProfiles.set(profile.userId, userProfile);
+    return userProfile;
+  }
+
+  async updateUserProfile(userId: string, updates: Partial<InsertUserProfile>): Promise<UserProfile | undefined> {
+    const profile = this.userProfiles.get(userId);
+    if (!profile) return undefined;
+    
+    const updatedProfile: UserProfile = { 
+      ...profile, 
+      ...updates, 
+      updatedAt: new Date() 
+    };
+    this.userProfiles.set(userId, updatedProfile);
+    return updatedProfile;
   }
 
   async getMealsByUserId(userId: string): Promise<Meal[]> {

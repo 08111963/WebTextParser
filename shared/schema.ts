@@ -1,4 +1,4 @@
-import { pgTable, text, serial, integer, boolean, timestamp, json, date } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, integer, boolean, timestamp, json, date, real } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
@@ -7,6 +7,20 @@ export const users = pgTable("users", {
   username: text("username").notNull().unique(),
   password: text("password").notNull(),
   email: text("email").notNull().unique(),
+});
+
+// Schema per i profili utente
+export const userProfiles = pgTable("user_profiles", {
+  id: serial("id").primaryKey(),
+  userId: text("user_id").notNull().unique(),
+  name: text("name").notNull(),
+  age: integer("age").notNull(),
+  gender: text("gender").notNull(),
+  weight: real("weight").notNull(), // in kg
+  height: integer("height").notNull(), // in cm
+  activityLevel: text("activity_level").notNull().default('moderata'),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
 
 export const meals = pgTable("meals", {
@@ -121,8 +135,30 @@ export const insertProgressEntrySchema = createInsertSchema(progressEntries).pic
   notes: true,
 });
 
+export const insertUserProfileSchema = createInsertSchema(userProfiles)
+  .pick({
+    userId: true,
+    name: true,
+    age: true,
+    gender: true,
+    weight: true,
+    height: true,
+    activityLevel: true,
+  })
+  .extend({
+    // Validazione dei dati con conversione di tipo
+    age: z.coerce.number().min(1).max(120),
+    weight: z.coerce.number().min(20).max(300), // in kg
+    height: z.coerce.number().min(50).max(250), // in cm
+    gender: z.enum(["maschio", "femmina", "altro"]),
+    activityLevel: z.enum(["sedentaria", "leggera", "moderata", "attiva", "molto attiva"]),
+  });
+
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type User = typeof users.$inferSelect;
+
+export type InsertUserProfile = z.infer<typeof insertUserProfileSchema>;
+export type UserProfile = typeof userProfiles.$inferSelect;
 
 export type InsertMeal = z.infer<typeof insertMealSchema>;
 export type Meal = typeof meals.$inferSelect;
