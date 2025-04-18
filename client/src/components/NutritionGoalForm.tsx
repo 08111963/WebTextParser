@@ -192,8 +192,11 @@ export default function NutritionGoalForm({
       }
       
       // Invalida le query per aggiornare i dati
-      queryClient.invalidateQueries({queryKey: ['/api/nutrition-goals', userId]});
-      queryClient.invalidateQueries({queryKey: ['/api/nutrition-goals/active', userId]});
+      queryClient.invalidateQueries({queryKey: ['/api/nutrition-goals']});
+      queryClient.invalidateQueries({queryKey: ['/api/nutrition-goals/active']});
+      
+      // Forza il refetch dell'obiettivo attivo per aggiornare l'interfaccia immediatamente
+      queryClient.refetchQueries({queryKey: ['/api/nutrition-goals/active', userId]});
       
       if (onSuccess) {
         onSuccess();
