@@ -68,16 +68,25 @@ export const insertUserSchema = createInsertSchema(users)
     firebaseId: data.firebaseId || null, // Rendi firebaseId opzionale
   }));
 
-export const insertMealSchema = createInsertSchema(meals).pick({
-  userId: true,
-  food: true,
-  calories: true,
-  proteins: true,
-  carbs: true,
-  fats: true,
-  mealType: true,
-  timestamp: true,
-});
+export const insertMealSchema = createInsertSchema(meals)
+  .pick({
+    userId: true,
+    food: true,
+    calories: true,
+    proteins: true,
+    carbs: true,
+    fats: true,
+    mealType: true,
+    timestamp: true,
+  })
+  .transform((data) => ({
+    ...data,
+    // Assicuriamoci che tutti i valori numerici siano validi
+    calories: isNaN(data.calories) ? 0 : data.calories,
+    proteins: isNaN(data.proteins) ? 0 : data.proteins,
+    carbs: isNaN(data.carbs) ? 0 : data.carbs,
+    fats: isNaN(data.fats) ? 0 : data.fats,
+  }));
 
 export const insertMealPlanSchema = createInsertSchema(mealPlans).pick({
   userId: true,
@@ -86,18 +95,29 @@ export const insertMealPlanSchema = createInsertSchema(mealPlans).pick({
   timestamp: true,
 });
 
-export const insertNutritionGoalSchema = createInsertSchema(nutritionGoals).pick({
-  userId: true,
-  calories: true,
-  proteins: true,
-  carbs: true,
-  fats: true,
-  startDate: true,
-  endDate: true,
-  isActive: true,
-  name: true,
-  description: true,
-});
+export const insertNutritionGoalSchema = createInsertSchema(nutritionGoals)
+  .pick({
+    userId: true,
+    calories: true,
+    proteins: true,
+    carbs: true,
+    fats: true,
+    startDate: true,
+    endDate: true,
+    isActive: true,
+    name: true,
+    description: true,
+  })
+  .transform((data) => ({
+    ...data,
+    // Assicuriamoci che tutti i valori numerici siano validi
+    calories: isNaN(data.calories) ? 0 : data.calories,
+    proteins: isNaN(data.proteins) ? 0 : data.proteins,
+    carbs: isNaN(data.carbs) ? 0 : data.carbs,
+    fats: isNaN(data.fats) ? 0 : data.fats,
+    // Gestisci la descrizione null
+    description: data.description || null
+  }));
 
 export const insertProgressEntrySchema = createInsertSchema(progressEntries).pick({
   userId: true,
