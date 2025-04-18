@@ -18,6 +18,19 @@ type ActiveNutritionGoalProps = {
   dailyFats?: number;
 };
 
+type NutritionGoal = {
+  id: number;
+  name: string;
+  calories: number;
+  proteins: number;
+  carbs: number;
+  fats: number;
+  startDate: string;
+  endDate: string | null;
+  description: string | null;
+  isActive: boolean;
+};
+
 export default function ActiveNutritionGoal({ 
   userId,
   dailyCalories = 0,
@@ -26,16 +39,41 @@ export default function ActiveNutritionGoal({
   dailyFats = 0
 }: ActiveNutritionGoalProps) {
   const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [activeGoal, setActiveGoal] = useState<NutritionGoal | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<Error | null>(null);
   
-  const { 
-    data: activeGoal,
-    isLoading,
-    error,
-    refetch
-  } = useQuery({
-    queryKey: [`/api/nutrition-goals/active?userId=${userId}`],
-    enabled: !!userId
-  });
+  const fetchActiveGoal = async () => {
+    try {
+      setIsLoading(true);
+      setError(null);
+      
+      const response = await fetch(`/api/nutrition-goals/active?userId=${userId}`);
+      
+      if (!response.ok) {
+        if (response.status === 404) {
+          setActiveGoal(null);
+        } else {
+          throw new Error(`Error ${response.status}: ${response.statusText}`);
+        }
+      } else {
+        const data = await response.json();
+        setActiveGoal(data);
+      }
+    } catch (err) {
+      console.error("Failed to fetch active goal:", err);
+      setError(err instanceof Error ? err : new Error(String(err)));
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  
+  // Load active goal when component mounts or userId changes
+  useEffect(() => {
+    if (userId) {
+      fetchActiveGoal();
+    }
+  }, [userId]);
   
   if (isLoading) {
     return (
@@ -65,7 +103,7 @@ export default function ActiveNutritionGoal({
               <Button className="w-full">Crea un obiettivo</Button>
             </DialogTrigger>
             <DialogContent className="max-w-xl max-h-[90vh] overflow-y-auto">
-              <NutritionGoalForm userId={userId} onSuccess={refetch} />
+              <NutritionGoalForm userId={userId} onSuccess={fetchActiveGoal} />
             </DialogContent>
           </Dialog>
         </CardFooter>
@@ -120,7 +158,7 @@ export default function ActiveNutritionGoal({
                 isEditing={true}
                 goalId={activeGoal.id}
                 onSuccess={() => {
-                  refetch();
+                  fetchActiveGoal();
                   setEditDialogOpen(false);
                 }}
               />
