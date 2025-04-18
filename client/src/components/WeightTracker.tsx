@@ -347,14 +347,17 @@ export default function WeightTracker({ userId }: WeightTrackerProps) {
           <div className="text-sm">
             <span className="font-medium">Ultimo peso: </span>
             <span>
-              {weightEntries
-                .filter(entry => entry.weight !== null)
-                .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())[0]?.weight / 1000 || '-'} kg
+              {(() => {
+                const validEntries = weightEntries.filter(entry => entry.weight !== null && entry.weight !== undefined);
+                if (validEntries.length === 0) return '- kg';
+                const sortedEntries = [...validEntries].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+                return `${(sortedEntries[0]?.weight || 0) / 1000} kg`;
+              })()}
             </span>
           </div>
           <div className="text-sm">
             <span className="font-medium">Registrazioni: </span>
-            <span>{weightEntries.filter(entry => entry.weight !== null).length}</span>
+            <span>{weightEntries.filter(entry => entry.weight !== null && entry.weight !== undefined).length}</span>
           </div>
         </CardFooter>
       )}

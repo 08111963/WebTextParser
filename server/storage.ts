@@ -11,7 +11,6 @@ import { db } from "./db";
 export interface IStorage {
   getUser(id: number): Promise<User | undefined>;
   getUserByUsername(username: string): Promise<User | undefined>;
-  getUserByFirebaseId(firebaseId: string): Promise<User | undefined>;
   createUser(user: InsertUser): Promise<User>;
   
   getMealsByUserId(userId: string): Promise<Meal[]>;
@@ -72,11 +71,7 @@ export class MemStorage implements IStorage {
     );
   }
 
-  async getUserByFirebaseId(firebaseId: string): Promise<User | undefined> {
-    return Array.from(this.users.values()).find(
-      (user) => user.firebaseId === firebaseId,
-    );
-  }
+
 
   async createUser(insertUser: InsertUser): Promise<User> {
     const id = this.currentUserId++;
@@ -274,10 +269,7 @@ export class DatabaseStorage implements IStorage {
     return user || undefined;
   }
 
-  async getUserByFirebaseId(firebaseId: string): Promise<User | undefined> {
-    const [user] = await db.select().from(users).where(eq(users.firebaseId, firebaseId));
-    return user || undefined;
-  }
+
 
   async createUser(insertUser: InsertUser): Promise<User> {
     const [user] = await db
