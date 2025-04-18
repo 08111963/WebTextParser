@@ -83,12 +83,15 @@ export default function Login() {
   const handleGoogleSignIn = async () => {
     try {
       setIsSigningInWithGoogle(true);
+      console.log("Attempting Google sign-in...");
       await signInWithGoogle();
+      console.log("Google sign-in successful!");
       navigate('/home');
     } catch (error) {
+      console.error("Google sign-in error:", error);
       toast({
         title: "Authentication Error",
-        description: "Failed to sign in with Google. Please try again.",
+        description: error instanceof Error ? error.message : "Failed to sign in with Google. Please try again.",
         variant: "destructive",
       });
     } finally {

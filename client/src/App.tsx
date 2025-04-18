@@ -9,8 +9,8 @@ import Home from "@/pages/Home";
 import Login from "@/pages/Login";
 import Welcome from "@/pages/Welcome";
 import Info from "@/pages/Info";
-import { listenToAuthState } from "@/lib/firebase";
-import { User } from "firebase/auth";
+import { listenToAuthState, auth } from "@/lib/firebase";
+import { User, getRedirectResult } from "firebase/auth";
 
 function ProtectedRoute({ user, children }: { user: User | null, children: JSX.Element }) {
   const [, navigate] = useLocation();
@@ -48,7 +48,22 @@ function App() {
   const [loading, setLoading] = useState(true);
   
   useEffect(() => {
+    // Check for redirect result first
+    getRedirectResult(auth)
+      .then((result) => {
+        if (result) {
+          console.log("Redirect result:", result.user);
+          setUser(result.user);
+          setLoading(false);
+        }
+      })
+      .catch((error) => {
+        console.error("Redirect error:", error);
+      });
+    
+    // Then set up the auth state listener
     const unsubscribe = listenToAuthState((user) => {
+      console.log("Auth state changed:", user);
       setUser(user);
       setLoading(false);
     });

@@ -6,6 +6,8 @@ import {
   signOut as firebaseSignOut,
   GoogleAuthProvider,
   signInWithPopup,
+  signInWithRedirect,
+  getRedirectResult,
   sendPasswordResetEmail,
   sendEmailVerification,
   onAuthStateChanged,
@@ -66,8 +68,23 @@ export const signOut = () => {
   return firebaseSignOut(auth);
 };
 
-export const signInWithGoogle = () => {
-  return signInWithPopup(auth, googleProvider);
+export const signInWithGoogle = async () => {
+  try {
+    // Aggiungi scopes aggiuntivi per migliorare la compatibilità
+    googleProvider.addScope('profile');
+    googleProvider.addScope('email');
+    
+    console.log("Firebase config:", {
+      projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+      appId: import.meta.env.VITE_FIREBASE_APP_ID
+    });
+    
+    // Prova il redirect invece del popup che potrebbe essere bloccato
+    return await signInWithRedirect(auth, googleProvider);
+  } catch (error) {
+    console.error("Error in signInWithGoogle:", error);
+    throw error;
+  }
 };
 
 export const resetPassword = (email: string) => {
