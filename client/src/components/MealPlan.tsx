@@ -1,7 +1,8 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
+import { addMealPlan, getMealPlans } from '@/lib/firebase';
 
 type MealPlanProps = {
   userId: string;
@@ -11,7 +12,21 @@ export default function MealPlan({ userId }: MealPlanProps) {
   const [query, setQuery] = useState('');
   const [response, setResponse] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [savedMealPlans, setSavedMealPlans] = useState<any[]>([]);
   const { toast } = useToast();
+  
+  // Carica i piani alimentari salvati da Firebase
+  useEffect(() => {
+    getMealPlans(userId, (mealPlans) => {
+      if (mealPlans && mealPlans.length > 0) {
+        setSavedMealPlans(mealPlans);
+        // Opzionale: mostra l'ultimo piano alimentare
+        if (mealPlans[0] && mealPlans[0].response) {
+          setResponse(mealPlans[0].response);
+        }
+      }
+    });
+  }, [userId]);
 
   const generateMealPlan = async () => {
     if (!query.trim()) {
@@ -66,18 +81,11 @@ export default function MealPlan({ userId }: MealPlanProps) {
         
         setResponse(mealPlanResponse);
         
-        // Salva il piano alimentare nel database
-        fetch('/api/mealplans', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            userId,
-            query,
-            response: mealPlanResponse,
-            timestamp: new Date().toISOString()
-          }),
+        // Salva il piano alimentare nel database di Firebase
+        addMealPlan({
+          userId,
+          query,
+          response: mealPlanResponse
         }).catch(err => {
           console.error("Error saving meal plan:", err);
         });
