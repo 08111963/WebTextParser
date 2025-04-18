@@ -14,7 +14,8 @@ import { Switch } from "@/components/ui/switch";
 import { CalendarIcon } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
-import { addNutritionGoal, updateNutritionGoal } from "@/lib/firebase";
+import { apiRequest } from "@/lib/queryClient";
+import { useQueryClient } from "@tanstack/react-query";
 
 const nutritionGoalSchema = z.object({
   name: z.string().min(1, "Il nome è richiesto"),
@@ -47,6 +48,7 @@ export default function NutritionGoalForm({
 }: NutritionGoalFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
+  const queryClient = useQueryClient();
   
   const defaultValues: Partial<NutritionGoalValues> = {
     name: "",
@@ -69,30 +71,44 @@ export default function NutritionGoalForm({
     try {
       setIsSubmitting(true);
       
-      // Utilizziamo direttamente le date senza formattarle come stringhe
-      // per Firebase che supporta i tipi di data direttamente
+      // Prepara i dati per l'API
       const goalData = {
         ...values,
-        userId
+        userId,
+        // Converti le date in formato ISO per l'API
+        startDate: values.startDate.toISOString(),
+        endDate: values.endDate ? values.endDate.toISOString() : null,
       };
       
       if (isEditing && goalId) {
-        // Convertiamo l'ID numerico in stringa per compatibilità con Firebase
-        const goalIdString = String(goalId);
-        await updateNutritionGoal(userId, goalIdString, goalData);
+        const response = await apiRequest('PATCH', `/api/nutrition-goals/${goalId}`, goalData);
+        
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.message || 'Errore durante l\'aggiornamento dell\'obiettivo');
+        }
         
         toast({
           title: "Obiettivo aggiornato",
           description: "L'obiettivo nutrizionale è stato aggiornato con successo.",
         });
       } else {
-        await addNutritionGoal(goalData);
+        const response = await apiRequest('POST', '/api/nutrition-goals', goalData);
+        
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.message || 'Errore durante la creazione dell\'obiettivo');
+        }
         
         toast({
           title: "Obiettivo creato",
           description: "Nuovo obiettivo nutrizionale creato con successo.",
         });
       }
+      
+      // Invalida le query per aggiornare i dati
+      queryClient.invalidateQueries({queryKey: ['/api/nutrition-goals', userId]});
+      queryClient.invalidateQueries({queryKey: ['/api/nutrition-goals/active', userId]});
       
       if (onSuccess) {
         onSuccess();
@@ -105,7 +121,7 @@ export default function NutritionGoalForm({
       console.error("Error:", error);
       toast({
         title: "Errore",
-        description: "Si è verificato un errore. Riprova più tardi.",
+        description: error instanceof Error ? error.message : "Si è verificato un errore. Riprova più tardi.",
         variant: "destructive"
       });
     } finally {

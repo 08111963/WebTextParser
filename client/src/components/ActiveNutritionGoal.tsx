@@ -1,13 +1,16 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { format } from "date-fns";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
-import { BarChart, CalendarRange, Edit, Info } from "lucide-react";
+import { BarChart, CalendarRange, Edit, Info, Loader2 } from "lucide-react";
 import NutritionGoalForm from "./NutritionGoalForm";
-import { getActiveNutritionGoal, convertTimestampToDate } from "@/lib/firebase";
+import { useToast } from "@/hooks/use-toast";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { apiRequest } from "@/lib/queryClient";
+import { NutritionGoal } from "@shared/schema";
 
 type ActiveNutritionGoalProps = {
   userId: string;
@@ -15,19 +18,6 @@ type ActiveNutritionGoalProps = {
   dailyProteins?: number;
   dailyCarbs?: number;
   dailyFats?: number;
-};
-
-type NutritionGoal = {
-  id: number;
-  name: string;
-  calories: number;
-  proteins: number;
-  carbs: number;
-  fats: number;
-  startDate: string;
-  endDate: string | null;
-  description: string | null;
-  isActive: boolean;
 };
 
 export default function ActiveNutritionGoal({ 
@@ -38,38 +28,25 @@ export default function ActiveNutritionGoal({
   dailyFats = 0
 }: ActiveNutritionGoalProps) {
   const [editDialogOpen, setEditDialogOpen] = useState(false);
-  const [activeGoal, setActiveGoal] = useState<NutritionGoal | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<Error | null>(null);
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
   
-  // Load active goal when component mounts or userId changes
-  useEffect(() => {
-    if (userId) {
-      setIsLoading(true);
-      setError(null);
-      
-      // Utilizziamo il listener in tempo reale di Firebase
-      const unsubscribe = getActiveNutritionGoal(userId, (goal) => {
-        if (goal) {
-          // Convertiamo le date di Firestore se necessario
-          if (goal.startDate && typeof goal.startDate !== 'string') {
-            goal.startDate = goal.startDate.toDate ? goal.startDate.toDate().toISOString() : goal.startDate;
-          }
-          if (goal.endDate && typeof goal.endDate !== 'string') {
-            goal.endDate = goal.endDate.toDate ? goal.endDate.toDate().toISOString() : goal.endDate;
-          }
-          
-          setActiveGoal(goal);
-        } else {
-          setActiveGoal(null);
-        }
-        setIsLoading(false);
-      });
-      
-      // Cleanup: rimuovi il listener quando il componente viene smontato
-      return () => unsubscribe();
-    }
-  }, [userId]);
+  // Fetch active goal data
+  const { data: activeGoal, isLoading, error } = useQuery<NutritionGoal | null>({
+    queryKey: ['/api/nutrition-goals/active', userId],
+    queryFn: async () => {
+      try {
+        const res = await apiRequest('GET', `/api/nutrition-goals/active?userId=${userId}`);
+        if (res.status === 404) return null;
+        if (!res.ok) throw new Error('Failed to fetch nutrition goal');
+        return res.json();
+      } catch (error) {
+        console.error('Error fetching active goal:', error);
+        return null;
+      }
+    },
+    enabled: !!userId,
+  });
   
   if (isLoading) {
     return (
