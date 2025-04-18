@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import Header from '@/components/Header';
 import MealForm from '@/components/MealForm';
 import NutritionGoalForm from '@/components/NutritionGoalForm';
+import NutritionGoalHistory from '@/components/NutritionGoalHistory';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/use-auth';
 import { useQuery } from '@tanstack/react-query';
