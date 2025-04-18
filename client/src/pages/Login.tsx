@@ -13,8 +13,8 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
-import { signIn, signUp, resetPassword } from '@/lib/firebase';
-import { Bolt } from 'lucide-react';
+import { signIn, signUp, resetPassword, signInWithGoogle } from '@/lib/firebase';
+import { Bolt, LogIn } from 'lucide-react';
 
 const authFormSchema = z.object({
   email: z.string().email('Invalid email address'),
@@ -28,6 +28,7 @@ export default function Login() {
   const { toast } = useToast();
   const [isSigningIn, setIsSigningIn] = useState(false);
   const [isSigningUp, setIsSigningUp] = useState(false);
+  const [isSigningInWithGoogle, setIsSigningInWithGoogle] = useState(false);
   const [isResettingPassword, setIsResettingPassword] = useState(false);
 
   const form = useForm<AuthFormValues>({
@@ -78,6 +79,22 @@ export default function Login() {
   };
 
 
+
+  const handleGoogleSignIn = async () => {
+    try {
+      setIsSigningInWithGoogle(true);
+      await signInWithGoogle();
+      navigate('/home');
+    } catch (error) {
+      toast({
+        title: "Authentication Error",
+        description: "Failed to sign in with Google. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSigningInWithGoogle(false);
+    }
+  };
 
   const handleResetPassword = async () => {
     const email = form.getValues("email");
@@ -186,7 +203,27 @@ export default function Login() {
               </Button>
             </div>
 
-            <div className="text-center">
+            <div className="my-4 relative">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t border-gray-300"></div>
+              </div>
+              <div className="relative flex justify-center text-sm">
+                <span className="px-2 bg-white text-gray-500">Or</span>
+              </div>
+            </div>
+
+            <Button
+              type="button"
+              variant="outline"
+              className="w-full flex items-center justify-center gap-2"
+              onClick={handleGoogleSignIn}
+              disabled={isSigningInWithGoogle}
+            >
+              <LogIn className="h-4 w-4" />
+              {isSigningInWithGoogle ? 'Signing in...' : 'Sign in with Google'}
+            </Button>
+
+            <div className="text-center mt-4">
               <Button
                 type="button"
                 variant="link"
