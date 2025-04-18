@@ -6,7 +6,6 @@ export const users = pgTable("users", {
   id: serial("id").primaryKey(),
   username: text("username").notNull().unique(),
   password: text("password").notNull(),
-  firebaseId: text("firebase_id"),  // Ora opzionale per supportare entrambi i metodi di autenticazione
   email: text("email").notNull().unique(),
 });
 
@@ -60,13 +59,8 @@ export const insertUserSchema = createInsertSchema(users)
   .pick({
     username: true,
     password: true,
-    firebaseId: true,
     email: true,
-  })
-  .transform((data) => ({
-    ...data,
-    firebaseId: data.firebaseId || null, // Rendi firebaseId opzionale
-  }));
+  });
 
 export const insertMealSchema = createInsertSchema(meals)
   .pick({

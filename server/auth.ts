@@ -18,7 +18,6 @@ declare global {
       username: string;
       email: string;
       password: string;
-      firebaseId: string | null;
     }
   }
 }
@@ -122,8 +121,7 @@ export function setupAuth(app: Express) {
       const [user] = await db.insert(users)
         .values({
           ...req.body,
-          password: hashedPassword,
-          firebaseId: null,  // Non usiamo più Firebase
+          password: hashedPassword
         })
         .returning();
 

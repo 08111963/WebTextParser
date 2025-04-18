@@ -147,10 +147,10 @@ export default function WeightTracker({ userId }: WeightTrackerProps) {
   
   // Format data for the chart
   const chartData = weightEntries
-    .filter(entry => entry.weight !== null)
+    .filter(entry => entry.weight !== null && entry.weight !== undefined)
     .map(entry => ({
       date: format(new Date(entry.date), "dd/MM"),
-      weight: entry.weight / 1000, // Convert from grams to kg
+      weight: (entry.weight || 0) / 1000, // Convert from grams to kg
       id: entry.id
     }))
     .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
