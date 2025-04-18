@@ -144,9 +144,21 @@ export default function MealForm({ userId }: MealFormProps) {
       return;
     }
     
+    // Log dei dati prima dell'invio
+    console.log("Dati da inviare:", {
+      userId,
+      food: values.food,
+      calories: Number(values.calories) || 0,
+      proteins: Number(values.proteins) || 0,
+      carbs: Number(values.carbs) || 0,
+      fats: Number(values.fats) || 0,
+      mealType: values.mealType,
+      timestamp: new Date().toISOString()
+    });
+    
     // Invia i dati al server
     addMealMutation.mutate({
-      userId,
+      userId: userId,
       food: values.food,
       calories: Number(values.calories) || 0,  // Assicura che sia un numero
       proteins: Number(values.proteins) || 0,

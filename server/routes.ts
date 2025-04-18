@@ -51,11 +51,32 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Create meal (route protetta)
   app.post("/api/meals", isAuthenticated, async (req, res) => {
     try {
-      const mealData = insertMealSchema.parse(req.body);
+      console.log("Meal data received:", JSON.stringify(req.body));
+      
+      // Pre-processing dei dati per garantire formati corretti
+      const processedData = {
+        ...req.body,
+        // Assicura che tutti i valori numerici siano numeri
+        calories: Number(req.body.calories) || 0,
+        proteins: Number(req.body.proteins) || 0,
+        carbs: Number(req.body.carbs) || 0,
+        fats: Number(req.body.fats) || 0,
+        // Assicura che userId sia una stringa
+        userId: String(req.body.userId),
+        // Converte il timestamp in Date se c'è, altrimenti usa la data attuale
+        timestamp: req.body.timestamp ? new Date(req.body.timestamp) : new Date()
+      };
+      
+      console.log("Processed meal data:", JSON.stringify(processedData));
+      
+      const mealData = insertMealSchema.parse(processedData);
       const meal = await storage.createMeal(mealData);
       res.status(201).json(meal);
     } catch (error) {
+      console.error("Error creating meal:", error);
+      
       if (error instanceof z.ZodError) {
+        console.error("Validation errors:", JSON.stringify(error.errors));
         return res.status(400).json({ 
           message: "Invalid meal data", 
           errors: error.errors 
