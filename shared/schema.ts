@@ -73,13 +73,20 @@ export const insertMealSchema = createInsertSchema(meals)
     mealType: true,
     timestamp: true,
   })
+  .extend({
+    // Utilizziamo z.coerce.number() per convertire automaticamente le stringhe in numeri
+    calories: z.coerce.number().min(0),
+    proteins: z.coerce.number().min(0),
+    carbs: z.coerce.number().min(0),
+    fats: z.coerce.number().min(0),
+  })
   .transform((data) => ({
     ...data,
-    // Assicuriamoci che tutti i valori numerici siano validi e convertiti in interi
-    calories: isNaN(Number(data.calories)) ? 0 : Math.round(Number(data.calories)),
-    proteins: isNaN(Number(data.proteins)) ? 0 : Math.round(Number(data.proteins)),
-    carbs: isNaN(Number(data.carbs)) ? 0 : Math.round(Number(data.carbs)),
-    fats: isNaN(Number(data.fats)) ? 0 : Math.round(Number(data.fats)),
+    // Assicuriamoci che tutti i valori numerici siano convertiti in interi
+    calories: Math.round(data.calories),
+    proteins: Math.round(data.proteins),
+    carbs: Math.round(data.carbs),
+    fats: Math.round(data.fats),
   }));
 
 export const insertMealPlanSchema = createInsertSchema(mealPlans).pick({
@@ -102,13 +109,20 @@ export const insertNutritionGoalSchema = createInsertSchema(nutritionGoals)
     name: true,
     description: true,
   })
+  .extend({
+    // Utilizziamo z.coerce.number() per convertire automaticamente le stringhe in numeri
+    calories: z.coerce.number().min(0),
+    proteins: z.coerce.number().min(0),
+    carbs: z.coerce.number().min(0),
+    fats: z.coerce.number().min(0),
+  })
   .transform((data) => ({
     ...data,
-    // Assicuriamoci che tutti i valori numerici siano validi e convertiti in interi
-    calories: isNaN(Number(data.calories)) ? 0 : Math.round(Number(data.calories)),
-    proteins: isNaN(Number(data.proteins)) ? 0 : Math.round(Number(data.proteins)),
-    carbs: isNaN(Number(data.carbs)) ? 0 : Math.round(Number(data.carbs)),
-    fats: isNaN(Number(data.fats)) ? 0 : Math.round(Number(data.fats)),
+    // Assicuriamoci che tutti i valori numerici siano convertiti in interi
+    calories: Math.round(data.calories),
+    proteins: Math.round(data.proteins),
+    carbs: Math.round(data.carbs),
+    fats: Math.round(data.fats),
     // Gestisci la descrizione null
     description: data.description || null
   }));
