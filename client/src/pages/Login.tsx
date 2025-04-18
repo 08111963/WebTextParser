@@ -42,7 +42,7 @@ export default function Login() {
     try {
       setIsSigningIn(true);
       await signIn(values.email, values.password);
-      navigate('/');
+      navigate('/home');
     } catch (error) {
       toast({
         title: "Authentication Error",
@@ -110,6 +110,15 @@ export default function Login() {
 
   return (
     <div className="flex-grow flex items-center justify-center p-4">
+      <div className="absolute top-4 left-4">
+        <Button 
+          variant="ghost" 
+          onClick={() => navigate('/')}
+          className="flex items-center text-gray-600"
+        >
+          ← Torna alla home
+        </Button>
+      </div>
       <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-md">
         <div className="text-center mb-6">
           <div className="flex justify-center">
