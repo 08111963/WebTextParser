@@ -131,18 +131,37 @@ export default function AIRecommendations({ userId }: AIRecommendationsProps) {
   }
 
   // Funzione per aggiornare le raccomandazioni
-  const handleRefresh = () => {
-    if (activeTab === "goals") {
-      refetchGoals();
+  const handleRefresh = async () => {
+    try {
+      if (activeTab === "goals") {
+        toast({
+          title: "Aggiornamento",
+          description: "Generazione di nuove raccomandazioni in corso...",
+        });
+        const result = await refetchGoals();
+        console.log("Raccomandazioni aggiornate:", result.data);
+        toast({
+          title: "Completato",
+          description: "Nuove raccomandazioni generate con successo",
+        });
+      } else {
+        toast({
+          title: "Aggiornamento",
+          description: "Generazione di nuovi suggerimenti in corso...",
+        });
+        const result = await refetchMeals();
+        console.log("Suggerimenti pasti aggiornati:", result.data);
+        toast({
+          title: "Completato",
+          description: "Nuovi suggerimenti generati con successo",
+        });
+      }
+    } catch (error) {
+      console.error("Errore durante l'aggiornamento:", error);
       toast({
-        title: "Aggiornamento",
-        description: "Generazione di nuove raccomandazioni in corso...",
-      });
-    } else {
-      refetchMeals();
-      toast({
-        title: "Aggiornamento",
-        description: "Generazione di nuovi suggerimenti in corso...",
+        title: "Errore",
+        description: "Si è verificato un errore durante la generazione. Riprova più tardi.",
+        variant: "destructive",
       });
     }
   };

@@ -83,6 +83,8 @@ export async function generateNutritionGoalRecommendations(
     Usa il contesto e le informazioni disponibili per generare consigli il più possibile personalizzati.
     `;
 
+    console.log("Sending nutrition recommendations request to OpenAI...");
+    
     const response = await openai.chat.completions.create({
       model: MODEL,
       messages: [
@@ -93,8 +95,20 @@ export async function generateNutritionGoalRecommendations(
       temperature: 0.7,
     });
 
+    console.log("OpenAI response received:", response.choices[0].message.content);
+    
     const responseContent = response.choices[0].message.content || '[]';
-    const recommendations = JSON.parse(responseContent);
+    
+    // Se la risposta non è un array, crea un array di esempio
+    let recommendations: any;
+    try {
+      recommendations = JSON.parse(responseContent);
+      console.log("Parsed recommendations:", recommendations);
+    } catch (parseError) {
+      console.error("Failed to parse OpenAI response:", parseError);
+      // Restituisci un array vuoto in caso di errore di parsing
+      recommendations = [];
+    }
     
     // Assicurati che i valori siano tutti numeri interi
     const processedRecommendations = Array.isArray(recommendations) 
@@ -181,6 +195,8 @@ export async function generateMealSuggestions(
     Sii creativo ma realistico, suggerendo pasti che siano effettivamente preparabili e appetitosi.
     `;
 
+    console.log("Sending meal suggestions request to OpenAI...");
+    
     const response = await openai.chat.completions.create({
       model: MODEL,
       messages: [
@@ -191,8 +207,19 @@ export async function generateMealSuggestions(
       temperature: 0.8,
     });
 
+    console.log("OpenAI meal suggestions response received:", response.choices[0].message.content);
+    
     const responseContent = response.choices[0].message.content || '[]';
-    const suggestions = JSON.parse(responseContent);
+    
+    // Se la risposta non è un array, crea un array vuoto
+    let suggestions: any;
+    try {
+      suggestions = JSON.parse(responseContent);
+      console.log("Parsed meal suggestions:", suggestions);
+    } catch (parseError) {
+      console.error("Failed to parse OpenAI meal suggestions response:", parseError);
+      suggestions = [];
+    }
     
     // Assicurati che i valori siano tutti numeri interi
     const processedSuggestions = Array.isArray(suggestions) 
