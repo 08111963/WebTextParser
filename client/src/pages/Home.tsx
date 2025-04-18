@@ -264,6 +264,11 @@ export default function Home() {
                       const formData = new FormData(e.currentTarget);
                       
                       try {
+                        // Verifica che l'utente sia definito
+                        if (!user) {
+                          throw new Error('Utente non autenticato. Effettua il login per aggiungere un pasto.');
+                        }
+                        
                         // Se è stato selezionato "Altro" e c'è un valore personalizzato, usa quello
                         let foodName = formData.get('food') as string;
                         const customFood = formData.get('customFood') as string;
@@ -630,6 +635,11 @@ export default function Home() {
                       const formData = new FormData(e.currentTarget);
                       
                       try {
+                        // Verifica che l'utente sia definito
+                        if (!user) {
+                          throw new Error('Utente non autenticato. Effettua il login per creare un obiettivo.');
+                        }
+                        
                         const goalData = {
                           userId: user.id.toString(),
                           name: formData.get('name') as string,
@@ -663,6 +673,7 @@ export default function Home() {
                         e.currentTarget.reset();
                         
                         // Invalidare le query per ricaricare gli obiettivi
+                        // A questo punto sappiamo che user è definito perché l'abbiamo controllato prima
                         queryClient.invalidateQueries({queryKey: ['/api/nutrition-goals', user.id]});
                         queryClient.invalidateQueries({queryKey: ['/api/nutrition-goals/active', user.id]});
                       } catch (error) {
