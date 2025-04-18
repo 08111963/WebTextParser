@@ -1,23 +1,14 @@
 import { useState } from 'react';
-import { signOut } from '@/lib/firebase';
 import { Button } from '@/components/ui/button';
 import { Bolt, User, LogOut } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/hooks/use-auth';
 
 export default function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const { toast } = useToast();
+  const { logoutMutation } = useAuth();
 
-  const handleSignOut = async () => {
-    try {
-      await signOut();
-    } catch (error) {
-      toast({
-        title: "Sign Out Error",
-        description: "Failed to sign out. Please try again.",
-        variant: "destructive"
-      });
-    }
+  const handleSignOut = () => {
+    logoutMutation.mutate();
   };
 
   return (
