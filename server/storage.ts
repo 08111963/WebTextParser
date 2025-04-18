@@ -1,4 +1,6 @@
 import { users, type User, type InsertUser, meals, type Meal, type InsertMeal, mealPlans, type MealPlan, type InsertMealPlan } from "@shared/schema";
+import { eq, and, gte, lte } from "drizzle-orm";
+import { db } from "./db";
 
 export interface IStorage {
   getUser(id: number): Promise<User | undefined>;
@@ -95,4 +97,81 @@ export class MemStorage implements IStorage {
   }
 }
 
-export const storage = new MemStorage();
+export class DatabaseStorage implements IStorage {
+  async getUser(id: number): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.id, id));
+    return user || undefined;
+  }
+
+  async getUserByUsername(username: string): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.username, username));
+    return user || undefined;
+  }
+
+  async getUserByFirebaseId(firebaseId: string): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.firebaseId, firebaseId));
+    return user || undefined;
+  }
+
+  async createUser(insertUser: InsertUser): Promise<User> {
+    const [user] = await db
+      .insert(users)
+      .values(insertUser)
+      .returning();
+    return user;
+  }
+
+  async getMealsByUserId(userId: string): Promise<Meal[]> {
+    return await db
+      .select()
+      .from(meals)
+      .where(eq(meals.userId, userId));
+  }
+
+  async getMealsByUserIdAndDateRange(userId: string, startDate: Date, endDate: Date): Promise<Meal[]> {
+    return await db
+      .select()
+      .from(meals)
+      .where(
+        and(
+          eq(meals.userId, userId),
+          gte(meals.timestamp, startDate),
+          lte(meals.timestamp, endDate)
+        )
+      );
+  }
+
+  async createMeal(insertMeal: InsertMeal): Promise<Meal> {
+    const [meal] = await db
+      .insert(meals)
+      .values(insertMeal)
+      .returning();
+    return meal;
+  }
+
+  async deleteMeal(id: number): Promise<boolean> {
+    const result = await db
+      .delete(meals)
+      .where(eq(meals.id, id))
+      .returning({ id: meals.id });
+    
+    return result.length > 0;
+  }
+
+  async getMealPlansByUserId(userId: string): Promise<MealPlan[]> {
+    return await db
+      .select()
+      .from(mealPlans)
+      .where(eq(mealPlans.userId, userId));
+  }
+
+  async createMealPlan(insertMealPlan: InsertMealPlan): Promise<MealPlan> {
+    const [mealPlan] = await db
+      .insert(mealPlans)
+      .values(insertMealPlan)
+      .returning();
+    return mealPlan;
+  }
+}
+
+export const storage = new DatabaseStorage();
