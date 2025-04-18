@@ -75,11 +75,11 @@ export const insertMealSchema = createInsertSchema(meals)
   })
   .transform((data) => ({
     ...data,
-    // Assicuriamoci che tutti i valori numerici siano validi
-    calories: isNaN(data.calories) ? 0 : data.calories,
-    proteins: isNaN(data.proteins) ? 0 : data.proteins,
-    carbs: isNaN(data.carbs) ? 0 : data.carbs,
-    fats: isNaN(data.fats) ? 0 : data.fats,
+    // Assicuriamoci che tutti i valori numerici siano validi e convertiti in interi
+    calories: isNaN(Number(data.calories)) ? 0 : Math.round(Number(data.calories)),
+    proteins: isNaN(Number(data.proteins)) ? 0 : Math.round(Number(data.proteins)),
+    carbs: isNaN(Number(data.carbs)) ? 0 : Math.round(Number(data.carbs)),
+    fats: isNaN(Number(data.fats)) ? 0 : Math.round(Number(data.fats)),
   }));
 
 export const insertMealPlanSchema = createInsertSchema(mealPlans).pick({
@@ -104,11 +104,11 @@ export const insertNutritionGoalSchema = createInsertSchema(nutritionGoals)
   })
   .transform((data) => ({
     ...data,
-    // Assicuriamoci che tutti i valori numerici siano validi
-    calories: isNaN(data.calories) ? 0 : data.calories,
-    proteins: isNaN(data.proteins) ? 0 : data.proteins,
-    carbs: isNaN(data.carbs) ? 0 : data.carbs,
-    fats: isNaN(data.fats) ? 0 : data.fats,
+    // Assicuriamoci che tutti i valori numerici siano validi e convertiti in interi
+    calories: isNaN(Number(data.calories)) ? 0 : Math.round(Number(data.calories)),
+    proteins: isNaN(Number(data.proteins)) ? 0 : Math.round(Number(data.proteins)),
+    carbs: isNaN(Number(data.carbs)) ? 0 : Math.round(Number(data.carbs)),
+    fats: isNaN(Number(data.fats)) ? 0 : Math.round(Number(data.fats)),
     // Gestisci la descrizione null
     description: data.description || null
   }));
