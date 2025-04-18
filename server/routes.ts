@@ -258,8 +258,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // === PROGRESS TRACKING ROUTES ===
 
-  // Get all progress entries for user
-  app.get("/api/progress", async (req, res) => {
+  // Get all progress entries for user (route protetta)
+  app.get("/api/progress", isAuthenticated, async (req, res) => {
     try {
       const userId = req.query.userId as string;
       
@@ -285,8 +285,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Create progress entry
-  app.post("/api/progress", async (req, res) => {
+  // Create progress entry (route protetta)
+  app.post("/api/progress", isAuthenticated, async (req, res) => {
     try {
       const entryData = insertProgressEntrySchema.parse(req.body);
       const entry = await storage.createProgressEntry(entryData);
@@ -306,8 +306,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Update progress entry
-  app.patch("/api/progress/:id", async (req, res) => {
+  // Update progress entry (route protetta)
+  app.patch("/api/progress/:id", isAuthenticated, async (req, res) => {
     try {
       const id = parseInt(req.params.id);
       
@@ -333,8 +333,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Delete progress entry
-  app.delete("/api/progress/:id", async (req, res) => {
+  // Delete progress entry (route protetta)
+  app.delete("/api/progress/:id", isAuthenticated, async (req, res) => {
     try {
       const id = parseInt(req.params.id);
       
