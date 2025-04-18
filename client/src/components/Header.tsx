@@ -2,10 +2,12 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Bolt, User, LogOut } from 'lucide-react';
 import { useAuth } from '@/hooks/use-auth';
+import { useToast } from '@/hooks/use-toast';
 
 export default function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { logoutMutation } = useAuth();
+  const { toast } = useToast();
 
   const handleSignOut = () => {
     logoutMutation.mutate();

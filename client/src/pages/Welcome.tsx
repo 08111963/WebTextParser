@@ -22,7 +22,7 @@ export default function Welcome() {
             <h2 className="text-xl font-semibold mb-2">Traccia i tuoi pasti</h2>
             <p className="text-gray-600 mb-4">Registra facilmente ciò che mangi e monitora le calorie e i nutrienti.</p>
             <Button 
-              onClick={() => navigate('/login')} 
+              onClick={() => navigate('/auth')} 
               className="bg-primary hover:bg-primary-dark text-white font-medium py-2 px-4 rounded-md transition-colors"
             >
               Accedi per iniziare
