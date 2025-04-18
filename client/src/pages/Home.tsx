@@ -7,7 +7,7 @@ import { Loader2, Plus, Calendar, BarChart } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { apiRequest } from '@/lib/queryClient';
+import { apiRequest, queryClient } from '@/lib/queryClient';
 
 // Helper per trasformare una data stringa in un oggetto Date
 function createDate(dateString: string): Date {
@@ -249,53 +249,450 @@ export default function Home() {
           </TabsContent>
 
           <TabsContent value="meals">
-            <Card>
-              <CardHeader>
-                <CardTitle>I Tuoi Pasti</CardTitle>
-                <CardDescription>Registra e monitora i tuoi pasti quotidiani</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <p>Funzionalità di registrazione pasti in fase di implementazione.</p>
-                <p className="text-muted-foreground mt-2">I tuoi pasti appariranno qui.</p>
-              </CardContent>
-              <CardFooter>
-                <Button 
-                  className="w-full" 
-                  onClick={() => toast({
-                    title: "Info",
-                    description: "Funzionalità in arrivo nella prossima versione",
-                  })}
-                >
-                  <Plus className="h-4 w-4 mr-2" />
-                  Aggiungi Nuovo Pasto
-                </Button>
-              </CardFooter>
-            </Card>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {/* Form per aggiungere un nuovo pasto */}
+              <Card className="md:col-span-1">
+                <CardHeader>
+                  <CardTitle>Aggiungi Pasto</CardTitle>
+                  <CardDescription>Registra un nuovo pasto</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <form 
+                    className="space-y-4"
+                    onSubmit={async (e) => {
+                      e.preventDefault();
+                      const formData = new FormData(e.currentTarget);
+                      
+                      try {
+                        const mealData = {
+                          userId: user.id.toString(),
+                          mealType: formData.get('mealType') as string,
+                          food: formData.get('food') as string,
+                          calories: parseInt(formData.get('calories') as string),
+                          proteins: parseInt(formData.get('proteins') as string),
+                          carbs: parseInt(formData.get('carbs') as string),
+                          fats: parseInt(formData.get('fats') as string),
+                          timestamp: new Date().toISOString()
+                        };
+                        
+                        // Validazione base
+                        if (!mealData.food || mealData.food.trim() === '') {
+                          throw new Error('Inserisci il nome dell\'alimento');
+                        }
+                        
+                        const response = await apiRequest('POST', '/api/meals', mealData);
+                        
+                        if (!response.ok) {
+                          const errorData = await response.json();
+                          throw new Error(errorData.message || 'Errore durante l\'aggiunta del pasto');
+                        }
+                        
+                        toast({
+                          title: "Successo",
+                          description: "Pasto aggiunto correttamente",
+                        });
+                        
+                        // Reset del form
+                        e.currentTarget.reset();
+                        
+                        // Invalidare la query per ricaricare i pasti
+                        queryClient.invalidateQueries({queryKey: ['/api/meals', user.id]});
+                      } catch (error) {
+                        toast({
+                          title: "Errore",
+                          description: error instanceof Error ? error.message : 'Si è verificato un errore',
+                          variant: "destructive",
+                        });
+                      }
+                    }}
+                  >
+                    <div className="space-y-2">
+                      <label htmlFor="mealType" className="text-sm font-medium">
+                        Tipo di Pasto
+                      </label>
+                      <select 
+                        name="mealType" 
+                        id="mealType"
+                        className="w-full rounded-md border border-input bg-background px-3 py-2"
+                        defaultValue="breakfast"
+                      >
+                        <option value="breakfast">Colazione</option>
+                        <option value="lunch">Pranzo</option>
+                        <option value="dinner">Cena</option>
+                        <option value="snack">Spuntino</option>
+                      </select>
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <label htmlFor="food" className="text-sm font-medium">
+                        Alimento
+                      </label>
+                      <input 
+                        type="text" 
+                        name="food" 
+                        id="food"
+                        placeholder="Es. Pizza Margherita"
+                        className="w-full rounded-md border border-input bg-background px-3 py-2"
+                        required
+                      />
+                    </div>
+                    
+                    <div className="grid grid-cols-2 gap-3">
+                      <div className="space-y-2">
+                        <label htmlFor="calories" className="text-sm font-medium">
+                          Calorie
+                        </label>
+                        <input 
+                          type="number" 
+                          name="calories" 
+                          id="calories"
+                          min="0"
+                          placeholder="0"
+                          className="w-full rounded-md border border-input bg-background px-3 py-2"
+                          defaultValue="0"
+                          required
+                        />
+                      </div>
+                      
+                      <div className="space-y-2">
+                        <label htmlFor="proteins" className="text-sm font-medium">
+                          Proteine (g)
+                        </label>
+                        <input 
+                          type="number" 
+                          name="proteins" 
+                          id="proteins"
+                          min="0"
+                          placeholder="0"
+                          className="w-full rounded-md border border-input bg-background px-3 py-2"
+                          defaultValue="0"
+                          required
+                        />
+                      </div>
+                      
+                      <div className="space-y-2">
+                        <label htmlFor="carbs" className="text-sm font-medium">
+                          Carboidrati (g)
+                        </label>
+                        <input 
+                          type="number" 
+                          name="carbs" 
+                          id="carbs"
+                          min="0"
+                          placeholder="0"
+                          className="w-full rounded-md border border-input bg-background px-3 py-2"
+                          defaultValue="0"
+                          required
+                        />
+                      </div>
+                      
+                      <div className="space-y-2">
+                        <label htmlFor="fats" className="text-sm font-medium">
+                          Grassi (g)
+                        </label>
+                        <input 
+                          type="number" 
+                          name="fats" 
+                          id="fats"
+                          min="0"
+                          placeholder="0"
+                          className="w-full rounded-md border border-input bg-background px-3 py-2"
+                          defaultValue="0"
+                          required
+                        />
+                      </div>
+                    </div>
+                    
+                    <Button type="submit" className="w-full">
+                      <Plus className="h-4 w-4 mr-2" />
+                      Aggiungi Pasto
+                    </Button>
+                  </form>
+                </CardContent>
+              </Card>
+              
+              {/* Lista pasti */}
+              <Card className="md:col-span-2">
+                <CardHeader>
+                  <CardTitle>I Tuoi Pasti</CardTitle>
+                  <CardDescription>Gli ultimi pasti registrati</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  {mealsLoading ? (
+                    <div className="flex justify-center py-8">
+                      <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                    </div>
+                  ) : meals && meals.length > 0 ? (
+                    <div className="space-y-4">
+                      {meals.map((meal: any) => (
+                        <div 
+                          key={meal.id} 
+                          className="flex justify-between items-center border p-3 rounded-md hover:bg-gray-50"
+                        >
+                          <div>
+                            <p className="font-medium">{meal.food}</p>
+                            <div className="flex items-center text-sm text-muted-foreground space-x-2">
+                              <span>{meal.mealType === 'breakfast' ? 'Colazione' : 
+                                      meal.mealType === 'lunch' ? 'Pranzo' : 
+                                      meal.mealType === 'dinner' ? 'Cena' : 'Spuntino'}</span>
+                              <span>•</span>
+                              <span>{new Date(meal.timestamp).toLocaleString('it-IT', {
+                                day: 'numeric',
+                                month: 'short',
+                                hour: '2-digit',
+                                minute: '2-digit'
+                              })}</span>
+                            </div>
+                          </div>
+                          <div className="text-right">
+                            <p className="font-medium">{meal.calories} kcal</p>
+                            <p className="text-xs text-muted-foreground">
+                              P: {meal.proteins}g | C: {meal.carbs}g | G: {meal.fats}g
+                            </p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="text-center py-10 text-muted-foreground">
+                      <p>Nessun pasto registrato</p>
+                      <p className="text-sm mt-1">Aggiungi il tuo primo pasto dal modulo a sinistra</p>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </div>
           </TabsContent>
 
           <TabsContent value="goals">
-            <Card>
-              <CardHeader>
-                <CardTitle>Obiettivi Nutrizionali</CardTitle>
-                <CardDescription>Imposta e monitora i tuoi obiettivi nutrizionali</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <p>Funzionalità di gestione obiettivi in fase di implementazione.</p>
-                <p className="text-muted-foreground mt-2">I tuoi obiettivi nutrizionali appariranno qui.</p>
-              </CardContent>
-              <CardFooter>
-                <Button 
-                  className="w-full" 
-                  onClick={() => toast({
-                    title: "Info",
-                    description: "Funzionalità in arrivo nella prossima versione",
-                  })}
-                >
-                  <BarChart className="h-4 w-4 mr-2" />
-                  Crea Nuovo Obiettivo
-                </Button>
-              </CardFooter>
-            </Card>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {/* Form per aggiungere un nuovo obiettivo */}
+              <Card className="md:col-span-1">
+                <CardHeader>
+                  <CardTitle>Crea Obiettivo</CardTitle>
+                  <CardDescription>Imposta un nuovo obiettivo nutrizionale</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <form 
+                    className="space-y-4"
+                    onSubmit={async (e) => {
+                      e.preventDefault();
+                      const formData = new FormData(e.currentTarget);
+                      
+                      try {
+                        const goalData = {
+                          userId: user.id.toString(),
+                          name: formData.get('name') as string,
+                          calories: parseInt(formData.get('calories') as string),
+                          proteins: parseInt(formData.get('proteins') as string),
+                          carbs: parseInt(formData.get('carbs') as string),
+                          fats: parseInt(formData.get('fats') as string),
+                          startDate: new Date().toISOString().split('T')[0],
+                          isActive: true,
+                          description: formData.get('description') as string || null
+                        };
+                        
+                        // Validazione base
+                        if (!goalData.name || goalData.name.trim() === '') {
+                          throw new Error('Inserisci un nome per l\'obiettivo');
+                        }
+                        
+                        const response = await apiRequest('POST', '/api/nutrition-goals', goalData);
+                        
+                        if (!response.ok) {
+                          const errorData = await response.json();
+                          throw new Error(errorData.message || 'Errore durante la creazione dell\'obiettivo');
+                        }
+                        
+                        toast({
+                          title: "Successo",
+                          description: "Obiettivo nutrizionale creato correttamente",
+                        });
+                        
+                        // Reset del form
+                        e.currentTarget.reset();
+                        
+                        // Invalidare le query per ricaricare gli obiettivi
+                        queryClient.invalidateQueries({queryKey: ['/api/nutrition-goals', user.id]});
+                        queryClient.invalidateQueries({queryKey: ['/api/nutrition-goals/active', user.id]});
+                      } catch (error) {
+                        toast({
+                          title: "Errore",
+                          description: error instanceof Error ? error.message : 'Si è verificato un errore',
+                          variant: "destructive",
+                        });
+                      }
+                    }}
+                  >
+                    <div className="space-y-2">
+                      <label htmlFor="name" className="text-sm font-medium">
+                        Nome obiettivo
+                      </label>
+                      <input 
+                        type="text" 
+                        name="name" 
+                        id="name"
+                        placeholder="Es. Perdita di peso"
+                        className="w-full rounded-md border border-input bg-background px-3 py-2"
+                        required
+                      />
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <label htmlFor="description" className="text-sm font-medium">
+                        Descrizione (opzionale)
+                      </label>
+                      <textarea 
+                        name="description" 
+                        id="description"
+                        placeholder="Dettagli aggiuntivi sul tuo obiettivo..."
+                        className="w-full rounded-md border border-input bg-background px-3 py-2 min-h-[80px]"
+                      ></textarea>
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <label htmlFor="calories" className="text-sm font-medium">
+                        Calorie giornaliere
+                      </label>
+                      <input 
+                        type="number" 
+                        name="calories" 
+                        id="calories"
+                        min="0"
+                        placeholder="0"
+                        className="w-full rounded-md border border-input bg-background px-3 py-2"
+                        defaultValue="2000"
+                        required
+                      />
+                    </div>
+                    
+                    <div className="grid grid-cols-3 gap-3">
+                      <div className="space-y-2">
+                        <label htmlFor="proteins" className="text-sm font-medium">
+                          Proteine (g)
+                        </label>
+                        <input 
+                          type="number" 
+                          name="proteins" 
+                          id="proteins"
+                          min="0"
+                          placeholder="0"
+                          className="w-full rounded-md border border-input bg-background px-3 py-2"
+                          defaultValue="120"
+                          required
+                        />
+                      </div>
+                      
+                      <div className="space-y-2">
+                        <label htmlFor="carbs" className="text-sm font-medium">
+                          Carboidrati (g)
+                        </label>
+                        <input 
+                          type="number" 
+                          name="carbs" 
+                          id="carbs"
+                          min="0"
+                          placeholder="0"
+                          className="w-full rounded-md border border-input bg-background px-3 py-2"
+                          defaultValue="200"
+                          required
+                        />
+                      </div>
+                      
+                      <div className="space-y-2">
+                        <label htmlFor="fats" className="text-sm font-medium">
+                          Grassi (g)
+                        </label>
+                        <input 
+                          type="number" 
+                          name="fats" 
+                          id="fats"
+                          min="0"
+                          placeholder="0"
+                          className="w-full rounded-md border border-input bg-background px-3 py-2"
+                          defaultValue="65"
+                          required
+                        />
+                      </div>
+                    </div>
+                    
+                    <Button type="submit" className="w-full">
+                      <BarChart className="h-4 w-4 mr-2" />
+                      Crea Obiettivo
+                    </Button>
+                  </form>
+                </CardContent>
+              </Card>
+              
+              {/* Lista obiettivi */}
+              <Card className="md:col-span-2">
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <div>
+                    <CardTitle>I Tuoi Obiettivi</CardTitle>
+                    <CardDescription>Gestisci i tuoi obiettivi nutrizionali</CardDescription>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  {goalLoading ? (
+                    <div className="flex justify-center py-8">
+                      <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                    </div>
+                  ) : (
+                    <div>
+                      {/* Obiettivo attivo */}
+                      <div className="mb-6">
+                        <h3 className="text-lg font-semibold mb-2">Obiettivo Attivo</h3>
+                        {activeGoal ? (
+                          <div className="border rounded-md p-4 bg-primary/5 relative">
+                            <div className="absolute top-2 right-2 bg-green-500 text-white text-xs px-2 py-1 rounded-full">
+                              Attivo
+                            </div>
+                            <h4 className="font-medium text-lg">{activeGoal.name}</h4>
+                            {activeGoal.description && (
+                              <p className="text-sm text-gray-600 mt-1 mb-3">{activeGoal.description}</p>
+                            )}
+                            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mt-2">
+                              <div className="bg-background p-2 rounded border text-center">
+                                <p className="text-xs text-gray-500">Calorie</p>
+                                <p className="font-bold">{activeGoal.calories}</p>
+                              </div>
+                              <div className="bg-background p-2 rounded border text-center">
+                                <p className="text-xs text-gray-500">Proteine</p>
+                                <p className="font-bold">{activeGoal.proteins}g</p>
+                              </div>
+                              <div className="bg-background p-2 rounded border text-center">
+                                <p className="text-xs text-gray-500">Carboidrati</p>
+                                <p className="font-bold">{activeGoal.carbs}g</p>
+                              </div>
+                              <div className="bg-background p-2 rounded border text-center">
+                                <p className="text-xs text-gray-500">Grassi</p>
+                                <p className="font-bold">{activeGoal.fats}g</p>
+                              </div>
+                            </div>
+                            <div className="mt-4 text-sm text-gray-500">
+                              Data inizio: {new Date(activeGoal.startDate).toLocaleDateString('it-IT')}
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="border rounded-md p-6 text-center text-muted-foreground">
+                            <p>Nessun obiettivo attivo</p>
+                            <p className="text-sm mt-1">Crea un nuovo obiettivo dal form a sinistra</p>
+                          </div>
+                        )}
+                      </div>
+                      
+                      {/* Lista di tutti gli obiettivi */}
+                      <div>
+                        <h3 className="text-lg font-semibold mb-2">Cronologia Obiettivi</h3>
+                        <div className="text-center py-8 text-muted-foreground">
+                          <p>La cronologia degli obiettivi sarà disponibile prossimamente</p>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </div>
           </TabsContent>
         </Tabs>
       </main>
