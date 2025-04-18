@@ -1,8 +1,9 @@
-import { useState } from 'react';
+
 import { Button } from '@/components/ui/button';
 import { Trash2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { deleteMeal } from '@/lib/firebase';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { apiRequest } from '@/lib/queryClient';
 
 type MealEntryProps = {
   id: string;
@@ -16,28 +17,41 @@ type MealEntryProps = {
 };
 
 export default function MealEntry({ id, userId, mealType, food, calories, proteins, carbs, fats }: MealEntryProps) {
-  const [isDeleting, setIsDeleting] = useState(false);
   const { toast } = useToast();
-
-  const handleDelete = async () => {
-    try {
-      setIsDeleting(true);
-      await deleteMeal(userId, id);
+  const queryClient = useQueryClient();
+  
+  // Creiamo una mutation per eliminare un pasto
+  const deleteMealMutation = useMutation({
+    mutationFn: async () => {
+      const res = await apiRequest('DELETE', `/api/meals/${id}`);
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.message || 'Errore durante l\'eliminazione del pasto');
+      }
+      return res.json();
+    },
+    onSuccess: () => {
+      // Invalidiamo la query per ricaricare i pasti
+      queryClient.invalidateQueries({ queryKey: ['/api/meals'] });
       
       toast({
-        title: "Success",
-        description: "Meal entry deleted successfully.",
+        title: "Successo",
+        description: "Pasto eliminato con successo",
       });
-    } catch (error) {
-      console.error("Error deleting meal:", error);
+    },
+    onError: (error: Error) => {
+      console.error("Errore durante l'eliminazione del pasto:", error);
       toast({
-        title: "Error",
-        description: "Failed to delete meal entry. Please try again.",
+        title: "Errore",
+        description: `Impossibile eliminare il pasto: ${error.message}`,
         variant: "destructive",
       });
-    } finally {
-      setIsDeleting(false);
     }
+  });
+
+  const handleDelete = () => {
+    // Eseguiamo la mutation per eliminare il pasto
+    deleteMealMutation.mutate();
   };
 
   return (
@@ -52,7 +66,7 @@ export default function MealEntry({ id, userId, mealType, food, calories, protei
           size="sm" 
           className="text-sm bg-red-50 hover:bg-red-100 text-red-600 py-1 px-3 rounded-md transition"
           onClick={handleDelete}
-          disabled={isDeleting}
+          disabled={deleteMealMutation.isPending}
         >
           <Trash2 className="h-4 w-4" />
         </Button>
