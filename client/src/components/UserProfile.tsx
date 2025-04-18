@@ -7,6 +7,10 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { UserProfile as UserProfileType } from "@shared/schema";
 import { useToast } from "@/hooks/use-toast";
+
+// Import componenti per i calcoli fitness
+import BMICard from "@/components/BMICard";
+import MetabolismCard from "@/components/MetabolismCard";
 import { 
   Card, 
   CardContent, 
