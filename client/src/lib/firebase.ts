@@ -1,4 +1,4 @@
-import { initializeApp } from "firebase/app";
+import { initializeApp, FirebaseApp } from "firebase/app";
 import { 
   getAuth, 
   signInWithEmailAndPassword, 
@@ -9,7 +9,8 @@ import {
   sendPasswordResetEmail,
   sendEmailVerification,
   onAuthStateChanged,
-  User
+  User,
+  Auth
 } from "firebase/auth";
 import { 
   getFirestore, 
@@ -24,21 +25,20 @@ import {
   where, 
   orderBy, 
   Timestamp,
-  onSnapshot
+  onSnapshot,
+  Firestore
 } from "firebase/firestore";
 
-// Firebase configuration
+// Initialize Firebase
 const firebaseConfig = {
-  apiKey: import.meta.env.VITE_FIREBASE_API_KEY || "AIzaSyAeEnYe0lkPs1ctVwQbg6q9CTMkfOd67Zc",
-  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || "nutrifacile-a686e.firebaseapp.com",
-  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || "nutrifacile-a686e",
-  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || "nutrifacile-a686e.firebasestorage.app",
-  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || "647152474961",
-  appId: import.meta.env.VITE_FIREBASE_APP_ID || "1:647152474961:web:2cd0a058b60c36077d1170",
-  measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID || "G-WWZWJFWZH6"
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain: `${import.meta.env.VITE_FIREBASE_PROJECT_ID}.firebaseapp.com`,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket: `${import.meta.env.VITE_FIREBASE_PROJECT_ID}.appspot.com`,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID
 };
 
-// Initialize Firebase
+// Initialize Firebase with the application
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
@@ -46,24 +46,30 @@ const googleProvider = new GoogleAuthProvider();
 
 // Authentication functions
 export const signIn = (email: string, password: string) => {
+  const auth = getFirebaseAuth();
   return signInWithEmailAndPassword(auth, email, password);
 };
 
 export const signUp = async (email: string, password: string) => {
+  const auth = getFirebaseAuth();
   const userCredential = await createUserWithEmailAndPassword(auth, email, password);
   await sendEmailVerification(userCredential.user);
   return userCredential;
 };
 
 export const signOut = () => {
+  const auth = getFirebaseAuth();
   return firebaseSignOut(auth);
 };
 
 export const signInWithGoogle = () => {
-  return signInWithPopup(auth, googleProvider);
+  const auth = getFirebaseAuth();
+  const provider = getGoogleProvider();
+  return signInWithPopup(auth, provider);
 };
 
 export const resetPassword = (email: string) => {
+  const auth = getFirebaseAuth();
   return sendPasswordResetEmail(auth, email);
 };
 
