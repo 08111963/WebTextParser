@@ -1,26 +1,23 @@
-import { useState, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import Header from '@/components/Header';
-import MealForm from '@/components/MealForm';
-import NutritionSummary from '@/components/NutritionSummary';
-import FilterSelect from '@/components/FilterSelect';
-import MealEntry from '@/components/MealEntry';
-import MealPlan from '@/components/MealPlan';
-import ActiveNutritionGoal from '@/components/ActiveNutritionGoal';
-import WeightTracker from '@/components/WeightTracker';
-import Chart from 'chart.js/auto';
+import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/use-auth';
 import { useQuery } from '@tanstack/react-query';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Plus, Calendar, BarChart } from 'lucide-react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { apiRequest } from '@/lib/queryClient';
 
 // Helper per trasformare una data stringa in un oggetto Date
 function createDate(dateString: string): Date {
   return new Date(dateString);
 }
 
-// Versione temporanea semplificata di Home
 export default function Home() {
   const { user } = useAuth();
-  const [filter, setFilter] = useState('week');
+  const { toast } = useToast();
+  const [activeTab, setActiveTab] = useState('dashboard');
   
   // Se l'utente non è autenticato, mostriamo un caricamento
   if (!user) {
@@ -31,60 +28,276 @@ export default function Home() {
     );
   }
   
-  // Per ora mostriamo una versione semplificata dell'interfaccia
+  // Fetch dei pasti dell'utente
+  const { data: meals, isLoading: mealsLoading, error: mealsError } = useQuery({
+    queryKey: ['/api/meals', user.id],
+    queryFn: async () => {
+      const res = await fetch(`/api/meals?userId=${user.id}`);
+      if (!res.ok) throw new Error('Failed to fetch meals');
+      return res.json();
+    },
+  });
+
+  // Fetch dell'obiettivo nutrizionale attivo
+  const { data: activeGoal, isLoading: goalLoading, error: goalError } = useQuery({
+    queryKey: ['/api/nutrition-goals/active', user.id],
+    queryFn: async () => {
+      try {
+        const res = await fetch(`/api/nutrition-goals/active?userId=${user.id}`);
+        if (res.status === 404) return null;
+        if (!res.ok) throw new Error('Failed to fetch nutrition goal');
+        return res.json();
+      } catch (error) {
+        console.error('Error fetching active goal:', error);
+        return null;
+      }
+    },
+  });
+
+  // Gestione degli errori
+  useEffect(() => {
+    if (mealsError) {
+      toast({
+        title: "Errore",
+        description: "Impossibile caricare i pasti. Riprova più tardi.",
+        variant: "destructive",
+      });
+    }
+    if (goalError) {
+      toast({
+        title: "Errore",
+        description: "Impossibile caricare gli obiettivi nutrizionali. Riprova più tardi.",
+        variant: "destructive",
+      });
+    }
+  }, [mealsError, goalError, toast]);
+
+  // Calcolo totali nutrizionali (ultimi 7 giorni)
+  const todayMeals = meals?.filter((meal: any) => {
+    const mealDate = new Date(meal.timestamp);
+    const today = new Date();
+    return mealDate.setHours(0, 0, 0, 0) === today.setHours(0, 0, 0, 0);
+  }) || [];
+
+  const totalCalories = todayMeals.reduce((sum: number, meal: any) => sum + meal.calories, 0);
+  const totalProteins = todayMeals.reduce((sum: number, meal: any) => sum + meal.proteins, 0);
+  const totalCarbs = todayMeals.reduce((sum: number, meal: any) => sum + meal.carbs, 0);
+  const totalFats = todayMeals.reduce((sum: number, meal: any) => sum + meal.fats, 0);
+
+  const isLoading = mealsLoading || goalLoading;
+
   return (
-    <div className="flex flex-col h-screen">
+    <div className="flex flex-col min-h-screen bg-gray-50">
       <Header />
       
       <main className="container mx-auto px-4 py-6 flex-1">
         <div className="mb-6">
-          <h1 className="text-3xl font-bold mb-2">Benvenuto, {user.username}!</h1>
-          <p className="text-gray-600">
-            Il sistema è in fase di migrazione da Firebase a PostgreSQL.
-            Presto tutte le funzionalità saranno nuovamente disponibili.
-          </p>
+          <h1 className="text-3xl font-bold">Benvenuto, {user.username}!</h1>
+          <p className="text-gray-600">Monitora la tua nutrizione e raggiungi i tuoi obiettivi.</p>
         </div>
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="bg-white p-6 rounded-lg shadow-sm">
-            <h2 className="text-xl font-semibold mb-4">Riepilogo Account</h2>
-            <div className="space-y-2">
-              <p><strong>ID Utente:</strong> {user.id}</p>
-              <p><strong>Username:</strong> {user.username}</p>
-              <p><strong>Email:</strong> {user.email}</p>
-            </div>
-          </div>
-          
-          <div className="bg-white p-6 rounded-lg shadow-sm">
-            <h2 className="text-xl font-semibold mb-4">Stato Migrazione</h2>
-            <ul className="space-y-2">
-              <li className="flex items-center">
-                <svg className="h-5 w-5 text-green-500 mr-2" viewBox="0 0 20 20" fill="currentColor">
-                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                </svg>
-                Autenticazione con PostgreSQL
-              </li>
-              <li className="flex items-center">
-                <svg className="h-5 w-5 text-green-500 mr-2" viewBox="0 0 20 20" fill="currentColor">
-                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                </svg>
-                Protezione route API
-              </li>
-              <li className="flex items-center">
-                <svg className="h-5 w-5 text-yellow-500 mr-2" viewBox="0 0 20 20" fill="currentColor">
-                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clipRule="evenodd" />
-                </svg>
-                Migrazione dati pasti in corso...
-              </li>
-              <li className="flex items-center">
-                <svg className="h-5 w-5 text-yellow-500 mr-2" viewBox="0 0 20 20" fill="currentColor">
-                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clipRule="evenodd" />
-                </svg>
-                Migrazione obiettivi nutrizionali in corso...
-              </li>
-            </ul>
-          </div>
-        </div>
+
+        <Tabs defaultValue={activeTab} onValueChange={setActiveTab} className="w-full">
+          <TabsList className="grid w-full md:w-auto grid-cols-3 mb-6">
+            <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
+            <TabsTrigger value="meals">Pasti</TabsTrigger>
+            <TabsTrigger value="goals">Obiettivi</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="dashboard" className="space-y-4">
+            {isLoading ? (
+              <div className="flex justify-center p-8">
+                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+              </div>
+            ) : (
+              <>
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                  <Card>
+                    <CardHeader className="pb-2">
+                      <CardTitle className="text-sm font-medium">Calorie</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="text-2xl font-bold">{totalCalories} kcal</div>
+                      <p className="text-xs text-muted-foreground">
+                        {activeGoal ? `${Math.round((totalCalories / activeGoal.calories) * 100)}% dell'obiettivo` : 'Nessun obiettivo impostato'}
+                      </p>
+                    </CardContent>
+                  </Card>
+                  <Card>
+                    <CardHeader className="pb-2">
+                      <CardTitle className="text-sm font-medium">Proteine</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="text-2xl font-bold">{totalProteins}g</div>
+                      <p className="text-xs text-muted-foreground">
+                        {activeGoal ? `${Math.round((totalProteins / activeGoal.proteins) * 100)}% dell'obiettivo` : 'Nessun obiettivo impostato'}
+                      </p>
+                    </CardContent>
+                  </Card>
+                  <Card>
+                    <CardHeader className="pb-2">
+                      <CardTitle className="text-sm font-medium">Carboidrati</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="text-2xl font-bold">{totalCarbs}g</div>
+                      <p className="text-xs text-muted-foreground">
+                        {activeGoal ? `${Math.round((totalCarbs / activeGoal.carbs) * 100)}% dell'obiettivo` : 'Nessun obiettivo impostato'}
+                      </p>
+                    </CardContent>
+                  </Card>
+                  <Card>
+                    <CardHeader className="pb-2">
+                      <CardTitle className="text-sm font-medium">Grassi</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="text-2xl font-bold">{totalFats}g</div>
+                      <p className="text-xs text-muted-foreground">
+                        {activeGoal ? `${Math.round((totalFats / activeGoal.fats) * 100)}% dell'obiettivo` : 'Nessun obiettivo impostato'}
+                      </p>
+                    </CardContent>
+                  </Card>
+                </div>
+              
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <Card className="col-span-1">
+                    <CardHeader>
+                      <CardTitle>Pasti Recenti</CardTitle>
+                      <CardDescription>Gli ultimi pasti registrati</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      {todayMeals.length > 0 ? (
+                        <div className="space-y-2">
+                          {todayMeals.slice(0, 5).map((meal: any) => (
+                            <div key={meal.id} className="flex justify-between items-center border-b pb-2">
+                              <div>
+                                <p className="font-medium">{meal.food}</p>
+                                <p className="text-sm text-muted-foreground">{meal.mealType}</p>
+                              </div>
+                              <div className="text-right">
+                                <p className="font-medium">{meal.calories} kcal</p>
+                                <p className="text-xs text-muted-foreground">
+                                  P: {meal.proteins}g C: {meal.carbs}g G: {meal.fats}g
+                                </p>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <p className="text-center text-muted-foreground py-4">Nessun pasto registrato oggi</p>
+                      )}
+                    </CardContent>
+                    <CardFooter>
+                      <Button 
+                        variant="outline" 
+                        className="w-full" 
+                        onClick={() => setActiveTab('meals')}
+                      >
+                        <Plus className="h-4 w-4 mr-2" />
+                        Aggiungi Pasto
+                      </Button>
+                    </CardFooter>
+                  </Card>
+
+                  <Card className="col-span-1">
+                    <CardHeader>
+                      <CardTitle>Obiettivo Nutrizionale</CardTitle>
+                      <CardDescription>Il tuo obiettivo attuale</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      {activeGoal ? (
+                        <div className="space-y-2">
+                          <p className="font-medium text-xl">{activeGoal.name}</p>
+                          {activeGoal.description && (
+                            <p className="text-sm text-muted-foreground">{activeGoal.description}</p>
+                          )}
+                          <div className="grid grid-cols-2 gap-2 mt-4">
+                            <div className="bg-primary/10 p-2 rounded">
+                              <p className="text-xs">Calorie</p>
+                              <p className="font-bold">{activeGoal.calories} kcal</p>
+                            </div>
+                            <div className="bg-primary/10 p-2 rounded">
+                              <p className="text-xs">Proteine</p>
+                              <p className="font-bold">{activeGoal.proteins}g</p>
+                            </div>
+                            <div className="bg-primary/10 p-2 rounded">
+                              <p className="text-xs">Carboidrati</p>
+                              <p className="font-bold">{activeGoal.carbs}g</p>
+                            </div>
+                            <div className="bg-primary/10 p-2 rounded">
+                              <p className="text-xs">Grassi</p>
+                              <p className="font-bold">{activeGoal.fats}g</p>
+                            </div>
+                          </div>
+                        </div>
+                      ) : (
+                        <p className="text-center text-muted-foreground py-8">Nessun obiettivo nutrizionale attivo</p>
+                      )}
+                    </CardContent>
+                    <CardFooter>
+                      <Button 
+                        variant="outline" 
+                        className="w-full" 
+                        onClick={() => setActiveTab('goals')}
+                      >
+                        <BarChart className="h-4 w-4 mr-2" />
+                        {activeGoal ? 'Gestisci Obiettivi' : 'Crea Obiettivo'}
+                      </Button>
+                    </CardFooter>
+                  </Card>
+                </div>
+              </>
+            )}
+          </TabsContent>
+
+          <TabsContent value="meals">
+            <Card>
+              <CardHeader>
+                <CardTitle>I Tuoi Pasti</CardTitle>
+                <CardDescription>Registra e monitora i tuoi pasti quotidiani</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <p>Funzionalità di registrazione pasti in fase di implementazione.</p>
+                <p className="text-muted-foreground mt-2">I tuoi pasti appariranno qui.</p>
+              </CardContent>
+              <CardFooter>
+                <Button 
+                  className="w-full" 
+                  onClick={() => toast({
+                    title: "Info",
+                    description: "Funzionalità in arrivo nella prossima versione",
+                  })}
+                >
+                  <Plus className="h-4 w-4 mr-2" />
+                  Aggiungi Nuovo Pasto
+                </Button>
+              </CardFooter>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="goals">
+            <Card>
+              <CardHeader>
+                <CardTitle>Obiettivi Nutrizionali</CardTitle>
+                <CardDescription>Imposta e monitora i tuoi obiettivi nutrizionali</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <p>Funzionalità di gestione obiettivi in fase di implementazione.</p>
+                <p className="text-muted-foreground mt-2">I tuoi obiettivi nutrizionali appariranno qui.</p>
+              </CardContent>
+              <CardFooter>
+                <Button 
+                  className="w-full" 
+                  onClick={() => toast({
+                    title: "Info",
+                    description: "Funzionalità in arrivo nella prossima versione",
+                  })}
+                >
+                  <BarChart className="h-4 w-4 mr-2" />
+                  Crea Nuovo Obiettivo
+                </Button>
+              </CardFooter>
+            </Card>
+          </TabsContent>
+        </Tabs>
       </main>
     </div>
   );
