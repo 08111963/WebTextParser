@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import Header from '@/components/Header';
 import MealForm from '@/components/MealForm';
+import MealList from '@/components/MealList';
 import NutritionGoalForm from '@/components/NutritionGoalForm';
 import NutritionGoalHistory from '@/components/NutritionGoalHistory';
 import { useToast } from '@/hooks/use-toast';
@@ -263,47 +264,11 @@ export default function Home() {
                   <CardDescription>Gli ultimi pasti registrati</CardDescription>
                 </CardHeader>
                 <CardContent>
-                  {mealsLoading ? (
-                    <div className="flex justify-center py-8">
-                      <Loader2 className="h-8 w-8 animate-spin text-primary" />
-                    </div>
-                  ) : meals && meals.length > 0 ? (
-                    <div className="space-y-4">
-                      {meals.map((meal: any) => (
-                        <div 
-                          key={meal.id} 
-                          className="flex justify-between items-center border p-3 rounded-md hover:bg-gray-50"
-                        >
-                          <div>
-                            <p className="font-medium">{meal.food}</p>
-                            <div className="flex items-center text-sm text-muted-foreground space-x-2">
-                              <span>{meal.mealType === 'breakfast' ? 'Colazione' : 
-                                      meal.mealType === 'lunch' ? 'Pranzo' : 
-                                      meal.mealType === 'dinner' ? 'Cena' : 'Spuntino'}</span>
-                              <span>•</span>
-                              <span>{new Date(meal.timestamp).toLocaleString('it-IT', {
-                                day: 'numeric',
-                                month: 'short',
-                                hour: '2-digit',
-                                minute: '2-digit'
-                              })}</span>
-                            </div>
-                          </div>
-                          <div>
-                            <p className="font-medium text-right">{meal.calories} kcal</p>
-                            <p className="text-xs text-muted-foreground text-right">
-                              P: {meal.proteins}g | C: {meal.carbs}g | G: {meal.fats}g
-                            </p>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="text-center py-12">
-                      <p className="text-muted-foreground">Nessun pasto registrato</p>
-                      <p className="text-sm mt-1">Utilizza il form a sinistra per aggiungere il tuo primo pasto</p>
-                    </div>
-                  )}
+                  <MealList
+                    meals={meals || []}
+                    isLoading={mealsLoading}
+                    userId={user.id.toString()}
+                  />
                 </CardContent>
               </Card>
             </div>
