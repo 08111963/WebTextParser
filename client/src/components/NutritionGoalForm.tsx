@@ -11,6 +11,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { CalendarIcon } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
@@ -37,6 +38,76 @@ type NutritionGoalFormProps = {
   initialValues?: Partial<NutritionGoalValues>;
   isEditing?: boolean;
   goalId?: number;
+};
+
+// Tipo per il profilo nutrizionale
+type NutritionProfile = {
+  name: string;
+  calories: number;
+  proteins: number;
+  carbs: number;
+  fats: number;
+  description: string;
+};
+
+// Profili nutrizionali predefiniti
+const nutritionProfiles: Record<string, NutritionProfile> = {
+  maintenance: { 
+    name: "Mantenimento", 
+    calories: 2000, 
+    proteins: 150, 
+    carbs: 250, 
+    fats: 65,
+    description: "Dieta bilanciata per mantenere il peso corporeo attuale."
+  },
+  weightloss: { 
+    name: "Perdita di peso", 
+    calories: 1600, 
+    proteins: 140, 
+    carbs: 170, 
+    fats: 50,
+    description: "Dieta con deficit calorico per perdere peso in modo sano."
+  },
+  muscle_gain: { 
+    name: "Aumento massa muscolare", 
+    calories: 2500, 
+    proteins: 190, 
+    carbs: 300, 
+    fats: 70,
+    description: "Dieta ipercalorica per favorire l'aumento della massa muscolare."
+  },
+  low_carb: { 
+    name: "Low carb", 
+    calories: 1800, 
+    proteins: 150, 
+    carbs: 50, 
+    fats: 120,
+    description: "Dieta a basso contenuto di carboidrati."
+  },
+  keto: { 
+    name: "Chetogenica", 
+    calories: 1900, 
+    proteins: 120, 
+    carbs: 30, 
+    fats: 140,
+    description: "Dieta chetogenica con alte quantità di grassi e pochissimi carboidrati."
+  },
+  mediterranean: { 
+    name: "Mediterranea", 
+    calories: 2100, 
+    proteins: 110, 
+    carbs: 270, 
+    fats: 75,
+    description: "Dieta mediterranea tradizionale basata su cibi non processati."
+  },
+  custom: { 
+    name: "Personalizzato", 
+    calories: 2000, 
+    proteins: 150, 
+    carbs: 200, 
+    fats: 65,
+    description: ""
+  }
 };
 
 export default function NutritionGoalForm({ 
@@ -66,6 +137,20 @@ export default function NutritionGoalForm({
     resolver: zodResolver(nutritionGoalSchema),
     defaultValues,
   });
+  
+  // Funzione per applicare un profilo predefinito
+  const applyNutritionProfile = (profileKey: string) => {
+    if (profileKey === 'custom') return;
+    
+    const profile = nutritionProfiles[profileKey];
+    
+    form.setValue('name', profile.name);
+    form.setValue('calories', profile.calories);
+    form.setValue('proteins', profile.proteins);
+    form.setValue('carbs', profile.carbs);
+    form.setValue('fats', profile.fats);
+    form.setValue('description', profile.description);
+  };
   
   const onSubmit = async (values: NutritionGoalValues) => {
     try {
@@ -142,6 +227,27 @@ export default function NutritionGoalForm({
       <CardContent>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            {!isEditing && (
+              <FormItem>
+                <FormLabel>Profilo nutrizionale predefinito</FormLabel>
+                <Select onValueChange={applyNutritionProfile}>
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Seleziona un profilo predefinito" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {Object.entries(nutritionProfiles).map(([key, profile]) => (
+                      <SelectItem key={key} value={key}>{profile.name}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <p className="text-sm text-muted-foreground mt-1">
+                  Scegli un profilo predefinito oppure personalizza i valori manualmente
+                </p>
+              </FormItem>
+            )}
+            
             <FormField
               control={form.control}
               name="name"
