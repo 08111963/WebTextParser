@@ -528,14 +528,87 @@ export default function Home() {
                       <label htmlFor="name" className="text-sm font-medium">
                         Nome obiettivo
                       </label>
-                      <input 
-                        type="text" 
+                      <select 
                         name="name" 
                         id="name"
-                        placeholder="Es. Perdita di peso"
                         className="w-full rounded-md border border-input bg-background px-3 py-2"
+                        onChange={(e) => {
+                          // Preset valori in base all'obiettivo selezionato
+                          const formEl = e.target.form;
+                          if (!formEl) return;
+                          
+                          const selectedValue = e.target.value;
+                          const caloriesInput = formEl.querySelector('#calories') as HTMLInputElement;
+                          const proteinsInput = formEl.querySelector('#proteins') as HTMLInputElement;
+                          const carbsInput = formEl.querySelector('#carbs') as HTMLInputElement;
+                          const fatsInput = formEl.querySelector('#fats') as HTMLInputElement;
+                          const descriptionTextarea = formEl.querySelector('#description') as HTMLTextAreaElement;
+                          
+                          // Preimpostazioni per i vari obiettivi
+                          switch(selectedValue) {
+                            case "Perdita di peso":
+                              caloriesInput.value = "1800";
+                              proteinsInput.value = "150";
+                              carbsInput.value = "150";
+                              fatsInput.value = "50";
+                              descriptionTextarea.value = "Obiettivo di perdita di peso con deficit calorico moderato e alta percentuale di proteine.";
+                              break;
+                            case "Mantenimento":
+                              caloriesInput.value = "2200";
+                              proteinsInput.value = "120";
+                              carbsInput.value = "220";
+                              fatsInput.value = "70";
+                              descriptionTextarea.value = "Obiettivo di mantenimento del peso con distribuzione equilibrata dei macronutrienti.";
+                              break;
+                            case "Aumento massa muscolare":
+                              caloriesInput.value = "2800";
+                              proteinsInput.value = "180";
+                              carbsInput.value = "320";
+                              fatsInput.value = "70";
+                              descriptionTextarea.value = "Obiettivo di aumento della massa muscolare con surplus calorico e alta percentuale di proteine e carboidrati.";
+                              break;
+                            case "Keto / Low-carb":
+                              caloriesInput.value = "2000";
+                              proteinsInput.value = "150";
+                              carbsInput.value = "50";
+                              fatsInput.value = "150";
+                              descriptionTextarea.value = "Dieta chetogenica con basso apporto di carboidrati, moderato apporto di proteine e alto apporto di grassi.";
+                              break;
+                            case "Mediterranea":
+                              caloriesInput.value = "2200";
+                              proteinsInput.value = "100";
+                              carbsInput.value = "260";
+                              fatsInput.value = "80";
+                              descriptionTextarea.value = "Dieta mediterranea con moderato apporto calorico, ricca di carboidrati complessi e grassi sani.";
+                              break;
+                            case "Vegana / Vegetariana":
+                              caloriesInput.value = "2000";
+                              proteinsInput.value = "80";
+                              carbsInput.value = "300";
+                              fatsInput.value = "60";
+                              descriptionTextarea.value = "Alimentazione a base vegetale con un buon apporto di carboidrati e moderato apporto di proteine.";
+                              break;
+                            case "Personalizzato":
+                              // Lascia i valori di default già presenti
+                              caloriesInput.value = "2000";
+                              proteinsInput.value = "120";
+                              carbsInput.value = "200";
+                              fatsInput.value = "65";
+                              descriptionTextarea.value = "";
+                              break;
+                          }
+                        }}
                         required
-                      />
+                      >
+                        <option value="">Seleziona un obiettivo</option>
+                        <option value="Perdita di peso">Perdita di peso</option>
+                        <option value="Mantenimento">Mantenimento</option>
+                        <option value="Aumento massa muscolare">Aumento massa muscolare</option>
+                        <option value="Keto / Low-carb">Keto / Low-carb</option>
+                        <option value="Mediterranea">Dieta Mediterranea</option>
+                        <option value="Vegana / Vegetariana">Vegana / Vegetariana</option>
+                        <option value="Personalizzato">Personalizzato</option>
+                      </select>
                     </div>
                     
                     <div className="space-y-2">
@@ -566,7 +639,7 @@ export default function Home() {
                       />
                     </div>
                     
-                    <div className="grid grid-cols-3 gap-3">
+                    <div className="grid grid-cols-1 gap-3">
                       <div className="space-y-2">
                         <label htmlFor="proteins" className="text-sm font-medium">
                           Proteine (g)
