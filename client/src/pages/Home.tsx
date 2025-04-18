@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import type { Timestamp } from 'firebase/firestore';
+import { getMeals, getMealsByDateRange, Timestamp } from '@/lib/firebase';
 import Header from '@/components/Header';
 import MealForm from '@/components/MealForm';
 import NutritionSummary from '@/components/NutritionSummary';
@@ -19,7 +19,7 @@ type HomeProps = {
 };
 
 type Meal = {
-  id: string | number;
+  id: string;
   userId: string;
   food: string;
   calories: number;
@@ -27,8 +27,7 @@ type Meal = {
   carbs: number;
   fats: number;
   mealType: string;
-  timestamp?: Timestamp | string;
-  date?: string;
+  timestamp: Timestamp;
 };
 
 export default function Home({ user }: HomeProps) {
@@ -46,34 +45,26 @@ export default function Home({ user }: HomeProps) {
   
   // Load meals based on filter
   useEffect(() => {
-    const fetchMeals = async () => {
-      try {
-        let url = `/api/meals?userId=${user.uid}`;
-        
-        if (filter !== 'all') {
-          const days = filter === 'week' ? 7 : parseInt(filter);
-          const endDate = new Date();
-          const startDate = new Date();
-          startDate.setDate(startDate.getDate() - days);
-          
-          url += `&startDate=${startDate.toISOString().split('T')[0]}&endDate=${endDate.toISOString().split('T')[0]}`;
-        }
-        
-        const response = await fetch(url);
-        
-        if (!response.ok) {
-          throw new Error(`Error ${response.status}: ${response.statusText}`);
-        }
-        
-        const data = await response.json();
-        setMeals(data || []);
-      } catch (error) {
-        console.error("Failed to fetch meals:", error);
-        setMeals([]);
-      }
-    };
+    let unsubscribe: () => void;
     
-    fetchMeals();
+    if (filter === 'all') {
+      unsubscribe = getMeals(user.uid, (fetchedMeals) => {
+        setMeals(fetchedMeals);
+      });
+    } else {
+      const days = filter === 'week' ? 7 : parseInt(filter);
+      const endDate = new Date();
+      const startDate = new Date();
+      startDate.setDate(startDate.getDate() - days);
+      
+      unsubscribe = getMealsByDateRange(user.uid, startDate, endDate, (fetchedMeals) => {
+        setMeals(fetchedMeals);
+      });
+    }
+    
+    return () => {
+      if (unsubscribe) unsubscribe();
+    };
   }, [user.uid, filter]);
   
   // Calculate totals when meals change
@@ -100,10 +91,7 @@ export default function Home({ user }: HomeProps) {
     // Get unique days count
     const uniqueDays = new Set(
       meals.map(meal => {
-        // Gestione sia per Timestamp di Firebase che per date in formato stringa
-        const date = typeof meal.timestamp === 'object' && meal.timestamp.toDate 
-          ? meal.timestamp.toDate() 
-          : new Date(meal.date || meal.timestamp);
+        const date = meal.timestamp.toDate();
         return `${date.getFullYear()}-${date.getMonth()}-${date.getDate()}`;
       })
     ).size;
