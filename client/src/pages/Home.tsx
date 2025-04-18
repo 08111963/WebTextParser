@@ -7,6 +7,7 @@ import NutritionGoalHistory from '@/components/NutritionGoalHistory';
 import NutritionChart from '@/components/NutritionChart';
 import UserProfile from '@/components/UserProfile';
 import AIRecommendations from '@/components/AIRecommendations';
+import AIObjectives from '@/components/AIObjectives';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/use-auth';
 import { useQuery } from '@tanstack/react-query';
@@ -295,7 +296,7 @@ export default function Home() {
                 <NutritionGoalForm userId={user.id.toString()} />
                 
                 {/* Raccomandazioni IA per obiettivi nutrizionali */}
-                <AIRecommendations userId={user.id.toString()} />
+                <AIObjectives userId={user.id.toString()} />
               </div>
               
               {/* Visualizzazione dell'obiettivo attivo e cronologia */}
