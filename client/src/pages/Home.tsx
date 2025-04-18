@@ -356,8 +356,10 @@ export default function Home() {
                           description: "Obiettivo nutrizionale creato correttamente",
                         });
                         
-                        // Reset del form
-                        e.currentTarget.reset();
+                        // Reset del form utilizzando il metodo standard HTML5
+                        if (e.currentTarget) {
+                          e.currentTarget.reset();
+                        }
                         
                         // Invalidare la query per ricaricare gli obiettivi
                         queryClient.invalidateQueries({queryKey: ['/api/nutrition-goals/active', user.id]});
