@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import Header from '@/components/Header';
+import MealForm from '@/components/MealForm';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/use-auth';
 import { useQuery } from '@tanstack/react-query';
@@ -72,7 +73,7 @@ export default function Home() {
     }
   }, [mealsError, goalError, toast]);
 
-  // Calcolo totali nutrizionali (ultimi 7 giorni)
+  // Calcolo totali nutrizionali
   const todayMeals = meals?.filter((meal: any) => {
     const mealDate = new Date(meal.timestamp);
     const today = new Date();
@@ -251,334 +252,9 @@ export default function Home() {
           <TabsContent value="meals">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               {/* Form per aggiungere un nuovo pasto */}
-              <Card className="md:col-span-1">
-                <CardHeader>
-                  <CardTitle>Aggiungi Pasto</CardTitle>
-                  <CardDescription>Registra un nuovo pasto</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <form 
-                    className="space-y-4"
-                    onSubmit={async (e) => {
-                      e.preventDefault();
-                      const formData = new FormData(e.currentTarget);
-                      
-                      try {
-                        // Verifica che l'utente sia definito
-                        if (!user) {
-                          throw new Error('Utente non autenticato. Effettua il login per aggiungere un pasto.');
-                        }
-                        
-                        // Se è stato selezionato "Altro" e c'è un valore personalizzato, usa quello
-                        let foodName = formData.get('food') as string;
-                        const customFood = formData.get('customFood') as string;
-                        
-                        if (foodName === "Altro (personalizzato)" && customFood && customFood.trim() !== '') {
-                          foodName = customFood.trim();
-                        }
-                        
-                        // Assicuriamoci che tutti i valori numerici siano validi
-                        const caloriesStr = formData.get('calories') as string;
-                        const proteinsStr = formData.get('proteins') as string;
-                        const carbsStr = formData.get('carbs') as string;
-                        const fatsStr = formData.get('fats') as string;
-                        
-                        // Verifica e converti valori numerici
-                        const calories = parseInt(caloriesStr) || 0;
-                        const proteins = parseInt(proteinsStr) || 0;
-                        const carbs = parseInt(carbsStr) || 0;
-                        const fats = parseInt(fatsStr) || 0;
-                        
-                        const mealData = {
-                          userId: user.id.toString(),
-                          mealType: formData.get('mealType') as string,
-                          food: foodName,
-                          calories: calories,
-                          proteins: proteins,
-                          carbs: carbs,
-                          fats: fats,
-                          timestamp: new Date().toISOString()
-                        };
-                        
-                        // Validazione base
-                        if (!mealData.food || mealData.food.trim() === '') {
-                          throw new Error('Inserisci il nome dell\'alimento');
-                        }
-                        
-                        const response = await apiRequest('POST', '/api/meals', mealData);
-                        
-                        if (!response.ok) {
-                          const errorData = await response.json();
-                          throw new Error(errorData.message || 'Errore durante l\'aggiunta del pasto');
-                        }
-                        
-                        toast({
-                          title: "Successo",
-                          description: "Pasto aggiunto correttamente",
-                        });
-                        
-                        // Reset del form
-                        e.currentTarget.reset();
-                        
-                        // Invalidare la query per ricaricare i pasti
-                        queryClient.invalidateQueries({queryKey: ['/api/meals', user.id]});
-                      } catch (error) {
-                        toast({
-                          title: "Errore",
-                          description: error instanceof Error ? error.message : 'Si è verificato un errore',
-                          variant: "destructive",
-                        });
-                      }
-                    }}
-                  >
-                    <div className="space-y-2">
-                      <label htmlFor="mealType" className="text-sm font-medium">
-                        Tipo di Pasto
-                      </label>
-                      <select 
-                        name="mealType" 
-                        id="mealType"
-                        className="w-full rounded-md border border-input bg-background px-3 py-2"
-                        defaultValue="breakfast"
-                      >
-                        <option value="breakfast">Colazione</option>
-                        <option value="lunch">Pranzo</option>
-                        <option value="dinner">Cena</option>
-                        <option value="snack">Spuntino</option>
-                      </select>
-                    </div>
-                    
-                    <div className="space-y-2">
-                      <label htmlFor="food" className="text-sm font-medium">
-                        Alimento
-                      </label>
-                      <select
-                        name="food"
-                        id="food"
-                        className="w-full rounded-md border border-input bg-background px-3 py-2"
-                        onChange={(e) => {
-                          // Preset valori in base all'alimento selezionato
-                          const formEl = e.target.form;
-                          if (!formEl) return;
-                          
-                          const selectedValue = e.target.value;
-                          const caloriesInput = formEl.querySelector('#calories') as HTMLInputElement;
-                          const proteinsInput = formEl.querySelector('#proteins') as HTMLInputElement;
-                          const carbsInput = formEl.querySelector('#carbs') as HTMLInputElement;
-                          const fatsInput = formEl.querySelector('#fats') as HTMLInputElement;
-                          
-                          // Preimpostazioni per i vari alimenti
-                          switch(selectedValue) {
-                            case "Pizza Margherita (1 fetta)":
-                              caloriesInput.value = "285";
-                              proteinsInput.value = "12";
-                              carbsInput.value = "39";
-                              fatsInput.value = "10";
-                              break;
-                            case "Pasta al pomodoro (100g)":
-                              caloriesInput.value = "180";
-                              proteinsInput.value = "7";
-                              carbsInput.value = "35";
-                              fatsInput.value = "2";
-                              break;
-                            case "Insalata mista (100g)":
-                              caloriesInput.value = "20";
-                              proteinsInput.value = "1";
-                              carbsInput.value = "3";
-                              fatsInput.value = "0";
-                              break;
-                            case "Pollo alla griglia (100g)":
-                              caloriesInput.value = "165";
-                              proteinsInput.value = "31";
-                              carbsInput.value = "0";
-                              fatsInput.value = "3";
-                              break;
-                            case "Salmone (100g)":
-                              caloriesInput.value = "208";
-                              proteinsInput.value = "22";
-                              carbsInput.value = "0";
-                              fatsInput.value = "13";
-                              break;
-                            case "Uova (1 uovo)":
-                              caloriesInput.value = "70";
-                              proteinsInput.value = "6";
-                              carbsInput.value = "1";
-                              fatsInput.value = "5";
-                              break;
-                            case "Pane integrale (1 fetta)":
-                              caloriesInput.value = "80";
-                              proteinsInput.value = "3";
-                              carbsInput.value = "15";
-                              fatsInput.value = "1";
-                              break;
-                            case "Yogurt greco (150g)":
-                              caloriesInput.value = "150";
-                              proteinsInput.value = "15";
-                              carbsInput.value = "6";
-                              fatsInput.value = "7";
-                              break;
-                            case "Mela (1 media)":
-                              caloriesInput.value = "72";
-                              proteinsInput.value = "0";
-                              carbsInput.value = "19";
-                              fatsInput.value = "0";
-                              break;
-                            case "Banana (1 media)":
-                              caloriesInput.value = "105";
-                              proteinsInput.value = "1";
-                              carbsInput.value = "27";
-                              fatsInput.value = "0";
-                              break;
-                            case "Avocado (1/2)":
-                              caloriesInput.value = "160";
-                              proteinsInput.value = "2";
-                              carbsInput.value = "8";
-                              fatsInput.value = "15";
-                              break;
-                            case "Cioccolato fondente (30g)":
-                              caloriesInput.value = "160";
-                              proteinsInput.value = "2";
-                              carbsInput.value = "13";
-                              fatsInput.value = "11";
-                              break;
-                            case "Patate al forno (100g)":
-                              caloriesInput.value = "130";
-                              proteinsInput.value = "3";
-                              carbsInput.value = "30";
-                              fatsInput.value = "0";
-                              break;
-                            case "Formaggio (30g)":
-                              caloriesInput.value = "110";
-                              proteinsInput.value = "7";
-                              carbsInput.value = "1";
-                              fatsInput.value = "9";
-                              break;
-                            case "Riso bianco (100g cotto)":
-                              caloriesInput.value = "130";
-                              proteinsInput.value = "3";
-                              carbsInput.value = "28";
-                              fatsInput.value = "0";
-                              break;
-                            case "Altro (personalizzato)":
-                              // Lascia i valori di default o resetta
-                              caloriesInput.value = "0";
-                              proteinsInput.value = "0";
-                              carbsInput.value = "0";
-                              fatsInput.value = "0";
-                              break;
-                          }
-                        }}
-                        required
-                      >
-                        <option value="">Seleziona un alimento</option>
-                        <option value="Pizza Margherita (1 fetta)">Pizza Margherita (1 fetta)</option>
-                        <option value="Pasta al pomodoro (100g)">Pasta al pomodoro (100g)</option>
-                        <option value="Insalata mista (100g)">Insalata mista (100g)</option>
-                        <option value="Pollo alla griglia (100g)">Pollo alla griglia (100g)</option>
-                        <option value="Salmone (100g)">Salmone (100g)</option>
-                        <option value="Uova (1 uovo)">Uova (1 uovo)</option>
-                        <option value="Pane integrale (1 fetta)">Pane integrale (1 fetta)</option>
-                        <option value="Yogurt greco (150g)">Yogurt greco (150g)</option>
-                        <option value="Mela (1 media)">Mela (1 media)</option>
-                        <option value="Banana (1 media)">Banana (1 media)</option>
-                        <option value="Avocado (1/2)">Avocado (1/2)</option>
-                        <option value="Cioccolato fondente (30g)">Cioccolato fondente (30g)</option>
-                        <option value="Patate al forno (100g)">Patate al forno (100g)</option>
-                        <option value="Formaggio (30g)">Formaggio (30g)</option>
-                        <option value="Riso bianco (100g cotto)">Riso bianco (100g cotto)</option>
-                        <option value="Altro (personalizzato)">Altro (personalizzato)</option>
-                      </select>
-                      <input 
-                        type="text" 
-                        name="customFood" 
-                        id="customFood"
-                        placeholder="Inserisci qui se hai selezionato 'Altro'"
-                        className="w-full rounded-md border border-input bg-background px-3 py-2 mt-2"
-                        onFocus={() => {
-                          const foodSelect = document.querySelector('#food') as HTMLSelectElement;
-                          if (foodSelect && foodSelect.value !== "Altro (personalizzato)") {
-                            foodSelect.value = "Altro (personalizzato)";
-                            foodSelect.dispatchEvent(new Event('change'));
-                          }
-                        }}
-                      />
-                    </div>
-                    
-                    <div className="grid grid-cols-2 gap-3">
-                      <div className="space-y-2">
-                        <label htmlFor="calories" className="text-sm font-medium">
-                          Calorie
-                        </label>
-                        <input 
-                          type="number" 
-                          name="calories" 
-                          id="calories"
-                          min="0"
-                          placeholder="0"
-                          className="w-full rounded-md border border-input bg-background px-3 py-2"
-                          defaultValue="0"
-                          required
-                        />
-                      </div>
-                      
-                      <div className="space-y-2">
-                        <label htmlFor="proteins" className="text-sm font-medium">
-                          Proteine (g)
-                        </label>
-                        <input 
-                          type="number" 
-                          name="proteins" 
-                          id="proteins"
-                          min="0"
-                          placeholder="0"
-                          className="w-full rounded-md border border-input bg-background px-3 py-2"
-                          defaultValue="0"
-                          required
-                        />
-                      </div>
-                      
-                      <div className="space-y-2">
-                        <label htmlFor="carbs" className="text-sm font-medium">
-                          Carboidrati (g)
-                        </label>
-                        <input 
-                          type="number" 
-                          name="carbs" 
-                          id="carbs"
-                          min="0"
-                          placeholder="0"
-                          className="w-full rounded-md border border-input bg-background px-3 py-2"
-                          defaultValue="0"
-                          required
-                        />
-                      </div>
-                      
-                      <div className="space-y-2">
-                        <label htmlFor="fats" className="text-sm font-medium">
-                          Grassi (g)
-                        </label>
-                        <input 
-                          type="number" 
-                          name="fats" 
-                          id="fats"
-                          min="0"
-                          placeholder="0"
-                          className="w-full rounded-md border border-input bg-background px-3 py-2"
-                          defaultValue="0"
-                          required
-                        />
-                      </div>
-                    </div>
-                    
-                    <Button type="submit" className="w-full">
-                      <Plus className="h-4 w-4 mr-2" />
-                      Aggiungi Pasto
-                    </Button>
-                  </form>
-                </CardContent>
-              </Card>
+              <MealForm userId={user.id.toString()} />
               
-              {/* Lista pasti */}
+              {/* Lista dei pasti */}
               <Card className="md:col-span-2">
                 <CardHeader>
                   <CardTitle>I Tuoi Pasti</CardTitle>
@@ -611,9 +287,9 @@ export default function Home() {
                               })}</span>
                             </div>
                           </div>
-                          <div className="text-right">
-                            <p className="font-medium">{meal.calories} kcal</p>
-                            <p className="text-xs text-muted-foreground">
+                          <div>
+                            <p className="font-medium text-right">{meal.calories} kcal</p>
+                            <p className="text-xs text-muted-foreground text-right">
                               P: {meal.proteins}g | C: {meal.carbs}g | G: {meal.fats}g
                             </p>
                           </div>
@@ -621,9 +297,9 @@ export default function Home() {
                       ))}
                     </div>
                   ) : (
-                    <div className="text-center py-10 text-muted-foreground">
-                      <p>Nessun pasto registrato</p>
-                      <p className="text-sm mt-1">Aggiungi il tuo primo pasto dal modulo a sinistra</p>
+                    <div className="text-center py-12">
+                      <p className="text-muted-foreground">Nessun pasto registrato</p>
+                      <p className="text-sm mt-1">Utilizza il form a sinistra per aggiungere il tuo primo pasto</p>
                     </div>
                   )}
                 </CardContent>
@@ -647,33 +323,16 @@ export default function Home() {
                       const formData = new FormData(e.currentTarget);
                       
                       try {
-                        // Verifica che l'utente sia definito
-                        if (!user) {
-                          throw new Error('Utente non autenticato. Effettua il login per creare un obiettivo.');
-                        }
-                        
-                        // Assicuriamoci che tutti i valori numerici siano validi
-                        const caloriesStr = formData.get('calories') as string;
-                        const proteinsStr = formData.get('proteins') as string;
-                        const carbsStr = formData.get('carbs') as string;
-                        const fatsStr = formData.get('fats') as string;
-                        
-                        // Verifica e converti valori numerici
-                        const calories = parseInt(caloriesStr) || 0;
-                        const proteins = parseInt(proteinsStr) || 0;
-                        const carbs = parseInt(carbsStr) || 0;
-                        const fats = parseInt(fatsStr) || 0;
-                        
                         const goalData = {
                           userId: user.id.toString(),
                           name: formData.get('name') as string,
-                          calories: calories,
-                          proteins: proteins,
-                          carbs: carbs,
-                          fats: fats,
-                          startDate: new Date().toISOString().split('T')[0],
+                          description: formData.get('description') as string,
+                          calories: parseInt(formData.get('calories') as string) || 0,
+                          proteins: parseInt(formData.get('proteins') as string) || 0,
+                          carbs: parseInt(formData.get('carbs') as string) || 0,
+                          fats: parseInt(formData.get('fats') as string) || 0,
                           isActive: true,
-                          description: formData.get('description') as string || null
+                          startDate: new Date().toISOString()
                         };
                         
                         // Validazione base
@@ -681,11 +340,15 @@ export default function Home() {
                           throw new Error('Inserisci un nome per l\'obiettivo');
                         }
                         
+                        if (goalData.calories <= 0) {
+                          throw new Error('Le calorie devono essere maggiori di zero');
+                        }
+                        
                         const response = await apiRequest('POST', '/api/nutrition-goals', goalData);
                         
                         if (!response.ok) {
                           const errorData = await response.json();
-                          throw new Error(errorData.message || 'Errore durante la creazione dell\'obiettivo');
+                          throw new Error(errorData.message || 'Errore durante l\'aggiunta dell\'obiettivo');
                         }
                         
                         toast({
@@ -696,9 +359,7 @@ export default function Home() {
                         // Reset del form
                         e.currentTarget.reset();
                         
-                        // Invalidare le query per ricaricare gli obiettivi
-                        // A questo punto sappiamo che user è definito perché l'abbiamo controllato prima
-                        queryClient.invalidateQueries({queryKey: ['/api/nutrition-goals', user.id]});
+                        // Invalidare la query per ricaricare gli obiettivi
                         queryClient.invalidateQueries({queryKey: ['/api/nutrition-goals/active', user.id]});
                       } catch (error) {
                         toast({
@@ -711,133 +372,59 @@ export default function Home() {
                   >
                     <div className="space-y-2">
                       <label htmlFor="name" className="text-sm font-medium">
-                        Nome obiettivo
+                        Nome Obiettivo
                       </label>
-                      <select 
-                        name="name" 
+                      <input
+                        type="text"
+                        name="name"
                         id="name"
-                        className="w-full rounded-md border border-input bg-background px-3 py-2"
-                        onChange={(e) => {
-                          // Preset valori in base all'obiettivo selezionato
-                          const formEl = e.target.form;
-                          if (!formEl) return;
-                          
-                          const selectedValue = e.target.value;
-                          const caloriesInput = formEl.querySelector('#calories') as HTMLInputElement;
-                          const proteinsInput = formEl.querySelector('#proteins') as HTMLInputElement;
-                          const carbsInput = formEl.querySelector('#carbs') as HTMLInputElement;
-                          const fatsInput = formEl.querySelector('#fats') as HTMLInputElement;
-                          const descriptionTextarea = formEl.querySelector('#description') as HTMLTextAreaElement;
-                          
-                          // Preimpostazioni per i vari obiettivi
-                          switch(selectedValue) {
-                            case "Perdita di peso":
-                              caloriesInput.value = "1800";
-                              proteinsInput.value = "150";
-                              carbsInput.value = "150";
-                              fatsInput.value = "50";
-                              descriptionTextarea.value = "Obiettivo di perdita di peso con deficit calorico moderato e alta percentuale di proteine.";
-                              break;
-                            case "Mantenimento":
-                              caloriesInput.value = "2200";
-                              proteinsInput.value = "120";
-                              carbsInput.value = "220";
-                              fatsInput.value = "70";
-                              descriptionTextarea.value = "Obiettivo di mantenimento del peso con distribuzione equilibrata dei macronutrienti.";
-                              break;
-                            case "Aumento massa muscolare":
-                              caloriesInput.value = "2800";
-                              proteinsInput.value = "180";
-                              carbsInput.value = "320";
-                              fatsInput.value = "70";
-                              descriptionTextarea.value = "Obiettivo di aumento della massa muscolare con surplus calorico e alta percentuale di proteine e carboidrati.";
-                              break;
-                            case "Keto / Low-carb":
-                              caloriesInput.value = "2000";
-                              proteinsInput.value = "150";
-                              carbsInput.value = "50";
-                              fatsInput.value = "150";
-                              descriptionTextarea.value = "Dieta chetogenica con basso apporto di carboidrati, moderato apporto di proteine e alto apporto di grassi.";
-                              break;
-                            case "Mediterranea":
-                              caloriesInput.value = "2200";
-                              proteinsInput.value = "100";
-                              carbsInput.value = "260";
-                              fatsInput.value = "80";
-                              descriptionTextarea.value = "Dieta mediterranea con moderato apporto calorico, ricca di carboidrati complessi e grassi sani.";
-                              break;
-                            case "Vegana / Vegetariana":
-                              caloriesInput.value = "2000";
-                              proteinsInput.value = "80";
-                              carbsInput.value = "300";
-                              fatsInput.value = "60";
-                              descriptionTextarea.value = "Alimentazione a base vegetale con un buon apporto di carboidrati e moderato apporto di proteine.";
-                              break;
-                            case "Personalizzato":
-                              // Lascia i valori di default già presenti
-                              caloriesInput.value = "2000";
-                              proteinsInput.value = "120";
-                              carbsInput.value = "200";
-                              fatsInput.value = "65";
-                              descriptionTextarea.value = "";
-                              break;
-                          }
-                        }}
                         required
-                      >
-                        <option value="">Seleziona un obiettivo</option>
-                        <option value="Perdita di peso">Perdita di peso</option>
-                        <option value="Mantenimento">Mantenimento</option>
-                        <option value="Aumento massa muscolare">Aumento massa muscolare</option>
-                        <option value="Keto / Low-carb">Keto / Low-carb</option>
-                        <option value="Mediterranea">Dieta Mediterranea</option>
-                        <option value="Vegana / Vegetariana">Vegana / Vegetariana</option>
-                        <option value="Personalizzato">Personalizzato</option>
-                      </select>
+                        placeholder="es. Mantenimento, Perdita peso, ecc."
+                        className="w-full rounded-md border border-input bg-background px-3 py-2"
+                      />
                     </div>
                     
                     <div className="space-y-2">
                       <label htmlFor="description" className="text-sm font-medium">
                         Descrizione (opzionale)
                       </label>
-                      <textarea 
-                        name="description" 
+                      <textarea
+                        name="description"
                         id="description"
-                        placeholder="Dettagli aggiuntivi sul tuo obiettivo..."
-                        className="w-full rounded-md border border-input bg-background px-3 py-2 min-h-[80px]"
-                      ></textarea>
+                        placeholder="Descrivi il tuo obiettivo"
+                        className="w-full rounded-md border border-input bg-background px-3 py-2"
+                        rows={2}
+                      />
                     </div>
                     
                     <div className="space-y-2">
                       <label htmlFor="calories" className="text-sm font-medium">
-                        Calorie giornaliere
+                        Calorie giornaliere (kcal)
                       </label>
-                      <input 
-                        type="number" 
-                        name="calories" 
+                      <input
+                        type="number"
+                        name="calories"
                         id="calories"
-                        min="0"
-                        placeholder="0"
-                        className="w-full rounded-md border border-input bg-background px-3 py-2"
-                        defaultValue="2000"
                         required
+                        placeholder="0"
+                        min="0"
+                        className="w-full rounded-md border border-input bg-background px-3 py-2"
                       />
                     </div>
                     
-                    <div className="grid grid-cols-1 gap-3">
+                    <div className="grid grid-cols-3 gap-2">
                       <div className="space-y-2">
                         <label htmlFor="proteins" className="text-sm font-medium">
                           Proteine (g)
                         </label>
-                        <input 
-                          type="number" 
-                          name="proteins" 
+                        <input
+                          type="number"
+                          name="proteins"
                           id="proteins"
-                          min="0"
-                          placeholder="0"
-                          className="w-full rounded-md border border-input bg-background px-3 py-2"
-                          defaultValue="120"
                           required
+                          placeholder="0"
+                          min="0"
+                          className="w-full rounded-md border border-input bg-background px-3 py-2"
                         />
                       </div>
                       
@@ -845,15 +432,14 @@ export default function Home() {
                         <label htmlFor="carbs" className="text-sm font-medium">
                           Carboidrati (g)
                         </label>
-                        <input 
-                          type="number" 
-                          name="carbs" 
+                        <input
+                          type="number"
+                          name="carbs"
                           id="carbs"
-                          min="0"
-                          placeholder="0"
-                          className="w-full rounded-md border border-input bg-background px-3 py-2"
-                          defaultValue="200"
                           required
+                          placeholder="0"
+                          min="0"
+                          className="w-full rounded-md border border-input bg-background px-3 py-2"
                         />
                       </div>
                       
@@ -861,34 +447,32 @@ export default function Home() {
                         <label htmlFor="fats" className="text-sm font-medium">
                           Grassi (g)
                         </label>
-                        <input 
-                          type="number" 
-                          name="fats" 
+                        <input
+                          type="number"
+                          name="fats"
                           id="fats"
-                          min="0"
-                          placeholder="0"
-                          className="w-full rounded-md border border-input bg-background px-3 py-2"
-                          defaultValue="65"
                           required
+                          placeholder="0"
+                          min="0"
+                          className="w-full rounded-md border border-input bg-background px-3 py-2"
                         />
                       </div>
                     </div>
                     
-                    <Button type="submit" className="w-full">
-                      <BarChart className="h-4 w-4 mr-2" />
-                      Crea Obiettivo
-                    </Button>
+                    <div>
+                      <Button type="submit" className="w-full">
+                        Crea Obiettivo
+                      </Button>
+                    </div>
                   </form>
                 </CardContent>
               </Card>
               
-              {/* Lista obiettivi */}
+              {/* Visualizzazione dell'obiettivo attivo e cronologia */}
               <Card className="md:col-span-2">
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <div>
-                    <CardTitle>I Tuoi Obiettivi</CardTitle>
-                    <CardDescription>Gestisci i tuoi obiettivi nutrizionali</CardDescription>
-                  </div>
+                <CardHeader>
+                  <CardTitle>Obiettivo Attivo</CardTitle>
+                  <CardDescription>Il tuo obiettivo nutrizionale attuale</CardDescription>
                 </CardHeader>
                 <CardContent>
                   {goalLoading ? (
@@ -896,23 +480,20 @@ export default function Home() {
                       <Loader2 className="h-8 w-8 animate-spin text-primary" />
                     </div>
                   ) : (
-                    <div>
+                    <div className="space-y-8">
                       {/* Obiettivo attivo */}
-                      <div className="mb-6">
-                        <h3 className="text-lg font-semibold mb-2">Obiettivo Attivo</h3>
+                      <div>
                         {activeGoal ? (
-                          <div className="border rounded-md p-4 bg-primary/5 relative">
-                            <div className="absolute top-2 right-2 bg-green-500 text-white text-xs px-2 py-1 rounded-full">
-                              Attivo
-                            </div>
-                            <h4 className="font-medium text-lg">{activeGoal.name}</h4>
+                          <div className="border rounded-md p-4">
+                            <h3 className="text-xl font-semibold">{activeGoal.name}</h3>
                             {activeGoal.description && (
-                              <p className="text-sm text-gray-600 mt-1 mb-3">{activeGoal.description}</p>
+                              <p className="text-muted-foreground mt-1">{activeGoal.description}</p>
                             )}
-                            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mt-2">
+                            
+                            <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mt-4">
                               <div className="bg-background p-2 rounded border text-center">
                                 <p className="text-xs text-gray-500">Calorie</p>
-                                <p className="font-bold">{activeGoal.calories}</p>
+                                <p className="font-bold">{activeGoal.calories} kcal</p>
                               </div>
                               <div className="bg-background p-2 rounded border text-center">
                                 <p className="text-xs text-gray-500">Proteine</p>
