@@ -1,8 +1,17 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
-import { addMealPlan, getMealPlans } from '@/lib/firebase';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { apiRequest } from '@/lib/queryClient';
+
+type MealPlan = {
+  id: number;
+  userId: string;
+  query: string;
+  response: string;
+  timestamp: string;
+};
 
 type MealPlanProps = {
   userId: string;
@@ -12,91 +21,114 @@ export default function MealPlan({ userId }: MealPlanProps) {
   const [query, setQuery] = useState('');
   const [response, setResponse] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [savedMealPlans, setSavedMealPlans] = useState<any[]>([]);
   const { toast } = useToast();
+  const queryClient = useQueryClient();
   
-  // Carica i piani alimentari salvati da Firebase
-  useEffect(() => {
-    getMealPlans(userId, (mealPlans) => {
-      if (mealPlans && mealPlans.length > 0) {
-        setSavedMealPlans(mealPlans);
-        // Opzionale: mostra l'ultimo piano alimentare
-        if (mealPlans[0] && mealPlans[0].response) {
-          setResponse(mealPlans[0].response);
-        }
-      }
-    });
-  }, [userId]);
+  // Query per ottenere i piani alimentari
+  const { data: mealPlans } = useQuery<MealPlan[]>({
+    queryKey: ['/api/mealplans', userId],
+    queryFn: async () => {
+      const res = await apiRequest('GET', `/api/mealplans?userId=${userId}`);
+      if (!res.ok) throw new Error('Failed to fetch meal plans');
+      return res.json();
+    }
+  });
+  
+  // Imposta la risposta con il piano pasto più recente quando i dati vengono caricati
+  if (mealPlans && mealPlans.length > 0 && !response && mealPlans[0].response) {
+    setResponse(mealPlans[0].response);
+  }
 
+  // Mutation per creare un nuovo piano pasto
+  const createMealPlanMutation = useMutation({
+    mutationFn: async (mealPlanData: { userId: string; query: string; response: string }) => {
+      const res = await apiRequest('POST', '/api/mealplans', {
+        ...mealPlanData,
+        timestamp: new Date().toISOString()
+      });
+      if (!res.ok) throw new Error('Failed to create meal plan');
+      return res.json();
+    },
+    onSuccess: () => {
+      // Invalida la query per ricaricare i piani pasto
+      queryClient.invalidateQueries({ queryKey: ['/api/mealplans'] });
+    },
+    onError: (error) => {
+      console.error('Error creating meal plan:', error);
+      toast({
+        title: 'Errore',
+        description: 'Impossibile salvare il piano pasto',
+        variant: 'destructive'
+      });
+    }
+  });
+  
   const generateMealPlan = async () => {
     if (!query.trim()) {
       toast({
-        title: "Error",
-        description: "Please enter a question or request.",
+        title: "Errore",
+        description: "Inserisci una domanda o una richiesta.",
         variant: "destructive"
       });
       return;
     }
 
+    // Imposta lo stato di caricamento e il messaggio
     setIsLoading(true);
-    setResponse("Generating meal suggestions...");
+    setResponse("Generazione di suggerimenti di pasti in corso...");
 
     try {
-      // Simulating API delay
-      setTimeout(() => {
-        let mealPlanResponse;
-        
-        if (query.toLowerCase().includes("protein")) {
-          mealPlanResponse = `
-            <p class="font-medium mb-2">High-Protein Meal Ideas:</p>
-            <ul class="list-disc pl-5 space-y-1">
-              <li>Greek yogurt with berries and nuts (24g protein)</li>
-              <li>Chicken breast with quinoa and vegetables (38g protein)</li>
-              <li>Salmon with sweet potato and asparagus (32g protein)</li>
-              <li>Protein smoothie with whey, banana, and almond milk (30g protein)</li>
-            </ul>
-          `;
-        } else if (query.toLowerCase().includes("carb") || query.toLowerCase().includes("keto")) {
-          mealPlanResponse = `
-            <p class="font-medium mb-2">Low-Carb Meal Ideas:</p>
-            <ul class="list-disc pl-5 space-y-1">
-              <li>Egg and vegetable scramble with avocado (6g carbs)</li>
-              <li>Zucchini noodles with pesto and grilled chicken (9g carbs)</li>
-              <li>Cauliflower rice bowl with steak and vegetables (10g carbs)</li>
-              <li>Spinach salad with grilled salmon and olive oil dressing (5g carbs)</li>
-            </ul>
-          `;
-        } else {
-          mealPlanResponse = `
-            <p class="font-medium mb-2">Balanced Meal Suggestions:</p>
-            <ul class="list-disc pl-5 space-y-1">
-              <li>Overnight oats with Greek yogurt and berries</li>
-              <li>Turkey and vegetable wrap with hummus</li>
-              <li>Baked fish with roasted vegetables and quinoa</li>
-              <li>Lentil soup with a side salad and whole grain bread</li>
-            </ul>
-            <p class="mt-2 text-sm text-neutral-medium">For more specific suggestions, try asking about particular nutritional goals or dietary preferences.</p>
-          `;
-        }
-        
-        setResponse(mealPlanResponse);
-        
-        // Salva il piano alimentare nel database di Firebase
-        addMealPlan({
-          userId,
-          query,
-          response: mealPlanResponse
-        }).catch(err => {
-          console.error("Error saving meal plan:", err);
-        });
-        
-        setIsLoading(false);
-      }, 1000);
+      // Simulazione dell'API con delay
+      let mealPlanResponse;
+      
+      if (query.toLowerCase().includes("protein") || query.toLowerCase().includes("proteine")) {
+        mealPlanResponse = `
+          <p class="font-medium mb-2">Idee di Pasti ad Alto Contenuto Proteico:</p>
+          <ul class="list-disc pl-5 space-y-1">
+            <li>Yogurt greco con frutti di bosco e noci (24g proteine)</li>
+            <li>Petto di pollo con quinoa e verdure (38g proteine)</li>
+            <li>Salmone con patate dolci e asparagi (32g proteine)</li>
+            <li>Frullato proteico con whey, banana e latte di mandorla (30g proteine)</li>
+          </ul>
+        `;
+      } else if (query.toLowerCase().includes("carb") || query.toLowerCase().includes("carboidrati") || query.toLowerCase().includes("keto")) {
+        mealPlanResponse = `
+          <p class="font-medium mb-2">Idee di Pasti a Basso Contenuto di Carboidrati:</p>
+          <ul class="list-disc pl-5 space-y-1">
+            <li>Uova strapazzate con verdure e avocado (6g carboidrati)</li>
+            <li>Spaghetti di zucchine con pesto e pollo alla griglia (9g carboidrati)</li>
+            <li>Ciotola di riso di cavolfiore con bistecca e verdure (10g carboidrati)</li>
+            <li>Insalata di spinaci con salmone alla griglia e condimento all'olio d'oliva (5g carboidrati)</li>
+          </ul>
+        `;
+      } else {
+        mealPlanResponse = `
+          <p class="font-medium mb-2">Suggerimenti per Pasti Bilanciati:</p>
+          <ul class="list-disc pl-5 space-y-1">
+            <li>Overnight oats con yogurt greco e frutti di bosco</li>
+            <li>Wrap di tacchino e verdure con hummus</li>
+            <li>Pesce al forno con verdure arrostite e quinoa</li>
+            <li>Zuppa di lenticchie con insalata e pane integrale</li>
+          </ul>
+          <p class="mt-2 text-sm text-neutral-medium">Per suggerimenti più specifici, prova a chiedere riguardo particolari obiettivi nutrizionali o preferenze dietetiche.</p>
+        `;
+      }
+      
+      // Salva il piano alimentare nel database tramite REST API
+      createMealPlanMutation.mutate({
+        userId,
+        query,
+        response: mealPlanResponse
+      });
+      
+      // Aggiorna lo stato con il nuovo piano alimentare
+      setResponse(mealPlanResponse);
+      setIsLoading(false);
     } catch (error) {
-      setResponse("An error occurred while generating meal suggestions. Please try again.");
+      setResponse("Si è verificato un errore durante la generazione dei suggerimenti per i pasti. Riprova.");
       toast({
-        title: "Error",
-        description: "Failed to generate meal plan",
+        title: "Errore",
+        description: "Impossibile generare il piano pasto",
         variant: "destructive"
       });
       setIsLoading(false);
