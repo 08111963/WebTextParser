@@ -1,4 +1,4 @@
-import { initializeApp, FirebaseApp } from "firebase/app";
+import { initializeApp } from "firebase/app";
 import { 
   getAuth, 
   signInWithEmailAndPassword, 
@@ -9,8 +9,7 @@ import {
   sendPasswordResetEmail,
   sendEmailVerification,
   onAuthStateChanged,
-  User,
-  Auth
+  User
 } from "firebase/auth";
 import { 
   getFirestore, 
@@ -25,8 +24,7 @@ import {
   where, 
   orderBy, 
   Timestamp,
-  onSnapshot,
-  Firestore
+  onSnapshot
 } from "firebase/firestore";
 
 // Initialize Firebase
@@ -46,30 +44,24 @@ const googleProvider = new GoogleAuthProvider();
 
 // Authentication functions
 export const signIn = (email: string, password: string) => {
-  const auth = getFirebaseAuth();
   return signInWithEmailAndPassword(auth, email, password);
 };
 
 export const signUp = async (email: string, password: string) => {
-  const auth = getFirebaseAuth();
   const userCredential = await createUserWithEmailAndPassword(auth, email, password);
   await sendEmailVerification(userCredential.user);
   return userCredential;
 };
 
 export const signOut = () => {
-  const auth = getFirebaseAuth();
   return firebaseSignOut(auth);
 };
 
 export const signInWithGoogle = () => {
-  const auth = getFirebaseAuth();
-  const provider = getGoogleProvider();
-  return signInWithPopup(auth, provider);
+  return signInWithPopup(auth, googleProvider);
 };
 
 export const resetPassword = (email: string) => {
-  const auth = getFirebaseAuth();
   return sendPasswordResetEmail(auth, email);
 };
 
