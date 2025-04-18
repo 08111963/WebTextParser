@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -15,25 +16,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useToast } from '@/hooks/use-toast';
 import { apiRequest } from '@/lib/queryClient';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-
-// Dati nutrizionali predefiniti per i cibi comuni
-const commonFoods = {
-  'chicken_breast': { name: 'Petto di pollo', calories: 165, proteins: 31, carbs: 0, fats: 3.6 },
-  'salmon': { name: 'Salmone', calories: 208, proteins: 20, carbs: 0, fats: 13 },
-  'rice': { name: 'Riso bianco', calories: 130, proteins: 2.7, carbs: 28, fats: 0.3 },
-  'pasta': { name: 'Pasta', calories: 158, proteins: 5.8, carbs: 31, fats: 0.9 },
-  'eggs': { name: 'Uova', calories: 155, proteins: 13, carbs: 1.1, fats: 11 },
-  'greek_yogurt': { name: 'Yogurt greco', calories: 59, proteins: 10, carbs: 3.6, fats: 0.4 },
-  'apple': { name: 'Mela', calories: 52, proteins: 0.3, carbs: 14, fats: 0.2 },
-  'banana': { name: 'Banana', calories: 89, proteins: 1.1, carbs: 23, fats: 0.3 },
-  'avocado': { name: 'Avocado', calories: 160, proteins: 2, carbs: 8.5, fats: 14.7 },
-  'broccoli': { name: 'Broccoli', calories: 34, proteins: 2.8, carbs: 7, fats: 0.4 },
-  'olive_oil': { name: 'Olio d\'oliva', calories: 119, proteins: 0, carbs: 0, fats: 13.5 },
-  'bread': { name: 'Pane', calories: 265, proteins: 9, carbs: 49, fats: 3.2 },
-  'almond': { name: 'Mandorle', calories: 579, proteins: 21, carbs: 22, fats: 49 },
-  'chocolate': { name: 'Cioccolato fondente', calories: 598, proteins: 7.8, carbs: 46, fats: 43 },
-  'custom': { name: 'Altro (personalizzato)', calories: 0, proteins: 0, carbs: 0, fats: 0 }
-};
+import { foodItems } from '@/data/foodDatabase';
 
 const mealFormSchema = z.object({
   mealType: z.string().min(1, 'Tipo di pasto richiesto'),
@@ -54,6 +37,7 @@ type MealFormProps = {
 export default function MealForm({ userId }: MealFormProps) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const [selectedFoodPortion, setSelectedFoodPortion] = useState<string>("");
   
   const form = useForm<MealFormValues>({
     resolver: zodResolver(mealFormSchema),
@@ -96,6 +80,7 @@ export default function MealForm({ userId }: MealFormProps) {
         description: "Pasto aggiunto con successo",
       });
       
+      // Reset form
       form.reset({
         mealType: 'breakfast',
         food: '',
@@ -105,6 +90,7 @@ export default function MealForm({ userId }: MealFormProps) {
         carbs: 0,
         fats: 0,
       });
+      setSelectedFoodPortion("");
     },
     onError: (error: Error) => {
       console.error("Errore durante l'aggiunta del pasto:", error);
@@ -118,18 +104,27 @@ export default function MealForm({ userId }: MealFormProps) {
 
   // Gestisce la selezione di un cibo predefinito
   const handleFoodPresetChange = (value: string) => {
-    const selectedFood = commonFoods[value as keyof typeof commonFoods];
+    if (value === 'custom') {
+      form.setValue('foodPreset', 'custom');
+      form.setValue('food', '');
+      form.setValue('calories', 0);
+      form.setValue('proteins', 0);
+      form.setValue('carbs', 0);
+      form.setValue('fats', 0);
+      setSelectedFoodPortion("");
+      return;
+    }
+    
+    const selectedFood = foodItems.find(item => item.id === value);
     
     if (selectedFood) {
       form.setValue('foodPreset', value);
-      
-      if (value !== 'custom') {
-        form.setValue('food', selectedFood.name);
-        form.setValue('calories', selectedFood.calories);
-        form.setValue('proteins', selectedFood.proteins);
-        form.setValue('carbs', selectedFood.carbs);
-        form.setValue('fats', selectedFood.fats);
-      }
+      form.setValue('food', `${selectedFood.name} (${selectedFood.portion})`);
+      form.setValue('calories', selectedFood.calories);
+      form.setValue('proteins', selectedFood.proteins);
+      form.setValue('carbs', selectedFood.carbs);
+      form.setValue('fats', selectedFood.fats);
+      setSelectedFoodPortion(selectedFood.portion);
     }
   };
 
@@ -144,37 +139,26 @@ export default function MealForm({ userId }: MealFormProps) {
       return;
     }
     
-    // Log dei dati prima dell'invio
-    console.log("Dati da inviare:", {
+    // Prepara i dati da inviare
+    const mealData = {
       userId,
       food: values.food,
-      calories: Number(values.calories) || 0,
-      proteins: Number(values.proteins) || 0,
-      carbs: Number(values.carbs) || 0,
-      fats: Number(values.fats) || 0,
-      mealType: values.mealType,
-      timestamp: new Date().toISOString()
-    });
-    
-    // Invia i dati al server
-    addMealMutation.mutate({
-      userId: userId,
-      food: values.food,
-      calories: Math.round(Number(values.calories) || 0),  // Assicura che sia un numero intero
+      calories: Math.round(Number(values.calories) || 0),
       proteins: Math.round(Number(values.proteins) || 0),
       carbs: Math.round(Number(values.carbs) || 0),
       fats: Math.round(Number(values.fats) || 0),
       mealType: values.mealType,
       timestamp: new Date().toISOString()
-    });
+    };
+    
+    // Invia i dati
+    addMealMutation.mutate(mealData);
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-sm mb-4">
-      <div className="border-b border-gray-200 p-4">
-        <h2 className="text-lg font-semibold">Aggiungi Nuovo Pasto</h2>
-      </div>
-      <div className="p-4">
+    <div className="bg-white p-6 rounded-lg shadow-sm border">
+      <h2 className="text-xl font-semibold mb-4">Aggiungi Pasto</h2>
+      <div className="space-y-4">
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             <FormField
@@ -196,11 +180,19 @@ export default function MealForm({ userId }: MealFormProps) {
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      {Object.entries(commonFoods).map(([key, food]) => (
-                        <SelectItem key={key} value={key}>{food.name}</SelectItem>
+                      <SelectItem value="custom">Altro (personalizzato)</SelectItem>
+                      {foodItems.map((food) => (
+                        <SelectItem key={food.id} value={food.id}>
+                          {food.name} ({food.portion})
+                        </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
+                  {selectedFoodPortion && (
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Valori nutrizionali per {selectedFoodPortion}
+                    </p>
+                  )}
                   <FormMessage />
                 </FormItem>
               )}
@@ -211,11 +203,11 @@ export default function MealForm({ userId }: MealFormProps) {
               name="mealType"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Tipo di Pasto</FormLabel>
+                  <FormLabel>Tipo di pasto</FormLabel>
                   <Select onValueChange={field.onChange} defaultValue={field.value}>
                     <FormControl>
                       <SelectTrigger>
-                        <SelectValue placeholder="Seleziona tipo di pasto" />
+                        <SelectValue placeholder="Seleziona un tipo" />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
@@ -235,9 +227,9 @@ export default function MealForm({ userId }: MealFormProps) {
               name="food"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Nome Alimento</FormLabel>
+                  <FormLabel>Nome alimento</FormLabel>
                   <FormControl>
-                    <Input {...field} placeholder="es., Insalata di pollo" />
+                    <Input {...field} placeholder="Es: Yogurt greco" />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -250,7 +242,7 @@ export default function MealForm({ userId }: MealFormProps) {
                 name="calories"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Calorie</FormLabel>
+                    <FormLabel>Calorie (kcal)</FormLabel>
                     <FormControl>
                       <Input type="number" {...field} />
                     </FormControl>
