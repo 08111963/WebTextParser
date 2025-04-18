@@ -1,20 +1,7 @@
-import { calculateBMR, calculateMacronutrients } from "@/lib/fitness-calculations";
-
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-} from "@/components/ui/card";
-
-import {
-  Flame,
-  Apple,
-  Beef,
-  Cookie,
-  CircleDashed
-} from "lucide-react";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { calculateBMR, calculateTDEE, suggestMacroDistribution } from "@/lib/fitness-calculations";
+import { CircleHelp, Flame } from "lucide-react";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 type MetabolismCardProps = {
   weight: number;
@@ -31,86 +18,103 @@ export default function MetabolismCard({
   gender, 
   activityLevel 
 }: MetabolismCardProps) {
-  const { bmr, tdee } = calculateBMR(weight, height, age, gender, activityLevel);
-  const { proteins, carbs, fats } = calculateMacronutrients(tdee);
+  // Calcola metabolismo basale (calorie a riposo)
+  const bmr = calculateBMR(weight, height, age, gender);
   
-  // Livelli di attività in italiano per la visualizzazione
-  const activityLevels = {
-    sedentaria: "Nessuna attività fisica",
-    leggera: "Attività leggera 1-3 volte a settimana",
-    moderata: "Attività moderata 3-5 volte a settimana",
-    attiva: "Attività intensa 6-7 volte a settimana",
-    "molto attiva": "Attività molto intensa o lavoro fisico quotidiano"
-  };
+  // Calcola fabbisogno calorico giornaliero totale
+  const tdee = calculateTDEE(bmr, activityLevel);
   
-  const activityDescription = activityLevels[activityLevel as keyof typeof activityLevels] || "Attività moderata";
+  // Suggerisce distribuzione macronutrienti basata sul "mantenimento"
+  const macros = suggestMacroDistribution("mantenimento");
+  
+  // Traduzione livello attività
+  const activityLevelLabel = {
+    "sedentario": "Sedentario",
+    "sedentary": "Sedentario",
+    "leggero": "Leggero",
+    "light": "Leggero",
+    "moderato": "Moderato",
+    "moderate": "Moderato",
+    "attivo": "Attivo",
+    "active": "Attivo",
+    "molto attivo": "Molto attivo",
+    "very active": "Molto attivo"
+  }[activityLevel?.toLowerCase()] || "Non specificato";
   
   return (
     <Card>
       <CardHeader className="pb-2">
-        <CardTitle className="text-base font-medium flex items-center gap-2">
-          <Flame className="h-4 w-4" />
-          Metabolismo e Fabbisogno Calorico
+        <CardTitle className="text-lg flex items-center gap-2">
+          <Flame className="h-5 w-5 text-primary" />
+          <span>Metabolismo Basale</span>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <CircleHelp className="h-4 w-4 text-muted-foreground cursor-help ml-1" />
+              </TooltipTrigger>
+              <TooltipContent className="max-w-sm">
+                <p>
+                  Il Metabolismo Basale (BMR) rappresenta le calorie che il corpo consuma a riposo per le funzioni vitali.
+                  Il Fabbisogno Energetico Totale (TDEE) include anche l'attività fisica quotidiana.
+                </p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
         </CardTitle>
         <CardDescription>
-          Basato su età, genere, peso, altezza e livello di attività
+          Calorie necessarie per il tuo corpo, calcolate con formula Harris-Benedict
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <div className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-1">
-              <p className="text-sm text-muted-foreground">Metabolismo Basale (BMR)</p>
-              <div className="flex items-baseline">
-                <span className="text-2xl font-bold">{bmr}</span>
-                <span className="text-muted-foreground text-sm ml-1">kcal/giorno</span>
-              </div>
-              <p className="text-xs text-muted-foreground">Calorie necessarie a riposo</p>
-            </div>
-            
-            <div className="space-y-1">
-              <p className="text-sm text-muted-foreground">Fabbisogno Totale (TDEE)</p>
-              <div className="flex items-baseline">
-                <span className="text-2xl font-bold">{tdee}</span>
-                <span className="text-muted-foreground text-sm ml-1">kcal/giorno</span>
-              </div>
-              <p className="text-xs text-muted-foreground">Con attività: {activityDescription}</p>
-            </div>
-          </div>
-          
-          <div className="space-y-2 pt-2">
-            <p className="text-sm font-medium">Distribuzione Macronutrienti Raccomandata</p>
-            
-            <div className="grid grid-cols-3 gap-2">
-              <div className="bg-muted/50 p-2 rounded">
-                <div className="flex items-center gap-1 text-sm font-medium mb-1">
-                  <Beef className="h-4 w-4 text-red-500" />
-                  <span>Proteine</span>
-                </div>
-                <p className="text-lg font-bold">{proteins}g</p>
-                <p className="text-xs text-muted-foreground">{proteins * 4} kcal - 30%</p>
+        {bmr > 0 ? (
+          <div className="space-y-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div className="bg-primary/10 p-3 rounded-md text-center">
+                <div className="text-sm text-muted-foreground">Metabolismo Basale</div>
+                <div className="text-2xl font-bold">{bmr} kcal</div>
+                <div className="text-xs text-muted-foreground">A riposo</div>
               </div>
               
-              <div className="bg-muted/50 p-2 rounded">
-                <div className="flex items-center gap-1 text-sm font-medium mb-1">
-                  <Apple className="h-4 w-4 text-green-500" />
-                  <span>Carboidrati</span>
-                </div>
-                <p className="text-lg font-bold">{carbs}g</p>
-                <p className="text-xs text-muted-foreground">{carbs * 4} kcal - 40%</p>
+              <div className="bg-primary/10 p-3 rounded-md text-center">
+                <div className="text-sm text-muted-foreground">Fabbisogno Totale</div>
+                <div className="text-2xl font-bold">{tdee} kcal</div>
+                <div className="text-xs text-muted-foreground">Liv. attività: {activityLevelLabel}</div>
               </div>
-              
-              <div className="bg-muted/50 p-2 rounded">
-                <div className="flex items-center gap-1 text-sm font-medium mb-1">
-                  <Cookie className="h-4 w-4 text-yellow-500" />
-                  <span>Grassi</span>
+            </div>
+            
+            <div className="mt-4">
+              <div className="text-sm font-medium mb-2">Distribuzione macronutrienti consigliata:</div>
+              <div className="grid grid-cols-3 gap-3">
+                <div className="border rounded-md p-2 text-center">
+                  <div className="text-xs text-muted-foreground">Proteine</div>
+                  <div className="font-semibold">{macros.proteins}%</div>
+                  <div className="text-xs text-muted-foreground">
+                    ~{Math.round((tdee * macros.proteins / 100) / 4)}g
+                  </div>
                 </div>
-                <p className="text-lg font-bold">{fats}g</p>
-                <p className="text-xs text-muted-foreground">{fats * 9} kcal - 30%</p>
+                <div className="border rounded-md p-2 text-center">
+                  <div className="text-xs text-muted-foreground">Carboidrati</div>
+                  <div className="font-semibold">{macros.carbs}%</div>
+                  <div className="text-xs text-muted-foreground">
+                    ~{Math.round((tdee * macros.carbs / 100) / 4)}g
+                  </div>
+                </div>
+                <div className="border rounded-md p-2 text-center">
+                  <div className="text-xs text-muted-foreground">Grassi</div>
+                  <div className="font-semibold">{macros.fats}%</div>
+                  <div className="text-xs text-muted-foreground">
+                    ~{Math.round((tdee * macros.fats / 100) / 9)}g
+                  </div>
+                </div>
               </div>
             </div>
           </div>
-        </div>
+        ) : (
+          <div className="text-center py-8 text-muted-foreground">
+            <p>Dati insufficienti per il calcolo</p>
+            <p className="text-sm mt-1">Assicurati di aver inserito peso, altezza, età e genere nel tuo profilo</p>
+          </div>
+        )}
       </CardContent>
     </Card>
   );

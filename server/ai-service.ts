@@ -33,7 +33,6 @@ export async function generateNutritionGoalRecommendations(
         genere: profile.gender || "Non specificato",
         livelloAttività: profile.activityLevel || "Non specificato",
         bmi: bmi || "Non calcolabile",
-        obiettivi: profile.goals || "Non specificati",
       },
       obiettivoAttuale: currentGoal ? {
         nome: currentGoal.name,
@@ -91,7 +90,8 @@ export async function generateNutritionGoalRecommendations(
       temperature: 0.7,
     });
 
-    const recommendations = JSON.parse(response.choices[0].message.content);
+    const responseContent = response.choices[0].message.content || '[]';
+    const recommendations = JSON.parse(responseContent);
     
     // Assicurati che i valori siano tutti numeri interi
     const processedRecommendations = Array.isArray(recommendations) 
@@ -106,9 +106,9 @@ export async function generateNutritionGoalRecommendations(
       : [];
       
     return processedRecommendations;
-  } catch (error) {
+  } catch (error: any) {
     console.error("Error generating nutrition goal recommendations:", error);
-    throw new Error(`Failed to generate nutrition goal recommendations: ${error.message}`);
+    throw new Error(`Failed to generate nutrition goal recommendations: ${error?.message || 'Unknown error'}`);
   }
 }
 
@@ -133,7 +133,6 @@ export async function generateMealSuggestions(
         altezza: profile.height ? `${profile.height} cm` : "Non specificata",
         genere: profile.gender || "Non specificato",
         livelloAttività: profile.activityLevel || "Non specificato",
-        obiettivi: profile.goals || "Non specificati",
       },
       obiettivoNutrizionale: nutritionGoal ? {
         calorie: nutritionGoal.calories,
@@ -189,7 +188,8 @@ export async function generateMealSuggestions(
       temperature: 0.8,
     });
 
-    const suggestions = JSON.parse(response.choices[0].message.content);
+    const responseContent = response.choices[0].message.content || '[]';
+    const suggestions = JSON.parse(responseContent);
     
     // Assicurati che i valori siano tutti numeri interi
     const processedSuggestions = Array.isArray(suggestions) 
@@ -205,8 +205,8 @@ export async function generateMealSuggestions(
       : [];
       
     return processedSuggestions;
-  } catch (error) {
+  } catch (error: any) {
     console.error("Error generating meal suggestions:", error);
-    throw new Error(`Failed to generate meal suggestions: ${error.message}`);
+    throw new Error(`Failed to generate meal suggestions: ${error?.message || 'Unknown error'}`);
   }
 }
