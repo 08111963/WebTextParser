@@ -21,8 +21,8 @@ function isAuthenticated(req: Request, res: Response, next: NextFunction) {
 export async function registerRoutes(app: Express): Promise<Server> {
   // Configura l'autenticazione
   setupAuth(app);
-  // Get meals for user
-  app.get("/api/meals", async (req, res) => {
+  // Get meals for user (route protetta)
+  app.get("/api/meals", isAuthenticated, async (req, res) => {
     try {
       const userId = req.query.userId as string;
       
@@ -48,8 +48,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Create meal
-  app.post("/api/meals", async (req, res) => {
+  // Create meal (route protetta)
+  app.post("/api/meals", isAuthenticated, async (req, res) => {
     try {
       const mealData = insertMealSchema.parse(req.body);
       const meal = await storage.createMeal(mealData);
@@ -69,8 +69,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Delete meal
-  app.delete("/api/meals/:id", async (req, res) => {
+  // Delete meal (route protetta)
+  app.delete("/api/meals/:id", isAuthenticated, async (req, res) => {
     try {
       const id = parseInt(req.params.id);
       
@@ -93,8 +93,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Create meal plan
-  app.post("/api/mealplans", async (req, res) => {
+  // Create meal plan (route protetta)
+  app.post("/api/mealplans", isAuthenticated, async (req, res) => {
     try {
       const mealPlanData = insertMealPlanSchema.parse(req.body);
       const mealPlan = await storage.createMealPlan(mealPlanData);
@@ -114,8 +114,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Get meal plans for user
-  app.get("/api/mealplans", async (req, res) => {
+  // Get meal plans for user (route protetta)
+  app.get("/api/mealplans", isAuthenticated, async (req, res) => {
     try {
       const userId = req.query.userId as string;
       
@@ -135,8 +135,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // === NUTRITIONAL GOALS ROUTES ===
 
-  // Get all nutritional goals for user
-  app.get("/api/nutrition-goals", async (req, res) => {
+  // Get all nutritional goals for user (route protetta)
+  app.get("/api/nutrition-goals", isAuthenticated, async (req, res) => {
     try {
       const userId = req.query.userId as string;
       
@@ -154,8 +154,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Get active nutritional goal for user
-  app.get("/api/nutrition-goals/active", async (req, res) => {
+  // Get active nutritional goal for user (route protetta)
+  app.get("/api/nutrition-goals/active", isAuthenticated, async (req, res) => {
     try {
       const userId = req.query.userId as string;
       
@@ -178,8 +178,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Create nutritional goal
-  app.post("/api/nutrition-goals", async (req, res) => {
+  // Create nutritional goal (route protetta)
+  app.post("/api/nutrition-goals", isAuthenticated, async (req, res) => {
     try {
       const goalData = insertNutritionGoalSchema.parse(req.body);
       
@@ -205,8 +205,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Update nutritional goal
-  app.patch("/api/nutrition-goals/:id", async (req, res) => {
+  // Update nutritional goal (route protetta)
+  app.patch("/api/nutrition-goals/:id", isAuthenticated, async (req, res) => {
     try {
       const id = parseInt(req.params.id);
       
@@ -232,8 +232,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Delete nutritional goal
-  app.delete("/api/nutrition-goals/:id", async (req, res) => {
+  // Delete nutritional goal (route protetta)
+  app.delete("/api/nutrition-goals/:id", isAuthenticated, async (req, res) => {
     try {
       const id = parseInt(req.params.id);
       
