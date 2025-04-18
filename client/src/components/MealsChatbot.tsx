@@ -117,98 +117,96 @@ export default function MealsChatbot({ userId }: MealsChatbotProps) {
   ];
   
   return (
-    <Card className="w-full h-[480px] flex flex-col">
-      <CardHeader className="pb-2">
-        <CardTitle className="flex items-center space-x-2">
+    <Card className="w-full h-full min-h-[500px] flex flex-col shadow-md">
+      <CardHeader className="pb-2 border-b">
+        <CardTitle className="text-base flex items-center gap-2">
           <Utensils className="h-5 w-5 text-primary" />
           <span>Consulente Alimentare</span>
         </CardTitle>
-        <CardDescription>
-          Chiedi informazioni su pasti, alimenti e ricette
-        </CardDescription>
       </CardHeader>
       
-      <CardContent className="flex-grow overflow-hidden p-0">
-        <ScrollArea className="h-[300px] p-4">
-          <div className="space-y-4">
-            {messages.map((message, i) => (
-              <div
-                key={i}
-                className={`flex ${
-                  message.type === "user" ? "justify-end" : "justify-start"
-                }`}
+      <CardContent className="flex-grow overflow-hidden p-3 pt-4">
+        <div className="h-[320px] overflow-y-auto pr-1 pl-1 space-y-5">
+          {messages.map((message, i) => (
+            <div key={i} className={`flex ${message.type === "user" ? "justify-end" : "justify-start"}`}>
+              <div 
+                className={`max-w-[85%] flex flex-col ${message.type === "user" ? "items-end" : "items-start"}`}
               >
-                <div
-                  className={`flex items-start space-x-2 max-w-[80%] ${
-                    message.type === "user" ? "flex-row-reverse space-x-reverse" : ""
+                <div className="flex items-center mb-1 text-xs text-muted-foreground">
+                  {message.type === "user" ? (
+                    <>
+                      <span>Tu</span>
+                      <User className="h-3 w-3 ml-1" />
+                    </>
+                  ) : (
+                    <>
+                      <Utensils className="h-3 w-3 mr-1" />
+                      <span>Consulente Alimentare</span>
+                    </>
+                  )}
+                </div>
+                
+                <div 
+                  className={`rounded-xl px-4 py-3 ${
+                    message.type === "user"
+                      ? "bg-primary text-primary-foreground rounded-tr-none"
+                      : "bg-muted rounded-tl-none"
                   }`}
                 >
-                  <Avatar className={message.type === "user" ? "bg-primary" : "bg-muted"}>
-                    {message.type === "user" ? (
-                      <User className="h-5 w-5" />
-                    ) : (
-                      <Utensils className="h-5 w-5" />
-                    )}
-                    <AvatarFallback>
-                      {message.type === "user" ? "TU" : "AI"}
-                    </AvatarFallback>
-                  </Avatar>
-                  
-                  <div
-                    className={`rounded-lg p-3 ${
-                      message.type === "user"
-                        ? "bg-primary text-primary-foreground"
-                        : "bg-muted"
-                    }`}
-                    style={{ maxWidth: "95%" }}
+                  <div 
+                    className="text-sm leading-6 whitespace-pre-wrap" 
+                    style={{
+                      wordBreak: "break-word",
+                      overflowWrap: "break-word"
+                    }}
                   >
-                    <p className="text-sm whitespace-pre-wrap break-words leading-relaxed">{message.content}</p>
-                    <p className="text-xs opacity-50 mt-1">
-                      {message.timestamp.toLocaleTimeString([], {
-                        hour: "2-digit",
-                        minute: "2-digit",
-                      })}
-                    </p>
+                    {message.content}
+                  </div>
+                </div>
+                
+                <div className="text-[10px] text-muted-foreground mt-1">
+                  {message.timestamp.toLocaleTimeString([], {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  })}
+                </div>
+              </div>
+            </div>
+          ))}
+          
+          {aiChatMutation.isPending && (
+            <div className="flex justify-start">
+              <div className="max-w-[85%] flex flex-col items-start">
+                <div className="flex items-center mb-1 text-xs text-muted-foreground">
+                  <Utensils className="h-3 w-3 mr-1" />
+                  <span>Consulente Alimentare</span>
+                </div>
+                
+                <div className="rounded-xl px-4 py-3 bg-muted rounded-tl-none">
+                  <div className="flex items-center gap-2">
+                    <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+                    <span className="text-sm">Sto elaborando la risposta...</span>
                   </div>
                 </div>
               </div>
-            ))}
-            
-            {aiChatMutation.isPending && (
-              <div className="flex justify-start">
-                <div className="flex items-start space-x-2 max-w-[80%]">
-                  <Avatar className="bg-muted">
-                    <Utensils className="h-5 w-5" />
-                    <AvatarFallback>AI</AvatarFallback>
-                  </Avatar>
-                  
-                  <div className="rounded-lg p-3 bg-muted">
-                    <div className="flex items-center space-x-2">
-                      <Loader2 className="h-4 w-4 animate-spin" />
-                      <p className="text-sm">Sto elaborando la risposta...</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
-            
-            <div ref={messagesEndRef} />
-          </div>
-        </ScrollArea>
+            </div>
+          )}
+          
+          <div ref={messagesEndRef} />
+        </div>
         
         {messages.length === 1 && (
-          <div className="px-4 pb-2">
-            <p className="text-sm text-muted-foreground mb-2">Esempi di domande:</p>
+          <div className="mt-4 mb-1">
+            <p className="text-sm font-medium mb-2">Esempi di domande:</p>
             <div className="flex flex-wrap gap-2">
               {suggestedQueries.slice(0, 3).map((q, i) => (
                 <Button
                   key={i}
                   variant="outline"
                   size="sm"
-                  className="text-xs"
+                  className="text-xs text-left justify-start h-auto py-2 px-3"
                   onClick={() => {
                     setQuery(q);
-                    // Trigger submit after a brief delay to show the query in input
                     setTimeout(() => {
                       const newMessage: Message = {
                         type: "user",
@@ -221,7 +219,7 @@ export default function MealsChatbot({ userId }: MealsChatbotProps) {
                     }, 100);
                   }}
                 >
-                  {q.length > 30 ? q.substring(0, 30) + "..." : q}
+                  {q.length > 40 ? q.substring(0, 40) + "..." : q}
                 </Button>
               ))}
             </div>
@@ -229,18 +227,19 @@ export default function MealsChatbot({ userId }: MealsChatbotProps) {
         )}
       </CardContent>
       
-      <CardFooter className="p-4 pt-2">
+      <CardFooter className="pt-2 pb-3 px-3 border-t">
         <form className="flex space-x-2 w-full" onSubmit={handleSubmit}>
           <Input
             placeholder="Fai una domanda su pasti e alimenti..."
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             disabled={aiChatMutation.isPending}
-            className="flex-grow"
+            className="flex-grow text-base py-5 px-4"
           />
           <Button 
             type="submit" 
             size="icon"
+            className="h-10 w-10"
             disabled={!query.trim() || aiChatMutation.isPending}
           >
             {aiChatMutation.isPending ? (
