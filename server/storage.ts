@@ -161,7 +161,23 @@ export class MemStorage implements IStorage {
     
     const id = this.currentNutritionGoalId++;
     const createdAt = new Date();
-    const goal: NutritionGoal = { ...insertGoal, id, createdAt };
+    
+    // Assicuriamoci che tutti i campi richiesti siano presenti
+    const goal: NutritionGoal = { 
+      id, 
+      userId: insertGoal.userId, 
+      calories: insertGoal.calories, 
+      proteins: insertGoal.proteins, 
+      carbs: insertGoal.carbs, 
+      fats: insertGoal.fats, 
+      name: insertGoal.name,
+      startDate: insertGoal.startDate,
+      endDate: insertGoal.endDate || null,
+      isActive: insertGoal.isActive !== undefined ? insertGoal.isActive : true,
+      description: insertGoal.description || null,
+      createdAt
+    };
+    
     this.nutritionGoals.set(id, goal);
     return goal;
   }
@@ -218,7 +234,17 @@ export class MemStorage implements IStorage {
   async createProgressEntry(insertEntry: InsertProgressEntry): Promise<ProgressEntry> {
     const id = this.currentProgressEntryId++;
     const createdAt = new Date();
-    const entry: ProgressEntry = { ...insertEntry, id, createdAt };
+    
+    // Assicuriamoci che tutti i campi richiesti siano presenti
+    const entry: ProgressEntry = { 
+      id, 
+      userId: insertEntry.userId, 
+      date: insertEntry.date,
+      weight: insertEntry.weight || null,
+      notes: insertEntry.notes || null,
+      createdAt
+    };
+    
     this.progressEntries.set(id, entry);
     return entry;
   }

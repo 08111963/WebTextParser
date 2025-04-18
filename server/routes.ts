@@ -1,7 +1,12 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { insertMealSchema, insertMealPlanSchema } from "@shared/schema";
+import { 
+  insertMealSchema, 
+  insertMealPlanSchema, 
+  insertNutritionGoalSchema, 
+  insertProgressEntrySchema 
+} from "@shared/schema";
 import { z } from "zod";
 
 export async function registerRoutes(app: Express): Promise<Server> {
@@ -112,6 +117,230 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       res.status(500).json({ 
         message: "Failed to fetch meal plans", 
+        error: error instanceof Error ? error.message : String(error)
+      });
+    }
+  });
+
+  // === NUTRITIONAL GOALS ROUTES ===
+
+  // Get all nutritional goals for user
+  app.get("/api/nutrition-goals", async (req, res) => {
+    try {
+      const userId = req.query.userId as string;
+      
+      if (!userId) {
+        return res.status(400).json({ message: "User ID is required" });
+      }
+      
+      const goals = await storage.getNutritionGoalsByUserId(userId);
+      res.json(goals);
+    } catch (error) {
+      res.status(500).json({ 
+        message: "Failed to fetch nutritional goals", 
+        error: error instanceof Error ? error.message : String(error)
+      });
+    }
+  });
+
+  // Get active nutritional goal for user
+  app.get("/api/nutrition-goals/active", async (req, res) => {
+    try {
+      const userId = req.query.userId as string;
+      
+      if (!userId) {
+        return res.status(400).json({ message: "User ID is required" });
+      }
+      
+      const goal = await storage.getActiveNutritionGoal(userId);
+      
+      if (!goal) {
+        return res.status(404).json({ message: "No active nutritional goal found" });
+      }
+      
+      res.json(goal);
+    } catch (error) {
+      res.status(500).json({ 
+        message: "Failed to fetch active nutritional goal", 
+        error: error instanceof Error ? error.message : String(error)
+      });
+    }
+  });
+
+  // Create nutritional goal
+  app.post("/api/nutrition-goals", async (req, res) => {
+    try {
+      const goalData = insertNutritionGoalSchema.parse(req.body);
+      
+      // Se l'utente non ha specificato un valore per isActive, impostiamo come true di default
+      if (goalData.isActive === undefined) {
+        goalData.isActive = true;
+      }
+      
+      const goal = await storage.createNutritionGoal(goalData);
+      res.status(201).json(goal);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ 
+          message: "Invalid nutritional goal data", 
+          errors: error.errors 
+        });
+      }
+      
+      res.status(500).json({ 
+        message: "Failed to create nutritional goal", 
+        error: error instanceof Error ? error.message : String(error)
+      });
+    }
+  });
+
+  // Update nutritional goal
+  app.patch("/api/nutrition-goals/:id", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      
+      if (isNaN(id)) {
+        return res.status(400).json({ message: "Invalid ID format" });
+      }
+      
+      // Validazione parziale dei dati
+      const updateData = req.body;
+      
+      const updatedGoal = await storage.updateNutritionGoal(id, updateData);
+      
+      if (!updatedGoal) {
+        return res.status(404).json({ message: "Nutritional goal not found" });
+      }
+      
+      res.json(updatedGoal);
+    } catch (error) {
+      res.status(500).json({ 
+        message: "Failed to update nutritional goal", 
+        error: error instanceof Error ? error.message : String(error)
+      });
+    }
+  });
+
+  // Delete nutritional goal
+  app.delete("/api/nutrition-goals/:id", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      
+      if (isNaN(id)) {
+        return res.status(400).json({ message: "Invalid ID format" });
+      }
+      
+      const success = await storage.deleteNutritionGoal(id);
+      
+      if (success) {
+        res.status(200).json({ message: "Nutritional goal deleted successfully" });
+      } else {
+        res.status(404).json({ message: "Nutritional goal not found" });
+      }
+    } catch (error) {
+      res.status(500).json({ 
+        message: "Failed to delete nutritional goal", 
+        error: error instanceof Error ? error.message : String(error)
+      });
+    }
+  });
+
+  // === PROGRESS TRACKING ROUTES ===
+
+  // Get all progress entries for user
+  app.get("/api/progress", async (req, res) => {
+    try {
+      const userId = req.query.userId as string;
+      
+      if (!userId) {
+        return res.status(400).json({ message: "User ID is required" });
+      }
+      
+      let entries;
+      if (req.query.startDate && req.query.endDate) {
+        const startDate = new Date(req.query.startDate as string);
+        const endDate = new Date(req.query.endDate as string);
+        entries = await storage.getProgressEntriesByDateRange(userId, startDate, endDate);
+      } else {
+        entries = await storage.getProgressEntriesByUserId(userId);
+      }
+      
+      res.json(entries);
+    } catch (error) {
+      res.status(500).json({ 
+        message: "Failed to fetch progress entries", 
+        error: error instanceof Error ? error.message : String(error)
+      });
+    }
+  });
+
+  // Create progress entry
+  app.post("/api/progress", async (req, res) => {
+    try {
+      const entryData = insertProgressEntrySchema.parse(req.body);
+      const entry = await storage.createProgressEntry(entryData);
+      res.status(201).json(entry);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ 
+          message: "Invalid progress entry data", 
+          errors: error.errors 
+        });
+      }
+      
+      res.status(500).json({ 
+        message: "Failed to create progress entry", 
+        error: error instanceof Error ? error.message : String(error)
+      });
+    }
+  });
+
+  // Update progress entry
+  app.patch("/api/progress/:id", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      
+      if (isNaN(id)) {
+        return res.status(400).json({ message: "Invalid ID format" });
+      }
+      
+      // Validazione parziale dei dati
+      const updateData = req.body;
+      
+      const updatedEntry = await storage.updateProgressEntry(id, updateData);
+      
+      if (!updatedEntry) {
+        return res.status(404).json({ message: "Progress entry not found" });
+      }
+      
+      res.json(updatedEntry);
+    } catch (error) {
+      res.status(500).json({ 
+        message: "Failed to update progress entry", 
+        error: error instanceof Error ? error.message : String(error)
+      });
+    }
+  });
+
+  // Delete progress entry
+  app.delete("/api/progress/:id", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      
+      if (isNaN(id)) {
+        return res.status(400).json({ message: "Invalid ID format" });
+      }
+      
+      const success = await storage.deleteProgressEntry(id);
+      
+      if (success) {
+        res.status(200).json({ message: "Progress entry deleted successfully" });
+      } else {
+        res.status(404).json({ message: "Progress entry not found" });
+      }
+    } catch (error) {
+      res.status(500).json({ 
+        message: "Failed to delete progress entry", 
         error: error instanceof Error ? error.message : String(error)
       });
     }
