@@ -1,9 +1,8 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { format, subDays } from "date-fns";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -13,7 +12,6 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
 import { CalendarIcon, PlusCircle, Trash2 } from "lucide-react";
-import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 
@@ -32,70 +30,108 @@ type WeightTrackerProps = {
 export default function WeightTracker({ userId }: WeightTrackerProps) {
   const [dialogOpen, setDialogOpen] = useState(false);
   const { toast } = useToast();
-  const queryClient = useQueryClient();
+  const [weightEntries, setWeightEntries] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
   
-  // Fetching weight entries
-  const { data: weightEntries = [], isLoading } = useQuery({
-    queryKey: [`/api/progress?userId=${userId}&startDate=${format(subDays(new Date(), 30), "yyyy-MM-dd")}&endDate=${format(new Date(), "yyyy-MM-dd")}`],
-    enabled: !!userId
-  });
+  // Funzione per recuperare le voci di peso
+  const fetchWeightEntries = async () => {
+    try {
+      setIsLoading(true);
+      const startDate = format(subDays(new Date(), 30), "yyyy-MM-dd");
+      const endDate = format(new Date(), "yyyy-MM-dd");
+      
+      const response = await fetch(`/api/progress?userId=${userId}&startDate=${startDate}&endDate=${endDate}`);
+      
+      if (!response.ok) {
+        throw new Error(`Error ${response.status}: ${response.statusText}`);
+      }
+      
+      const data = await response.json();
+      setWeightEntries(data || []);
+    } catch (err) {
+      console.error("Failed to fetch weight entries:", err);
+      toast({
+        title: "Errore",
+        description: "Si è verificato un errore durante il caricamento dei dati di peso.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
   
-  // Create weight entry mutation
-  const createWeightEntry = useMutation({
-    mutationFn: async (values: WeightEntryValues & { userId: string }) => {
-      return apiRequest(
-        'POST',
-        '/api/progress',
-        {
+  // Carica le voci di peso quando il componente viene montato o cambia userId
+  useEffect(() => {
+    if (userId) {
+      fetchWeightEntries();
+    }
+  }, [userId]);
+  
+  // Funzione per creare una voce di peso
+  const createWeightEntry = async (values: WeightEntryValues & { userId: string }) => {
+    try {
+      setIsSubmitting(true);
+      const response = await fetch('/api/progress', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
           ...values,
           date: format(values.date, "yyyy-MM-dd"),
-        }
-      );
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ 
-        queryKey: [`/api/progress?userId=${userId}`]
+        }),
       });
+      
+      if (!response.ok) {
+        throw new Error(`Error ${response.status}: ${response.statusText}`);
+      }
+      
+      await fetchWeightEntries();
       setDialogOpen(false);
       toast({
         title: "Peso registrato",
         description: "Il tuo peso è stato registrato con successo.",
       });
-    },
-    onError: () => {
+    } catch (error) {
       toast({
         title: "Errore",
         description: "Si è verificato un errore durante la registrazione del peso.",
         variant: "destructive",
       });
+    } finally {
+      setIsSubmitting(false);
     }
-  });
+  };
   
-  // Delete weight entry mutation
-  const deleteWeightEntry = useMutation({
-    mutationFn: async (id: number) => {
-      return apiRequest(
-        'DELETE',
-        `/api/progress/${id}`
-      );
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ 
-        queryKey: [`/api/progress?userId=${userId}`]
+  // Funzione per eliminare una voce di peso
+  const deleteWeightEntry = async (id: number) => {
+    try {
+      setIsDeleting(true);
+      const response = await fetch(`/api/progress/${id}`, {
+        method: 'DELETE',
       });
+      
+      if (!response.ok) {
+        throw new Error(`Error ${response.status}: ${response.statusText}`);
+      }
+      
+      await fetchWeightEntries();
       toast({
         title: "Peso eliminato",
         description: "Il tuo record di peso è stato eliminato con successo.",
       });
-    },
-    onError: () => {
+    } catch (error) {
       toast({
         title: "Errore",
         description: "Si è verificato un errore durante l'eliminazione del peso.",
         variant: "destructive",
       });
+    } finally {
+      setIsDeleting(false);
     }
-  });
+  };
   
   const form = useForm<WeightEntryValues>({
     resolver: zodResolver(weightEntrySchema),
@@ -107,7 +143,7 @@ export default function WeightTracker({ userId }: WeightTrackerProps) {
   });
   
   const onSubmit = (values: WeightEntryValues) => {
-    createWeightEntry.mutate({ ...values, userId });
+    createWeightEntry({ ...values, userId });
   };
   
   // Format data for the chart
@@ -222,8 +258,8 @@ export default function WeightTracker({ userId }: WeightTrackerProps) {
                     )}
                   />
                   
-                  <Button type="submit" className="w-full" disabled={createWeightEntry.isPending}>
-                    {createWeightEntry.isPending ? "Salvataggio..." : "Salva"}
+                  <Button type="submit" className="w-full" disabled={isSubmitting}>
+                    {isSubmitting ? "Salvataggio..." : "Salva"}
                   </Button>
                 </form>
               </Form>
@@ -282,8 +318,8 @@ export default function WeightTracker({ userId }: WeightTrackerProps) {
                               variant="ghost"
                               size="icon"
                               className="h-6 w-6 text-destructive"
-                              onClick={() => deleteWeightEntry.mutate(payload[0].payload.id)}
-                              disabled={deleteWeightEntry.isPending}
+                              onClick={() => deleteWeightEntry(payload[0].payload.id)}
+                              disabled={isDeleting}
                             >
                               <Trash2 className="h-4 w-4" />
                             </Button>
