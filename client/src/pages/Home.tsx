@@ -367,11 +367,8 @@ export default function Home() {
                       </div>
                       
                       {/* Lista di tutti gli obiettivi */}
-                      <div>
-                        <h3 className="text-lg font-semibold mb-2">Cronologia Obiettivi</h3>
-                        <div className="text-center py-8 text-muted-foreground">
-                          <p>La cronologia degli obiettivi sarà disponibile prossimamente</p>
-                        </div>
+                      <div className="mt-8">
+                        <NutritionGoalHistory userId={user.id.toString()} />
                       </div>
                     </div>
                   )}
