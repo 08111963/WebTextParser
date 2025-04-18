@@ -96,7 +96,7 @@ export default function Home() {
           <p className="text-gray-600">Monitora la tua nutrizione e raggiungi i tuoi obiettivi.</p>
         </div>
 
-        <Tabs defaultValue={activeTab} onValueChange={setActiveTab} className="w-full">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="grid w-full md:w-auto grid-cols-3 mb-6">
             <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
             <TabsTrigger value="meals">Pasti</TabsTrigger>
