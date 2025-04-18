@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NutriFacile - Meal Tracker</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getFirestore, doc, setDoc, getDoc, addDoc, collection, onSnapshot, deleteDoc, query, where, Timestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, GoogleAuthProvider, signInWithPopup, sendPasswordResetEmail, sendEmailVerification } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyAeEnYe0lkPs1ctVwQbg6q9CTMkfOd67Zc",
+      authDomain: "nutrifacile-a686e.firebaseapp.com",
+      projectId: "nutrifacile-a686e",
+      storageBucket: "nutrifacile-a686e.firebasestorage.app",
+      messagingSenderId: "647152474961",
+      appId: "1:647152474961:web:2cd0a058b60c36077d1170",
+      measurementId: "G-WWZWJFWZH6"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const auth = getAuth(app);
+    const provider = new GoogleAuthProvider();
+
+    window.db = db;
+    window.auth = auth;
+    window.provider = provider;
+
+    let total = { calories: 0, proteins: 0, carbs: 0, fats: 0 };
+
+    let filterType = 'week';
+    let barChart;
+
+    onAuthStateChanged(auth, user => {
+      const loginForm = document.getElementById('loginForm');
+      const appContent = document.getElementById('appContent');
+      if (user) {
+        window.currentUser = user;
+        loginForm.style.display = 'none';
+        appContent.style.display = 'block';
+        if (!user.emailVerified) {
+          alert("Email not verified. Please check your email.");
+        }
+        loadData();
+      } else {
+        loginForm.style.display = 'block';
+        appContent.style.display = 'none';
+      }
+    });
+
+    document.getElementById('signupBtn').onclick = async () => {
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+      const cred = await createUserWithEmailAndPassword(auth, email, password);
+      await sendEmailVerification(cred.user);
+      alert("Registration complete. Please check your email to verify your account.");
+    };
+
+    document.getElementById('signinBtn').onclick = async () => {
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+      await signInWithEmailAndPassword(auth, email, password);
+    };
+
+    document.getElementById('googleBtn').onclick = async () => {
+      await signInWithPopup(auth, provider);
+    };
+
+    document.getElementById('logoutBtn').onclick = async () => {
+      await signOut(auth);
+    };
+
+    document.getElementById('resetPasswordBtn').onclick = async () => {
+      const email = document.getElementById('email').value;
+      if (!email) return alert("Enter an email to reset your password.");
+      try {
+        await sendPasswordResetEmail(auth, email);
+        alert("Password reset email sent.");
+      } catch (error) {
+        alert("Error in password reset: " + error.message);
+      }
+    };
+
+    document.getElementById('filterSelect').addEventListener('change', (e) => {
+      filterType = e.target.value;
+      loadData();
+    });
+
+    async function saveEntry(entry) {
+      const uid = auth.currentUser.uid;
+      entry.timestamp = Timestamp.now();
+      await addDoc(collection(db, "users", uid, "meals"), entry);
+    }
+
+    function updateDailyAverageChart(totalDays) {
+      const averageCalories = (total.calories / totalDays).toFixed(1);
+      const averageProteins = (total.proteins / totalDays).toFixed(1);
+      const averageCarbs = (total.carbs / totalDays).toFixed(1);
+      const averageFats = (total.fats / totalDays).toFixed(1);
+
+      const ctx = document.getElementById('dailyAverageChart').getContext('2d');
+      if (barChart) barChart.destroy();
+
+      barChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: ['Calories', 'Proteins', 'Carbs', 'Fats'],
+          datasets: [{
+            label: 'Daily Average',
+            data: [averageCalories, averageProteins, averageCarbs, averageFats],
+            backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0']
+          }]
+        },
+        options: {
+          responsive: true,
+          scales: {
+            y: { beginAtZero: true }
+          }
+        }
+      });
+    }
+
+    async function loadData() {
+      const uid = auth.currentUser.uid;
+      const entriesDiv = document.getElementById('entries');
+      entriesDiv.innerHTML = '';
+      total = { calories: 0, proteins: 0, carbs: 0, fats: 0 };
+      const ref = collection(db, "users", uid, "meals");
+
+      let q;
+      if (filterType === 'week') {
+        const sevenDaysAgo = new Date();
+        sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+        q = query(ref, where("timestamp", ">=", Timestamp.fromDate(sevenDaysAgo)));
+      } else if (filterType === 'all') {
+        q = ref;
+      } else {
+        const days = parseInt(filterType);
+        const fromDate = new Date();
+        fromDate.setDate(fromDate.getDate() - days);
+        q = query(ref, where("timestamp", ">=", Timestamp.fromDate(fromDate)));
+      }
+
+      onSnapshot(q, (snapshot) => {
+        entriesDiv.innerHTML = '';
+        total = { calories: 0, proteins: 0, carbs: 0, fats: 0 };
+        snapshot.forEach(docSnap => {
+          const data = docSnap.data();
+          total.calories += data.calories;
+          total.proteins += data.proteins;
+          total.carbs += data.carbs;
+          total.fats += data.fats;
+
+          const entry = document.createElement('div');
+          entry.classList.add('meal-entry');
+          entry.innerHTML = `<strong>${data.mealType.toUpperCase()}</strong> - ${data.food}: ${data.calories} kcal, ${data.proteins}g pro, ${data.carbs}g carb, ${data.fats}g fat <button data-id="${docSnap.id}">Delete</button>`;
+          entry.querySelector('button').onclick = async () => {
+            await deleteDoc(doc(db, "users", uid, "meals", docSnap.id));
+          };
+          entriesDiv.appendChild(entry);
+        });
+        updateSummary();
+        const totalDays = new Set(snapshot.docs.map(d => d.data().timestamp.toDate().toDateString())).size;
+        updateDailyAverageChart(totalDays || 1);
+      });
+    }
+
+    window.saveEntry = saveEntry;
+    window.loadData = loadData;
+  </script>
+  <style>
+    /* CSS remains unchanged */
+  </style>
+</head>
+<body>
+  <div>
+    <label for="filterSelect">View Filter:</label>
+    <select id="filterSelect">
+      <option value="week">Last 7 days</option>
+      <option value="all">All</option>
+      <option value="1">Last day</option>
+      <option value="3">Last 3 days</option>
+      <option value="30">Last 30 days</option>
+    </select>
+  </div>
+
+  <div>
+    <h3>Personalized Meal Plans</h3>
+    <input type="text" id="mealPlanInput" placeholder="Ask something..." />
+    <button onclick="generateMealPlan(document.getElementById('mealPlanInput').value)">Ask</button>
+    <pre id="mealPlanOutput"></pre>
+  </div>
+
+  <div id="entries"></div>
+
+  <h3>Daily Average</h3>
+  <canvas id="dailyAverageChart" width="400" height="200"></canvas>
+
+  <script>
+    const form = document.getElementById('mealForm');
+    const entriesDiv = document.getElementById('entries');
+    const totalCalories = document.getElementById('totalCalories');
+    const totalProteins = document.getElementById('totalProteins');
+    const totalCarbs = document.getElementById('totalCarbs');
+    const totalFats = document.getElementById('totalFats');
+
+    let chart;
+
+    form.addEventListener('submit', function(e) {
+      e.preventDefault();
+
+      const entry = {
+        food: document.getElementById('food').value,
+        calories: parseInt(document.getElementById('calories').value),
+        proteins: parseInt(document.getElementById('proteins').value),
+        carbs: parseInt(document.getElementById('carbs').value),
+        fats: parseInt(document.getElementById('fats').value),
+        mealType: document.getElementById('mealType').value
+      };
+
+      saveEntry(entry);
+      form.reset();
+    });
+
+    function updateSummary() {
+      totalCalories.textContent = `Total Calories: ${total.calories}`;
+      totalProteins.textContent = `Total Proteins: ${total.proteins}g`;
+      totalCarbs.textContent = `Total Carbs: ${total.carbs}g`;
+      totalFats.textContent = `Total Fats: ${total.fats}g`;
+      updateChart();
+    }
+
+    function updateChart() {
+      const ctx = document.getElementById('nutrientChart').getContext('2d');
+      if (chart) chart.destroy();
+      chart = new Chart(ctx, {
+        type: 'pie',
+        data: {
+          labels: ['Proteins', 'Carbs', 'Fats'],
+          datasets: [{
+            data: [total.proteins, total.carbs, total.fats],
+            backgroundColor: ['#4CAF50', '#2196F3', '#FF9800']
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: { position: 'bottom' }
+          }
+        }
+      });
+    }
+  </script>
+</body>
+</html>
