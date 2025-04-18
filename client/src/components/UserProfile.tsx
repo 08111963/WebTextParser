@@ -222,7 +222,7 @@ export default function UserProfile() {
             <p className="text-sm">{profileError.message}</p>
           </div>
         ) : profile ? (
-          <div className="space-y-4">
+          <div className="space-y-6">
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <p className="text-sm font-medium text-muted-foreground">Nome</p>
@@ -249,6 +249,18 @@ export default function UserProfile() {
                 <p className="text-lg font-medium capitalize">{profile.activityLevel}</p>
               </div>
             </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
+              <BMICard weight={profile.weight} height={profile.height} />
+              <MetabolismCard 
+                weight={profile.weight} 
+                height={profile.height} 
+                age={profile.age}
+                gender={profile.gender} 
+                activityLevel={profile.activityLevel} 
+              />
+            </div>
+            
             <div className="pt-2">
               <Sheet open={isOpen} onOpenChange={setIsOpen}>
                 <SheetTrigger asChild>
