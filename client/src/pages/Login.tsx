@@ -82,9 +82,28 @@ export default function Login() {
       await signInWithGoogle();
       navigate('/');
     } catch (error) {
+      console.error("Google auth error:", error);
+      let errorMessage = "Failed to sign in with Google. Please try again.";
+      
+      if (error instanceof Error) {
+        // Provide more specific error messages
+        if (error.message.includes("auth/unauthorized-domain")) {
+          errorMessage = "Your domain isn't authorized for Google Sign-In. Please make sure the domain is added to Firebase Auth Authorized Domains.";
+        } else if (error.message.includes("auth/popup-closed-by-user")) {
+          errorMessage = "Authentication popup was closed before completion.";
+        } else if (error.message.includes("auth/cancelled-popup-request")) {
+          errorMessage = "Multiple popup requests - latest one cancelled.";
+        } else if (error.message.includes("auth/popup-blocked")) {
+          errorMessage = "Google sign-in popup was blocked by the browser.";
+        } else {
+          // Include part of the actual error message for debugging
+          errorMessage = `Google Sign-In error: ${error.message.substring(0, 100)}`;
+        }
+      }
+      
       toast({
         title: "Authentication Error",
-        description: "Failed to sign in with Google. Please try again.",
+        description: errorMessage,
         variant: "destructive",
       });
     }

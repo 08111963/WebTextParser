@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { signOut } from '@/lib/firebase';
 import { Button } from '@/components/ui/button';
-import { Bolt } from 'lucide-react';
+import { Bolt, User, LogOut } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 export default function Header() {
@@ -45,8 +45,9 @@ export default function Header() {
               variant="outline" 
               size="sm"
               onClick={handleSignOut}
-              className="text-sm px-4 py-2 rounded transition"
+              className="text-sm px-4 py-2 rounded transition flex items-center"
             >
+              <LogOut className="h-4 w-4 mr-2" />
               Sign Out
             </Button>
           </nav>
@@ -58,9 +59,10 @@ export default function Header() {
         <div className="bg-white shadow-lg absolute top-14 right-0 w-48 z-10 rounded-md overflow-hidden">
           <div className="py-1">
             <button 
-              className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+              className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center"
               onClick={handleSignOut}
             >
+              <LogOut className="h-4 w-4 mr-2" />
               Sign Out
             </button>
           </div>
