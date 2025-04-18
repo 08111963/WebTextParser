@@ -217,20 +217,24 @@ export default function AIRecommendations({ userId }: AIRecommendationsProps) {
           </div>
           
           <TabsContent value="goals" className="mt-0">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <div className="flex flex-col h-full min-h-[500px]">
-                <h3 className="text-base font-medium mb-3 flex items-center gap-1.5">
-                  <Star className="h-4 w-4 text-yellow-500" />
-                  <span>Obiettivi Consigliati</span>
+            <div className="space-y-6">
+              <div className="mb-2">
+                <SimpleChatbot userId={userId} type="goals" />
+              </div>
+              
+              <div className="border-t pt-6 mt-4">
+                <h3 className="text-lg font-medium mb-4 flex items-center gap-2">
+                  <Star className="h-5 w-5 text-yellow-500" />
+                  <span>Obiettivi Nutrizionali Consigliati</span>
                 </h3>
                 
-                <div className="flex-grow overflow-auto space-y-4 pr-1">
+                <div className="space-y-4">
                   {isLoadingGoals ? (
                     <div className="flex justify-center py-8">
                       <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
                     </div>
                   ) : nutritionGoalRecommendations?.recommendations && nutritionGoalRecommendations.recommendations.length > 0 ? (
-                    <>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       {nutritionGoalRecommendations.recommendations.map((rec, index) => (
                         <div key={index} className="border rounded-lg p-4 bg-card shadow-sm">
                           <h4 className="font-medium flex items-center gap-2 text-base">
@@ -275,9 +279,9 @@ export default function AIRecommendations({ userId }: AIRecommendationsProps) {
                           </div>
                         </div>
                       ))}
-                    </>
+                    </div>
                   ) : (
-                    <div className="text-center py-8 space-y-4 mt-12">
+                    <div className="text-center py-8 space-y-4 mt-4">
                       <div className="rounded-full w-16 h-16 mx-auto bg-muted flex items-center justify-center">
                         <Sparkles className="h-6 w-6 text-muted-foreground" />
                       </div>
@@ -304,24 +308,24 @@ export default function AIRecommendations({ userId }: AIRecommendationsProps) {
                   )}
                 </div>
               </div>
-              
-              <div>
-                <SimpleChatbot userId={userId} type="goals" />
-              </div>
             </div>
           </TabsContent>
           
           <TabsContent value="meals" className="mt-0">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <div className="flex flex-col h-full min-h-[500px]">
-                <div className="flex items-center justify-between mb-3">
-                  <h3 className="text-base font-medium flex items-center gap-1.5">
-                    <Utensils className="h-4 w-4 text-primary" />
-                    <span>Suggerimenti Pasti</span>
+            <div className="space-y-6">
+              <div className="mb-2">
+                <SimpleChatbot userId={userId} type="meals" />
+              </div>
+              
+              <div className="border-t pt-6 mt-4">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-lg font-medium flex items-center gap-2">
+                    <Utensils className="h-5 w-5 text-primary" />
+                    <span>Suggerimenti Pasti Personalizzati</span>
                   </h3>
                   
                   <Select value={selectedMealType} onValueChange={handleMealTypeChange}>
-                    <SelectTrigger className="w-[150px] h-8 text-xs">
+                    <SelectTrigger className="w-[150px]">
                       <SelectValue placeholder="Tipo di pasto" />
                     </SelectTrigger>
                     <SelectContent>
@@ -334,13 +338,13 @@ export default function AIRecommendations({ userId }: AIRecommendationsProps) {
                   </Select>
                 </div>
                 
-                <div className="flex-grow overflow-auto space-y-4 pr-1">
+                <div className="space-y-4">
                   {isLoadingMeals ? (
                     <div className="flex justify-center py-8">
                       <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
                     </div>
                   ) : mealSuggestions?.suggestions && mealSuggestions.suggestions.length > 0 ? (
-                    <>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       {mealSuggestions.suggestions.map((meal, index) => (
                         <div key={index} className="border rounded-lg p-4 bg-card shadow-sm">
                           <div className="flex justify-between items-start gap-2">
@@ -373,9 +377,9 @@ export default function AIRecommendations({ userId }: AIRecommendationsProps) {
                           </div>
                         </div>
                       ))}
-                    </>
+                    </div>
                   ) : (
-                    <div className="text-center py-8 space-y-4 mt-12">
+                    <div className="text-center py-8 space-y-4 mt-4">
                       <div className="rounded-full w-16 h-16 mx-auto bg-muted flex items-center justify-center">
                         <Utensils className="h-6 w-6 text-muted-foreground" />
                       </div>
@@ -401,10 +405,6 @@ export default function AIRecommendations({ userId }: AIRecommendationsProps) {
                     </div>
                   )}
                 </div>
-              </div>
-              
-              <div>
-                <SimpleChatbot userId={userId} type="meals" />
               </div>
             </div>
           </TabsContent>
