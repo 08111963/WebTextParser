@@ -66,14 +66,30 @@ export function setupAuth(app: Express) {
   passport.use(
     new LocalStrategy(async (username, password, done) => {
       try {
+        console.log(`Tentativo di login per l'utente: ${username}`);
         const [user] = await db.select().from(users).where(eq(users.username, username));
         
-        if (!user || !(await comparePasswords(password, user.password))) {
+        if (!user) {
+          console.log(`Utente ${username} non trovato`);
+          return done(null, false);
+        }
+        
+        // Log per debugging
+        console.log(`Utente trovato: ${JSON.stringify({ id: user.id, username: user.username })}`);
+        console.log(`Password fornita: ${password}`);
+        console.log(`Password hash nel database: ${user.password.substring(0, 20)}...`);
+        
+        // Test delle password
+        const isPasswordValid = await comparePasswords(password, user.password);
+        console.log(`Password valida: ${isPasswordValid}`);
+        
+        if (!isPasswordValid) {
           return done(null, false);
         } else {
           return done(null, user);
         }
       } catch (error) {
+        console.error("Errore durante l'autenticazione:", error);
         return done(error);
       }
     }),
