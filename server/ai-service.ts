@@ -199,9 +199,9 @@ export async function generateNutritionGoalRecommendations(
         fats: Math.round(Number(rec.fats))
       }));
     } 
-    // Se abbiamo un oggetto con proprietà 'objectives' o altra struttura nest
+    // Se abbiamo un oggetto con proprietà 'objectives', 'obiettiviNutrizionali' o altra struttura
     else if (recommendations && typeof recommendations === 'object') {
-      // Check per la struttura 'objectives' che OpenAI potrebbe restituire
+      // Check per varie strutture che OpenAI potrebbe restituire
       if (recommendations.objectives && Array.isArray(recommendations.objectives)) {
         processedRecommendations = recommendations.objectives.map((rec: any) => ({
           title: rec.title,
@@ -211,6 +211,28 @@ export async function generateNutritionGoalRecommendations(
           carbs: Math.round(Number(rec.carbs)),
           fats: Math.round(Number(rec.fats))
         }));
+      }
+      // Check per la struttura italiana 'obiettiviNutrizionali'
+      else if (recommendations.obiettiviNutrizionali && Array.isArray(recommendations.obiettiviNutrizionali)) {
+        processedRecommendations = recommendations.obiettiviNutrizionali.map((rec: any) => ({
+          title: rec.title,
+          description: rec.description,
+          calories: Math.round(Number(rec.calories)),
+          proteins: Math.round(Number(rec.proteins)),
+          carbs: Math.round(Number(rec.carbs)),
+          fats: Math.round(Number(rec.fats))
+        }));
+      }
+      // Gestisci il caso in cui abbiamo una singola raccomandazione come oggetto
+      else if (recommendations.title && recommendations.calories) {
+        processedRecommendations = [{
+          title: recommendations.title,
+          description: recommendations.description || "",
+          calories: Math.round(Number(recommendations.calories)),
+          proteins: Math.round(Number(recommendations.proteins)),
+          carbs: Math.round(Number(recommendations.carbs)),
+          fats: Math.round(Number(recommendations.fats))
+        }];
       }
     }
       
@@ -328,9 +350,9 @@ export async function generateMealSuggestions(
         fats: Math.round(Number(sug.fats))
       }));
     } 
-    // Se abbiamo un oggetto con proprietà 'suggestions' o altra struttura nest
+    // Se abbiamo un oggetto con proprietà 'suggestions', 'mealIdeas', 'meals' o altra struttura
     else if (suggestions && typeof suggestions === 'object') {
-      // Check per la struttura 'suggestions' che OpenAI potrebbe restituire
+      // Check per varie strutture che OpenAI potrebbe restituire
       if (suggestions.suggestions && Array.isArray(suggestions.suggestions)) {
         processedSuggestions = suggestions.suggestions.map((sug: any) => ({
           name: sug.name,
@@ -341,6 +363,42 @@ export async function generateMealSuggestions(
           carbs: Math.round(Number(sug.carbs)),
           fats: Math.round(Number(sug.fats))
         }));
+      }
+      // Check per la struttura 'mealIdeas'
+      else if (suggestions.mealIdeas && Array.isArray(suggestions.mealIdeas)) {
+        processedSuggestions = suggestions.mealIdeas.map((sug: any) => ({
+          name: sug.name,
+          description: sug.description,
+          mealType: sug.mealType,
+          calories: Math.round(Number(sug.calories)),
+          proteins: Math.round(Number(sug.proteins)),
+          carbs: Math.round(Number(sug.carbs)),
+          fats: Math.round(Number(sug.fats))
+        }));
+      }
+      // Check per la struttura 'meals'
+      else if (suggestions.meals && Array.isArray(suggestions.meals)) {
+        processedSuggestions = suggestions.meals.map((sug: any) => ({
+          name: sug.name,
+          description: sug.description,
+          mealType: sug.mealType,
+          calories: Math.round(Number(sug.calories)),
+          proteins: Math.round(Number(sug.proteins)),
+          carbs: Math.round(Number(sug.carbs)),
+          fats: Math.round(Number(sug.fats))
+        }));
+      }
+      // Gestisci il caso in cui abbiamo un singolo pasto come oggetto
+      else if (suggestions.name && (suggestions.calories !== undefined)) {
+        processedSuggestions = [{
+          name: suggestions.name,
+          description: suggestions.description || "",
+          mealType: suggestions.mealType || "Pasto generico",
+          calories: Math.round(Number(suggestions.calories)),
+          proteins: Math.round(Number(suggestions.proteins)),
+          carbs: Math.round(Number(suggestions.carbs)),
+          fats: Math.round(Number(suggestions.fats))
+        }];
       }
     }
       
