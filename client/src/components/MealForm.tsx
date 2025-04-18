@@ -160,10 +160,10 @@ export default function MealForm({ userId }: MealFormProps) {
     addMealMutation.mutate({
       userId: userId,
       food: values.food,
-      calories: Number(values.calories) || 0,  // Assicura che sia un numero
-      proteins: Number(values.proteins) || 0,
-      carbs: Number(values.carbs) || 0,
-      fats: Number(values.fats) || 0,
+      calories: Math.round(Number(values.calories) || 0),  // Assicura che sia un numero intero
+      proteins: Math.round(Number(values.proteins) || 0),
+      carbs: Math.round(Number(values.carbs) || 0),
+      fats: Math.round(Number(values.fats) || 0),
       mealType: values.mealType,
       timestamp: new Date().toISOString()
     });
