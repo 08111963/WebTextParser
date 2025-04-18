@@ -158,4 +158,121 @@ export const listenToAuthState = (callback: (user: User | null) => void) => {
   return onAuthStateChanged(auth, callback);
 };
 
+// Nutrition Goal functions
+export const addNutritionGoal = async (goal: {
+  userId: string,
+  name: string,
+  calories: number,
+  proteins: number,
+  carbs: number,
+  fats: number,
+  startDate: Date,
+  endDate?: Date | null,
+  description?: string | null,
+  isActive: boolean
+}) => {
+  const goalWithTimestamp = {
+    ...goal,
+    timestamp: Timestamp.now()
+  };
+
+  const docRef = await addDoc(collection(db, "users", goal.userId, "nutritionGoals"), goalWithTimestamp);
+  return { id: docRef.id, ...goalWithTimestamp };
+};
+
+export const getNutritionGoals = (userId: string, callback: (goals: any[]) => void) => {
+  return onSnapshot(
+    collection(db, "users", userId, "nutritionGoals"),
+    (snapshot) => {
+      const goals = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }));
+      callback(goals);
+    }
+  );
+};
+
+export const getActiveNutritionGoal = (userId: string, callback: (goal: any | null) => void) => {
+  const q = query(
+    collection(db, "users", userId, "nutritionGoals"),
+    where("isActive", "==", true)
+  );
+
+  return onSnapshot(q, (snapshot) => {
+    if (snapshot.empty) {
+      callback(null);
+      return;
+    }
+
+    // Get the first active goal
+    const doc = snapshot.docs[0];
+    callback({
+      id: doc.id,
+      ...doc.data()
+    });
+  });
+};
+
+export const updateNutritionGoal = async (userId: string, goalId: string, updates: any) => {
+  return await setDoc(doc(db, "users", userId, "nutritionGoals", goalId), updates, { merge: true });
+};
+
+export const deleteNutritionGoal = (userId: string, goalId: string) => {
+  return deleteDoc(doc(db, "users", userId, "nutritionGoals", goalId));
+};
+
+// Progress (Weight) Entry functions
+export const addProgressEntry = async (entry: {
+  userId: string,
+  weight: number,
+  date: Date,
+  notes?: string
+}) => {
+  const entryWithTimestamp = {
+    ...entry,
+    timestamp: Timestamp.now()
+  };
+
+  const docRef = await addDoc(collection(db, "users", entry.userId, "progress"), entryWithTimestamp);
+  return { id: docRef.id, ...entryWithTimestamp };
+};
+
+export const getProgressEntries = (userId: string, callback: (entries: any[]) => void) => {
+  return onSnapshot(
+    query(
+      collection(db, "users", userId, "progress"),
+      orderBy("date", "desc")
+    ),
+    (snapshot) => {
+      const entries = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }));
+      callback(entries);
+    }
+  );
+};
+
+export const getProgressEntriesByDateRange = (userId: string, startDate: Date, endDate: Date, callback: (entries: any[]) => void) => {
+  const q = query(
+    collection(db, "users", userId, "progress"),
+    where("date", ">=", startDate),
+    where("date", "<=", endDate),
+    orderBy("date", "desc")
+  );
+
+  return onSnapshot(q, (snapshot) => {
+    const entries = snapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data()
+    }));
+    callback(entries);
+  });
+};
+
+export const deleteProgressEntry = (userId: string, entryId: string) => {
+  return deleteDoc(doc(db, "users", userId, "progress", entryId));
+};
+
 export { auth, db, Timestamp };

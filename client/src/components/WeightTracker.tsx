@@ -14,6 +14,7 @@ import { Calendar } from "@/components/ui/calendar";
 import { CalendarIcon, PlusCircle, Trash2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
+import { addProgressEntry, getProgressEntries, deleteProgressEntry, convertTimestampToDate } from "@/lib/firebase";
 
 const weightEntrySchema = z.object({
   date: z.date(),
@@ -35,66 +36,48 @@ export default function WeightTracker({ userId }: WeightTrackerProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   
-  // Funzione per recuperare le voci di peso
-  const fetchWeightEntries = async () => {
-    try {
-      setIsLoading(true);
-      const startDate = format(subDays(new Date(), 30), "yyyy-MM-dd");
-      const endDate = format(new Date(), "yyyy-MM-dd");
-      
-      const response = await fetch(`/api/progress?userId=${userId}&startDate=${startDate}&endDate=${endDate}`);
-      
-      if (!response.ok) {
-        throw new Error(`Error ${response.status}: ${response.statusText}`);
-      }
-      
-      const data = await response.json();
-      setWeightEntries(data || []);
-    } catch (err) {
-      console.error("Failed to fetch weight entries:", err);
-      toast({
-        title: "Errore",
-        description: "Si è verificato un errore durante il caricamento dei dati di peso.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  };
-  
-  // Carica le voci di peso quando il componente viene montato o cambia userId
+  // Carica le voci di peso da Firebase quando il componente viene montato o cambia userId
   useEffect(() => {
     if (userId) {
-      fetchWeightEntries();
+      setIsLoading(true);
+      
+      // Utilizziamo il listener in tempo reale di Firebase
+      const unsubscribe = getProgressEntries(userId, (entries) => {
+        setWeightEntries(entries || []);
+        setIsLoading(false);
+      });
+      
+      // Cleanup: rimuovi il listener quando il componente viene smontato
+      return () => unsubscribe();
     }
   }, [userId]);
   
-  // Funzione per creare una voce di peso
+  // Funzione per creare una voce di peso in Firebase
   const createWeightEntry = async (values: WeightEntryValues & { userId: string }) => {
     try {
       setIsSubmitting(true);
-      const response = await fetch('/api/progress', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          ...values,
-          date: format(values.date, "yyyy-MM-dd"),
-        }),
+      
+      // Chiamata a Firebase per aggiungere un'entrata di peso
+      await addProgressEntry({
+        userId: values.userId,
+        weight: values.weight * 1000, // Convertito in grammi per coerenza
+        date: values.date,
+        notes: values.notes
       });
       
-      if (!response.ok) {
-        throw new Error(`Error ${response.status}: ${response.statusText}`);
-      }
+      form.reset({
+        date: new Date(),
+        weight: undefined,
+        notes: ""
+      });
       
-      await fetchWeightEntries();
       setDialogOpen(false);
       toast({
         title: "Peso registrato",
         description: "Il tuo peso è stato registrato con successo.",
       });
     } catch (error) {
+      console.error("Error adding weight entry:", error);
       toast({
         title: "Errore",
         description: "Si è verificato un errore durante la registrazione del peso.",
@@ -105,24 +88,20 @@ export default function WeightTracker({ userId }: WeightTrackerProps) {
     }
   };
   
-  // Funzione per eliminare una voce di peso
-  const deleteWeightEntry = async (id: number) => {
+  // Funzione per eliminare una voce di peso da Firebase
+  const deleteWeightEntry = async (id: string) => {
     try {
       setIsDeleting(true);
-      const response = await fetch(`/api/progress/${id}`, {
-        method: 'DELETE',
-      });
       
-      if (!response.ok) {
-        throw new Error(`Error ${response.status}: ${response.statusText}`);
-      }
+      // Chiamata a Firebase per eliminare un'entrata di peso
+      await deleteProgressEntry(userId, id);
       
-      await fetchWeightEntries();
       toast({
         title: "Peso eliminato",
         description: "Il tuo record di peso è stato eliminato con successo.",
       });
     } catch (error) {
+      console.error("Error deleting weight entry:", error);
       toast({
         title: "Errore",
         description: "Si è verificato un errore durante l'eliminazione del peso.",
