@@ -5,10 +5,11 @@ import MealList from '@/components/MealList';
 import NutritionGoalForm from '@/components/NutritionGoalForm';
 import NutritionGoalHistory from '@/components/NutritionGoalHistory';
 import NutritionChart from '@/components/NutritionChart';
+import UserProfile from '@/components/UserProfile';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/use-auth';
 import { useQuery } from '@tanstack/react-query';
-import { Loader2, Plus, Calendar, BarChart } from 'lucide-react';
+import { Loader2, Plus, Calendar, BarChart, UserRound } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -102,10 +103,11 @@ export default function Home() {
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full md:w-auto grid-cols-3 mb-6">
+          <TabsList className="grid w-full md:w-auto grid-cols-4 mb-6">
             <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
             <TabsTrigger value="meals">Pasti</TabsTrigger>
             <TabsTrigger value="goals">Obiettivi</TabsTrigger>
+            <TabsTrigger value="profile">Profilo</TabsTrigger>
           </TabsList>
 
           <TabsContent value="dashboard" className="space-y-4">
@@ -345,6 +347,12 @@ export default function Home() {
                   )}
                 </CardContent>
               </Card>
+            </div>
+          </TabsContent>
+
+          <TabsContent value="profile">
+            <div className="max-w-4xl mx-auto">
+              <UserProfile />
             </div>
           </TabsContent>
         </Tabs>
