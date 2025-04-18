@@ -317,7 +317,7 @@ export async function generateMealSuggestions(
     
     // Se abbiamo un array, usa direttamente quello
     if (Array.isArray(suggestions)) {
-      processedSuggestions = suggestions.map(sug => ({
+      processedSuggestions = suggestions.map((sug: any) => ({
         name: sug.name,
         description: sug.description,
         mealType: sug.mealType,
@@ -331,7 +331,7 @@ export async function generateMealSuggestions(
     else if (suggestions && typeof suggestions === 'object') {
       // Check per la struttura 'suggestions' che OpenAI potrebbe restituire
       if (suggestions.suggestions && Array.isArray(suggestions.suggestions)) {
-        processedSuggestions = suggestions.suggestions.map(sug => ({
+        processedSuggestions = suggestions.suggestions.map((sug: any) => ({
           name: sug.name,
           description: sug.description,
           mealType: sug.mealType,
