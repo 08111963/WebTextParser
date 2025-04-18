@@ -13,7 +13,6 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { addMeal } from '@/lib/firebase';
 import { useToast } from '@/hooks/use-toast';
 
 const mealFormSchema = z.object({
@@ -50,10 +49,22 @@ export default function MealForm({ userId }: MealFormProps) {
   const onSubmit = async (values: MealFormValues) => {
     try {
       setIsSubmitting(true);
-      await addMeal({
-        userId,
-        ...values
+      
+      const response = await fetch('/api/meals', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          userId,
+          ...values,
+          timestamp: new Date().toISOString()
+        }),
       });
+      
+      if (!response.ok) {
+        throw new Error(`Error ${response.status}: ${response.statusText}`);
+      }
       
       toast({
         title: "Success",
