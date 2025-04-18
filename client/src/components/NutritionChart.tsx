@@ -5,6 +5,11 @@ import { apiRequest } from "@/lib/queryClient";
 import {
   LineChart,
   Line,
+  BarChart,
+  Bar,
+  AreaChart,
+  Area,
+  ComposedChart,
   XAxis,
   YAxis,
   CartesianGrid,
@@ -20,7 +25,7 @@ import {
   CardTitle
 } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Loader2, TrendingUp } from "lucide-react";
+import { Loader2, TrendingUp, BarChart2, AreaChart as AreaChartIcon, Activity } from "lucide-react";
 
 type NutritionChartProps = {
   userId: string;
@@ -49,6 +54,7 @@ type ChartData = {
 export default function NutritionChart({ userId }: NutritionChartProps) {
   const [period, setPeriod] = useState<"7" | "14" | "30">("7");
   const [chartData, setChartData] = useState<ChartData[]>([]);
+  const [chartType, setChartType] = useState<"line" | "bar" | "area" | "composed">("line");
 
   // Calcola la data di inizio in base al periodo selezionato
   const calculateStartDate = () => {
@@ -130,6 +136,11 @@ export default function NutritionChart({ userId }: NutritionChartProps) {
   const handlePeriodChange = (value: string) => {
     setPeriod(value as "7" | "14" | "30");
   };
+  
+  // Gestisce il cambio di tipo di grafico
+  const handleChartTypeChange = (value: string) => {
+    setChartType(value as "line" | "bar" | "area" | "composed");
+  };
 
   // Personalizzazione del tooltip per il grafico
   const CustomTooltip = ({ active, payload, label }: any) => {
@@ -161,19 +172,48 @@ export default function NutritionChart({ userId }: NutritionChartProps) {
             Monitora il tuo consumo nel tempo
           </CardDescription>
         </div>
-        <Select
-          value={period}
-          onValueChange={handlePeriodChange}
-        >
-          <SelectTrigger className="w-[120px]">
-            <SelectValue placeholder="Periodo" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="7">7 giorni</SelectItem>
-            <SelectItem value="14">14 giorni</SelectItem>
-            <SelectItem value="30">30 giorni</SelectItem>
-          </SelectContent>
-        </Select>
+        <div className="flex items-center space-x-2">
+          <Select
+            value={chartType}
+            onValueChange={handleChartTypeChange}
+          >
+            <SelectTrigger className="w-[130px]">
+              <SelectValue placeholder="Tipo di grafico" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="line" className="flex items-center gap-2">
+                <TrendingUp className="h-4 w-4" />
+                <span>Linea</span>
+              </SelectItem>
+              <SelectItem value="bar" className="flex items-center gap-2">
+                <BarChart2 className="h-4 w-4" />
+                <span>Barre</span>
+              </SelectItem>
+              <SelectItem value="area" className="flex items-center gap-2">
+                <AreaChartIcon className="h-4 w-4" />
+                <span>Area</span>
+              </SelectItem>
+              <SelectItem value="composed" className="flex items-center gap-2">
+                <Activity className="h-4 w-4" />
+                <span>Misto</span>
+              </SelectItem>
+            </SelectContent>
+          </Select>
+          
+          <Select
+            value={period}
+            onValueChange={handlePeriodChange}
+          >
+            <SelectTrigger className="w-[120px]">
+              <SelectValue placeholder="Periodo" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="7">7 giorni</SelectItem>
+              <SelectItem value="14">14 giorni</SelectItem>
+              <SelectItem value="30">30 giorni</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
       </CardHeader>
       <CardContent>
         {isLoading ? (
@@ -187,54 +227,210 @@ export default function NutritionChart({ userId }: NutritionChartProps) {
         ) : chartData.length > 0 ? (
           <div className="h-72">
             <ResponsiveContainer width="100%" height="100%">
-              <LineChart
-                data={chartData}
-                margin={{ top: 5, right: 20, left: 0, bottom: 5 }}
-              >
-                <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                <XAxis 
-                  dataKey="date" 
-                  tick={{ fontSize: 12 }}
-                  stroke="#888888"
-                />
-                <YAxis 
-                  tick={{ fontSize: 12 }}
-                  stroke="#888888"
-                />
-                <Tooltip content={<CustomTooltip />} />
-                <Legend 
-                  wrapperStyle={{ fontSize: '12px', paddingTop: '10px' }}
-                />
-                <Line
-                  type="monotone"
-                  dataKey="calories"
-                  name="Calorie"
-                  stroke="#8884d8"
-                  activeDot={{ r: 8 }}
-                  strokeWidth={2}
-                />
-                <Line
-                  type="monotone"
-                  dataKey="proteins"
-                  name="Proteine"
-                  stroke="#82ca9d"
-                  strokeWidth={2}
-                />
-                <Line
-                  type="monotone"
-                  dataKey="carbs"
-                  name="Carboidrati"
-                  stroke="#ffc658"
-                  strokeWidth={2}
-                />
-                <Line
-                  type="monotone"
-                  dataKey="fats"
-                  name="Grassi"
-                  stroke="#ff8042"
-                  strokeWidth={2}
-                />
-              </LineChart>
+              {chartType === "line" && (
+                <LineChart
+                  data={chartData}
+                  margin={{ top: 5, right: 20, left: 0, bottom: 5 }}
+                >
+                  <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                  <XAxis 
+                    dataKey="date" 
+                    tick={{ fontSize: 12 }}
+                    stroke="#888888"
+                  />
+                  <YAxis 
+                    tick={{ fontSize: 12 }}
+                    stroke="#888888"
+                  />
+                  <Tooltip content={<CustomTooltip />} />
+                  <Legend 
+                    wrapperStyle={{ fontSize: '12px', paddingTop: '10px' }}
+                  />
+                  <Line
+                    type="monotone"
+                    dataKey="calories"
+                    name="Calorie"
+                    stroke="#8884d8"
+                    activeDot={{ r: 8 }}
+                    strokeWidth={2}
+                  />
+                  <Line
+                    type="monotone"
+                    dataKey="proteins"
+                    name="Proteine"
+                    stroke="#82ca9d"
+                    strokeWidth={2}
+                  />
+                  <Line
+                    type="monotone"
+                    dataKey="carbs"
+                    name="Carboidrati"
+                    stroke="#ffc658"
+                    strokeWidth={2}
+                  />
+                  <Line
+                    type="monotone"
+                    dataKey="fats"
+                    name="Grassi"
+                    stroke="#ff8042"
+                    strokeWidth={2}
+                  />
+                </LineChart>
+              )}
+              
+              {chartType === "bar" && (
+                <BarChart
+                  data={chartData}
+                  margin={{ top: 5, right: 20, left: 0, bottom: 5 }}
+                >
+                  <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                  <XAxis 
+                    dataKey="date" 
+                    tick={{ fontSize: 12 }}
+                    stroke="#888888"
+                  />
+                  <YAxis 
+                    tick={{ fontSize: 12 }}
+                    stroke="#888888"
+                  />
+                  <Tooltip content={<CustomTooltip />} />
+                  <Legend 
+                    wrapperStyle={{ fontSize: '12px', paddingTop: '10px' }}
+                  />
+                  <Bar
+                    dataKey="calories"
+                    name="Calorie"
+                    fill="#8884d8"
+                    barSize={20}
+                  />
+                  <Bar
+                    dataKey="proteins"
+                    name="Proteine"
+                    fill="#82ca9d"
+                    barSize={20}
+                  />
+                  <Bar
+                    dataKey="carbs"
+                    name="Carboidrati"
+                    fill="#ffc658"
+                    barSize={20}
+                  />
+                  <Bar
+                    dataKey="fats"
+                    name="Grassi"
+                    fill="#ff8042"
+                    barSize={20}
+                  />
+                </BarChart>
+              )}
+              
+              {chartType === "area" && (
+                <AreaChart
+                  data={chartData}
+                  margin={{ top: 5, right: 20, left: 0, bottom: 5 }}
+                >
+                  <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                  <XAxis 
+                    dataKey="date" 
+                    tick={{ fontSize: 12 }}
+                    stroke="#888888"
+                  />
+                  <YAxis 
+                    tick={{ fontSize: 12 }}
+                    stroke="#888888"
+                  />
+                  <Tooltip content={<CustomTooltip />} />
+                  <Legend 
+                    wrapperStyle={{ fontSize: '12px', paddingTop: '10px' }}
+                  />
+                  <Area
+                    type="monotone"
+                    dataKey="calories"
+                    name="Calorie"
+                    stroke="#8884d8"
+                    fill="#8884d8"
+                    fillOpacity={0.3}
+                    stackId="1"
+                  />
+                  <Area
+                    type="monotone"
+                    dataKey="proteins"
+                    name="Proteine"
+                    stroke="#82ca9d"
+                    fill="#82ca9d"
+                    fillOpacity={0.3}
+                    stackId="2"
+                  />
+                  <Area
+                    type="monotone"
+                    dataKey="carbs"
+                    name="Carboidrati"
+                    stroke="#ffc658"
+                    fill="#ffc658"
+                    fillOpacity={0.3}
+                    stackId="3"
+                  />
+                  <Area
+                    type="monotone"
+                    dataKey="fats"
+                    name="Grassi"
+                    stroke="#ff8042"
+                    fill="#ff8042"
+                    fillOpacity={0.3}
+                    stackId="4"
+                  />
+                </AreaChart>
+              )}
+              
+              {chartType === "composed" && (
+                <ComposedChart
+                  data={chartData}
+                  margin={{ top: 5, right: 20, left: 0, bottom: 5 }}
+                >
+                  <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                  <XAxis 
+                    dataKey="date" 
+                    tick={{ fontSize: 12 }}
+                    stroke="#888888"
+                  />
+                  <YAxis 
+                    tick={{ fontSize: 12 }}
+                    stroke="#888888"
+                  />
+                  <Tooltip content={<CustomTooltip />} />
+                  <Legend 
+                    wrapperStyle={{ fontSize: '12px', paddingTop: '10px' }}
+                  />
+                  <Bar
+                    dataKey="calories"
+                    name="Calorie"
+                    fill="#8884d8"
+                    barSize={20}
+                  />
+                  <Line
+                    type="monotone"
+                    dataKey="proteins"
+                    name="Proteine"
+                    stroke="#82ca9d"
+                    strokeWidth={2}
+                  />
+                  <Area
+                    type="monotone"
+                    dataKey="carbs"
+                    name="Carboidrati"
+                    stroke="#ffc658"
+                    fill="#ffc658"
+                    fillOpacity={0.3}
+                  />
+                  <Line
+                    type="monotone"
+                    dataKey="fats"
+                    name="Grassi"
+                    stroke="#ff8042"
+                    strokeWidth={2}
+                  />
+                </ComposedChart>
+              )}
             </ResponsiveContainer>
           </div>
         ) : (
