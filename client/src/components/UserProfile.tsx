@@ -85,12 +85,21 @@ export default function UserProfile() {
   const {
     data: profile,
     isLoading: isProfileLoading,
-    error: profileError
+    error: profileError,
+    isError
   } = useQuery<UserProfileType>({
     queryKey: ["/api/user-profile", user?.id.toString()],
     queryFn: async () => {
-      const res = await apiRequest("GET", `/api/user-profile?userId=${user?.id}`);
-      return await res.json();
+      try {
+        const res = await apiRequest("GET", `/api/user-profile?userId=${user?.id}`);
+        return await res.json();
+      } catch (err) {
+        // Se l'errore è "User profile not found", restituisci null invece di generare un errore
+        if (err instanceof Error && err.message.includes("User profile not found")) {
+          return null;
+        }
+        throw err;
+      }
     },
     enabled: !!user,
     retry: false,
