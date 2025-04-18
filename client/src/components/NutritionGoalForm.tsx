@@ -233,7 +233,7 @@ export default function NutritionGoalForm({
             {!isEditing && (
               <FormItem>
                 <FormLabel>Profilo nutrizionale predefinito</FormLabel>
-                <Select onValueChange={applyNutritionProfile}>
+                <Select defaultValue="custom" onValueChange={applyNutritionProfile}>
                   <FormControl>
                     <SelectTrigger>
                       <SelectValue placeholder="Seleziona un profilo predefinito" />

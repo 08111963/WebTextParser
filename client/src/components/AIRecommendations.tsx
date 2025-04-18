@@ -81,7 +81,7 @@ type AIRecommendationsProps = {
 export default function AIRecommendations({ userId }: AIRecommendationsProps) {
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState("goals");
-  const [selectedMealType, setSelectedMealType] = useState<string>("");
+  const [selectedMealType, setSelectedMealType] = useState<string>("all");
   
   // Raccomandazioni per obiettivi nutrizionali
   const {
@@ -110,7 +110,7 @@ export default function AIRecommendations({ userId }: AIRecommendationsProps) {
     queryKey: ["/api/recommendations/meals", userId, selectedMealType],
     queryFn: async () => {
       let url = `/api/recommendations/meals?userId=${userId}`;
-      if (selectedMealType) {
+      if (selectedMealType && selectedMealType !== 'all') {
         url += `&mealType=${selectedMealType}`;
       }
       const res = await apiRequest("GET", url);
@@ -261,7 +261,7 @@ export default function AIRecommendations({ userId }: AIRecommendationsProps) {
                   <SelectValue placeholder="Tipo di pasto" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">Tutti i pasti</SelectItem>
+                  <SelectItem value="all">Tutti i pasti</SelectItem>
                   <SelectItem value="colazione">Colazione</SelectItem>
                   <SelectItem value="pranzo">Pranzo</SelectItem>
                   <SelectItem value="cena">Cena</SelectItem>
