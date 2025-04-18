@@ -75,19 +75,11 @@ export const insertMealSchema = createInsertSchema(meals)
   })
   .extend({
     // Utilizziamo z.coerce.number() per convertire automaticamente le stringhe in numeri
-    calories: z.coerce.number().min(0),
-    proteins: z.coerce.number().min(0),
-    carbs: z.coerce.number().min(0),
-    fats: z.coerce.number().min(0),
-  })
-  .transform((data) => ({
-    ...data,
-    // Assicuriamoci che tutti i valori numerici siano convertiti in interi
-    calories: Math.round(data.calories),
-    proteins: Math.round(data.proteins),
-    carbs: Math.round(data.carbs),
-    fats: Math.round(data.fats),
-  }));
+    calories: z.coerce.number().min(0).transform(Math.round),
+    proteins: z.coerce.number().min(0).transform(Math.round),
+    carbs: z.coerce.number().min(0).transform(Math.round),
+    fats: z.coerce.number().min(0).transform(Math.round),
+  });
 
 export const insertMealPlanSchema = createInsertSchema(mealPlans).pick({
   userId: true,
@@ -110,20 +102,15 @@ export const insertNutritionGoalSchema = createInsertSchema(nutritionGoals)
     description: true,
   })
   .extend({
-    // Utilizziamo z.coerce.number() per convertire automaticamente le stringhe in numeri
-    calories: z.coerce.number().min(0),
-    proteins: z.coerce.number().min(0),
-    carbs: z.coerce.number().min(0),
-    fats: z.coerce.number().min(0),
+    // Utilizziamo z.coerce.number() per convertire automaticamente le stringhe in numeri e arrotondiamo i valori
+    calories: z.coerce.number().min(0).transform(Math.round),
+    proteins: z.coerce.number().min(0).transform(Math.round),
+    carbs: z.coerce.number().min(0).transform(Math.round),
+    fats: z.coerce.number().min(0).transform(Math.round),
   })
   .transform((data) => ({
     ...data,
-    // Assicuriamoci che tutti i valori numerici siano convertiti in interi
-    calories: Math.round(data.calories),
-    proteins: Math.round(data.proteins),
-    carbs: Math.round(data.carbs),
-    fats: Math.round(data.fats),
-    // Gestisci la descrizione null
+    // Gestiamo la descrizione null
     description: data.description || null
   }));
 
