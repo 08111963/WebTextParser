@@ -67,9 +67,9 @@ export default function AuthPage() {
     });
   };
 
-  // Se l'utente è già autenticato, reindirizza alla home page
+  // Se l'utente è già autenticato, reindirizza alla home page protetta
   if (user) {
-    return <Redirect to="/" />;
+    return <Redirect to="/home" />;
   }
 
   return (
