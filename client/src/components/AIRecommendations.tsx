@@ -265,10 +265,29 @@ export default function AIRecommendations({ userId }: AIRecommendationsProps) {
                 ))}
               </div>
             ) : (
-              <div className="text-center py-8">
-                <p className="text-muted-foreground">
-                  Clicca "Genera Nuovi" per ricevere raccomandazioni personalizzate per i tuoi obiettivi nutrizionali.
-                </p>
+              <div className="text-center py-8 space-y-4">
+                <div className="rounded-full w-16 h-16 mx-auto bg-muted flex items-center justify-center">
+                  <Sparkles className="h-6 w-6 text-muted-foreground" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-medium mb-1">Nessuna raccomandazione disponibile</h3>
+                  <p className="text-muted-foreground">
+                    Clicca "Genera Nuovi" per ricevere raccomandazioni personalizzate per i tuoi obiettivi nutrizionali basate sul tuo profilo.
+                  </p>
+                </div>
+                <Button 
+                  variant="outline" 
+                  className="mt-2" 
+                  onClick={handleRefresh} 
+                  disabled={isLoadingGoals}
+                >
+                  {isLoadingGoals ? (
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  ) : (
+                    <Sparkles className="h-4 w-4 mr-2" />
+                  )}
+                  Genera Raccomandazioni
+                </Button>
               </div>
             )}
           </TabsContent>
@@ -329,10 +348,29 @@ export default function AIRecommendations({ userId }: AIRecommendationsProps) {
                 ))}
               </div>
             ) : (
-              <div className="text-center py-8">
-                <p className="text-muted-foreground">
-                  Clicca "Genera Nuovi" per ricevere suggerimenti personalizzati per i tuoi pasti.
-                </p>
+              <div className="text-center py-8 space-y-4">
+                <div className="rounded-full w-16 h-16 mx-auto bg-muted flex items-center justify-center">
+                  <Utensils className="h-6 w-6 text-muted-foreground" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-medium mb-1">Nessun suggerimento disponibile</h3>
+                  <p className="text-muted-foreground">
+                    Clicca "Genera Nuovi" per ricevere suggerimenti personalizzati per i tuoi pasti basati sul tuo profilo e obiettivo nutrizionale.
+                  </p>
+                </div>
+                <Button 
+                  variant="outline" 
+                  className="mt-2" 
+                  onClick={handleRefresh} 
+                  disabled={isLoadingMeals}
+                >
+                  {isLoadingMeals ? (
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  ) : (
+                    <Sparkles className="h-4 w-4 mr-2" />
+                  )}
+                  Genera Suggerimenti
+                </Button>
               </div>
             )}
           </TabsContent>

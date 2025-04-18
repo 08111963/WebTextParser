@@ -424,6 +424,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/recommendations/nutrition-goals", isAuthenticated, async (req, res) => {
     try {
       const userId = req.query.userId as string;
+      const forceNewRecommendations = req.query.forceNew === 'true';
       
       if (!userId) {
         return res.status(400).json({ message: "User ID is required" });
@@ -442,6 +443,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Recupera pasti recenti se disponibili
       const recentMeals = await storage.getMealsByUserId(userId);
       
+      console.log("Generating nutrition goal recommendations for user:", userId);
+      console.log("User profile:", JSON.stringify(profile));
+      console.log("Current goal:", currentGoal ? JSON.stringify(currentGoal) : "None");
+      console.log("Recent meals count:", recentMeals.length);
+      
       // Genera raccomandazioni personalizzate
       const recommendations = await generateNutritionGoalRecommendations(
         profile, 
@@ -449,12 +455,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
         recentMeals
       );
       
-      res.json({ recommendations });
+      console.log("Generated recommendations:", JSON.stringify(recommendations));
+      
+      // Se non ci sono raccomandazioni, restituisci un array vuoto invece di null
+      res.json({ 
+        recommendations: recommendations || [],
+        timestamp: new Date().toISOString()
+      });
     } catch (error) {
       console.error("Error generating nutrition goal recommendations:", error);
       res.status(500).json({ 
         message: "Failed to generate nutrition goal recommendations", 
-        error: error instanceof Error ? error.message : String(error)
+        error: error instanceof Error ? error.message : String(error),
+        recommendations: [] // Restituisci un array vuoto anche in caso di errore
       });
     }
   });
@@ -464,6 +477,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const userId = req.query.userId as string;
       const mealType = req.query.mealType as string;
+      const forceNewSuggestions = req.query.forceNew === 'true';
       const preferences = req.query.preferences 
         ? Array.isArray(req.query.preferences) 
           ? req.query.preferences as string[] 
@@ -484,6 +498,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Recupera obiettivo nutrizionale attuale se presente
       const nutritionGoal = await storage.getActiveNutritionGoal(userId);
       
+      console.log("Generating meal suggestions for user:", userId);
+      console.log("User profile:", JSON.stringify(profile));
+      console.log("Current goal:", nutritionGoal ? JSON.stringify(nutritionGoal) : "None");
+      console.log("Meal type requested:", mealType || "All");
+      console.log("Preferences:", preferences || "None");
+      
       // Genera suggerimenti personalizzati per i pasti
       const suggestions = await generateMealSuggestions(
         profile, 
@@ -492,12 +512,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
         preferences
       );
       
-      res.json({ suggestions });
+      console.log("Generated meal suggestions:", JSON.stringify(suggestions));
+      
+      // Se non ci sono suggerimenti, restituisci un array vuoto invece di null
+      res.json({ 
+        suggestions: suggestions || [],
+        timestamp: new Date().toISOString()
+      });
     } catch (error) {
       console.error("Error generating meal suggestions:", error);
       res.status(500).json({ 
         message: "Failed to generate meal suggestions", 
-        error: error instanceof Error ? error.message : String(error)
+        error: error instanceof Error ? error.message : String(error),
+        suggestions: [] // Restituisci un array vuoto anche in caso di errore
       });
     }
   });
