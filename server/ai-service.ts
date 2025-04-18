@@ -10,6 +10,80 @@ const MODEL = "gpt-4o";
 console.log("OpenAI API key exists:", !!process.env.OPENAI_API_KEY);
 
 /**
+ * Genera una risposta tramite AI basata su una domanda diretta dell'utente
+ */
+export async function generateAIResponse(
+  query: string,
+  profile: UserProfile,
+  currentGoal?: NutritionGoal,
+  recentMeals?: Meal[]
+) {
+  try {
+    // Costruisci un prompt dettagliato con tutte le informazioni disponibili
+    const systemPrompt = `Sei un nutrizionista esperto che risponde a domande in italiano sulla nutrizione, alimentazione e salute.
+    Hai accesso al profilo dell'utente e ai suoi dati nutrizionali, che dovresti utilizzare per personalizzare le tue risposte.
+    Rispondi in modo colloquiale ma professionale, fornendo informazioni accurate ed esaurienti.
+    Basa le tue risposte su informazioni scientifiche aggiornate.
+    Se non sai la risposta a una domanda specifica, non inventare informazioni e indirizza gentilmente l'utente a un professionista.`;
+    
+    const userInfo = {
+      profilo: {
+        età: profile.age || "Non specificata",
+        peso: profile.weight ? `${profile.weight} kg` : "Non specificato",
+        altezza: profile.height ? `${profile.height} cm` : "Non specificata",
+        genere: profile.gender || "Non specificato",
+        livelloAttività: profile.activityLevel || "Non specificato",
+      },
+      obiettivoNutrizionale: currentGoal ? {
+        nome: currentGoal.name,
+        calorie: currentGoal.calories,
+        proteine: currentGoal.proteins,
+        carboidrati: currentGoal.carbs,
+        grassi: currentGoal.fats,
+      } : "Nessun obiettivo attualmente impostato",
+      pastiRecenti: recentMeals && recentMeals.length > 0 
+        ? recentMeals.slice(0, 5).map(m => ({
+            cibo: m.food,
+            tipo: m.mealType,
+            calorie: m.calories,
+            proteine: m.proteins,
+            carboidrati: m.carbs,
+            grassi: m.fats
+          }))
+        : "Nessun pasto registrato recentemente"
+    };
+    
+    const userPrompt = `
+    Tieni in considerazione queste informazioni sull'utente:
+    ${JSON.stringify(userInfo, null, 2)}
+    
+    Domanda dell'utente: ${query}
+    
+    Fornisci una risposta completa e personalizzata, tenendo conto del profilo dell'utente e dei suoi dati nutrizionali.
+    `;
+
+    console.log("Sending user query to OpenAI:", query);
+    
+    const response = await openai.chat.completions.create({
+      model: MODEL,
+      messages: [
+        { role: "system", content: systemPrompt },
+        { role: "user", content: userPrompt }
+      ],
+      temperature: 0.7,
+    });
+
+    const answer = response.choices[0].message.content;
+    console.log("OpenAI response received:", answer);
+    
+    return answer || "Mi dispiace, non sono riuscito a elaborare una risposta. Prova a riformulare la tua domanda.";
+  } catch (error: any) {
+    console.error("Error generating AI response:", error);
+    throw new Error(`Failed to generate AI response: ${error?.message || 'Unknown error'}`);
+  }
+}
+
+/**
  * Genera consigli personalizzati per obiettivi nutrizionali basati sul profilo utente
  */
 export async function generateNutritionGoalRecommendations(
@@ -111,16 +185,33 @@ export async function generateNutritionGoalRecommendations(
     }
     
     // Assicurati che i valori siano tutti numeri interi
-    const processedRecommendations = Array.isArray(recommendations) 
-      ? recommendations.map(rec => ({
+    let processedRecommendations = [];
+    
+    // Se abbiamo un array, usa direttamente quello
+    if (Array.isArray(recommendations)) {
+      processedRecommendations = recommendations.map(rec => ({
+        title: rec.title,
+        description: rec.description,
+        calories: Math.round(Number(rec.calories)),
+        proteins: Math.round(Number(rec.proteins)),
+        carbs: Math.round(Number(rec.carbs)),
+        fats: Math.round(Number(rec.fats))
+      }));
+    } 
+    // Se abbiamo un oggetto con proprietà 'objectives' o altra struttura nest
+    else if (recommendations && typeof recommendations === 'object') {
+      // Check per la struttura 'objectives' che OpenAI potrebbe restituire
+      if (recommendations.objectives && Array.isArray(recommendations.objectives)) {
+        processedRecommendations = recommendations.objectives.map(rec => ({
           title: rec.title,
           description: rec.description,
           calories: Math.round(Number(rec.calories)),
           proteins: Math.round(Number(rec.proteins)),
           carbs: Math.round(Number(rec.carbs)),
           fats: Math.round(Number(rec.fats))
-        }))
-      : [];
+        }));
+      }
+    }
       
     return processedRecommendations;
   } catch (error: any) {
@@ -222,8 +313,25 @@ export async function generateMealSuggestions(
     }
     
     // Assicurati che i valori siano tutti numeri interi
-    const processedSuggestions = Array.isArray(suggestions) 
-      ? suggestions.map(sug => ({
+    let processedSuggestions = [];
+    
+    // Se abbiamo un array, usa direttamente quello
+    if (Array.isArray(suggestions)) {
+      processedSuggestions = suggestions.map(sug => ({
+        name: sug.name,
+        description: sug.description,
+        mealType: sug.mealType,
+        calories: Math.round(Number(sug.calories)),
+        proteins: Math.round(Number(sug.proteins)),
+        carbs: Math.round(Number(sug.carbs)),
+        fats: Math.round(Number(sug.fats))
+      }));
+    } 
+    // Se abbiamo un oggetto con proprietà 'suggestions' o altra struttura nest
+    else if (suggestions && typeof suggestions === 'object') {
+      // Check per la struttura 'suggestions' che OpenAI potrebbe restituire
+      if (suggestions.suggestions && Array.isArray(suggestions.suggestions)) {
+        processedSuggestions = suggestions.suggestions.map(sug => ({
           name: sug.name,
           description: sug.description,
           mealType: sug.mealType,
@@ -231,8 +339,9 @@ export async function generateMealSuggestions(
           proteins: Math.round(Number(sug.proteins)),
           carbs: Math.round(Number(sug.carbs)),
           fats: Math.round(Number(sug.fats))
-        }))
-      : [];
+        }));
+      }
+    }
       
     return processedSuggestions;
   } catch (error: any) {

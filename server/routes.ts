@@ -10,7 +10,7 @@ import {
 } from "@shared/schema";
 import { z } from "zod";
 import { setupAuth } from "./auth";
-import { generateNutritionGoalRecommendations, generateMealSuggestions } from "./ai-service";
+import { generateNutritionGoalRecommendations, generateMealSuggestions, generateAIResponse } from "./ai-service";
 
 // Middleware per proteggere le route che richiedono autenticazione
 function isAuthenticated(req: Request, res: Response, next: NextFunction) {
@@ -525,6 +525,48 @@ export async function registerRoutes(app: Express): Promise<Server> {
         message: "Failed to generate meal suggestions", 
         error: error instanceof Error ? error.message : String(error),
         suggestions: [] // Restituisci un array vuoto anche in caso di errore
+      });
+    }
+  });
+  
+  // Endpoint per richiedere una risposta al chatbot AI (route protetta)
+  app.post("/api/ai-chat", isAuthenticated, async (req, res) => {
+    try {
+      const { userId, query } = req.body;
+      
+      if (!userId || !query) {
+        return res.status(400).json({ message: "User ID and query are required" });
+      }
+      
+      // Recupera il profilo utente
+      const profile = await storage.getUserProfile(userId);
+      
+      if (!profile) {
+        return res.status(404).json({ message: "User profile not found" });
+      }
+      
+      // Recupera obiettivo nutrizionale attuale se presente
+      const currentGoal = await storage.getActiveNutritionGoal(userId);
+      
+      // Recupera pasti recenti se disponibili
+      const recentMeals = await storage.getMealsByUserId(userId);
+      
+      console.log("Processing AI chat request for user:", userId);
+      console.log("User query:", query);
+      
+      // Genera risposta personalizzata
+      const answer = await generateAIResponse(query, profile, currentGoal, recentMeals);
+      
+      res.json({ 
+        answer,
+        timestamp: new Date().toISOString()
+      });
+    } catch (error) {
+      console.error("Error generating AI chat response:", error);
+      res.status(500).json({ 
+        message: "Failed to generate AI response", 
+        error: error instanceof Error ? error.message : String(error),
+        answer: "Mi dispiace, si è verificato un errore durante la generazione della risposta. Riprova più tardi."
       });
     }
   });
