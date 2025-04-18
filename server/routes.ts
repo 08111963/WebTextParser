@@ -5,7 +5,8 @@ import {
   insertMealSchema, 
   insertMealPlanSchema, 
   insertNutritionGoalSchema, 
-  insertProgressEntrySchema 
+  insertProgressEntrySchema,
+  insertUserProfileSchema 
 } from "@shared/schema";
 import { z } from "zod";
 import { setupAuth } from "./auth";
@@ -385,6 +386,104 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       res.status(500).json({ 
         message: "Failed to delete progress entry", 
+        error: error instanceof Error ? error.message : String(error)
+      });
+    }
+  });
+
+  // === USER PROFILE ROUTES ===
+
+  // Get user profile (route protetta)
+  app.get("/api/user-profile", isAuthenticated, async (req, res) => {
+    try {
+      const userId = req.query.userId as string;
+      
+      if (!userId) {
+        return res.status(400).json({ message: "User ID is required" });
+      }
+      
+      const profile = await storage.getUserProfile(userId);
+      
+      if (!profile) {
+        return res.status(404).json({ message: "User profile not found" });
+      }
+      
+      res.json(profile);
+    } catch (error) {
+      res.status(500).json({ 
+        message: "Failed to fetch user profile", 
+        error: error instanceof Error ? error.message : String(error)
+      });
+    }
+  });
+
+  // Create user profile (route protetta)
+  app.post("/api/user-profile", isAuthenticated, async (req, res) => {
+    try {
+      // Pre-processing dei dati per garantire formati corretti
+      const processedData = {
+        ...req.body,
+        // Assicura che userId sia una stringa
+        userId: String(req.body.userId),
+        // Converte i valori numerici
+        age: req.body.age ? Number(req.body.age) : null,
+        weight: req.body.weight ? Number(req.body.weight) : null,
+        height: req.body.height ? Number(req.body.height) : null
+      };
+      
+      const profileData = insertUserProfileSchema.parse(processedData);
+      const profile = await storage.createUserProfile(profileData);
+      res.status(201).json(profile);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ 
+          message: "Invalid user profile data", 
+          errors: error.errors 
+        });
+      }
+      
+      res.status(500).json({ 
+        message: "Failed to create user profile", 
+        error: error instanceof Error ? error.message : String(error)
+      });
+    }
+  });
+
+  // Update user profile (route protetta)
+  app.patch("/api/user-profile/:userId", isAuthenticated, async (req, res) => {
+    try {
+      const userId = req.params.userId;
+      
+      if (!userId) {
+        return res.status(400).json({ message: "User ID is required" });
+      }
+      
+      // Validazione parziale dei dati
+      const updateData = req.body;
+      
+      // Converti i valori numerici se presenti
+      if (updateData.age !== undefined) {
+        updateData.age = Number(updateData.age);
+      }
+      
+      if (updateData.weight !== undefined) {
+        updateData.weight = Number(updateData.weight);
+      }
+      
+      if (updateData.height !== undefined) {
+        updateData.height = Number(updateData.height);
+      }
+      
+      const updatedProfile = await storage.updateUserProfile(userId, updateData);
+      
+      if (!updatedProfile) {
+        return res.status(404).json({ message: "User profile not found" });
+      }
+      
+      res.json(updatedProfile);
+    } catch (error) {
+      res.status(500).json({ 
+        message: "Failed to update user profile", 
         error: error instanceof Error ? error.message : String(error)
       });
     }

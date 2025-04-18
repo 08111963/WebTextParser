@@ -329,6 +329,36 @@ export class DatabaseStorage implements IStorage {
     return user;
   }
 
+  // Implementazione dei metodi per il profilo utente
+  async getUserProfile(userId: string): Promise<UserProfile | undefined> {
+    const [profile] = await db
+      .select()
+      .from(userProfiles)
+      .where(eq(userProfiles.userId, userId));
+    return profile || undefined;
+  }
+
+  async createUserProfile(profile: InsertUserProfile): Promise<UserProfile> {
+    const [userProfile] = await db
+      .insert(userProfiles)
+      .values(profile)
+      .returning();
+    return userProfile;
+  }
+
+  async updateUserProfile(userId: string, updates: Partial<InsertUserProfile>): Promise<UserProfile | undefined> {
+    const [updatedProfile] = await db
+      .update(userProfiles)
+      .set({
+        ...updates,
+        updatedAt: new Date()
+      })
+      .where(eq(userProfiles.userId, userId))
+      .returning();
+    
+    return updatedProfile;
+  }
+
   async getMealsByUserId(userId: string): Promise<Meal[]> {
     return await db
       .select()

@@ -226,8 +226,8 @@ export default function NutritionChart({ userId }: NutritionChartProps) {
           </div>
         ) : chartData.length > 0 ? (
           <div className="h-72">
-            <ResponsiveContainer width="100%" height="100%">
-              {chartType === "line" && (
+            {chartType === "line" && (
+              <ResponsiveContainer width="100%" height="100%">
                 <LineChart
                   data={chartData}
                   margin={{ top: 5, right: 20, left: 0, bottom: 5 }}
@@ -276,9 +276,11 @@ export default function NutritionChart({ userId }: NutritionChartProps) {
                     strokeWidth={2}
                   />
                 </LineChart>
-              )}
-              
-              {chartType === "bar" && (
+              </ResponsiveContainer>
+            )}
+            
+            {chartType === "bar" && (
+              <ResponsiveContainer width="100%" height="100%">
                 <BarChart
                   data={chartData}
                   margin={{ top: 5, right: 20, left: 0, bottom: 5 }}
@@ -322,9 +324,11 @@ export default function NutritionChart({ userId }: NutritionChartProps) {
                     barSize={20}
                   />
                 </BarChart>
-              )}
-              
-              {chartType === "area" && (
+              </ResponsiveContainer>
+            )}
+            
+            {chartType === "area" && (
+              <ResponsiveContainer width="100%" height="100%">
                 <AreaChart
                   data={chartData}
                   margin={{ top: 5, right: 20, left: 0, bottom: 5 }}
@@ -380,9 +384,11 @@ export default function NutritionChart({ userId }: NutritionChartProps) {
                     stackId="4"
                   />
                 </AreaChart>
-              )}
-              
-              {chartType === "composed" && (
+              </ResponsiveContainer>
+            )}
+            
+            {chartType === "composed" && (
+              <ResponsiveContainer width="100%" height="100%">
                 <ComposedChart
                   data={chartData}
                   margin={{ top: 5, right: 20, left: 0, bottom: 5 }}
@@ -430,8 +436,8 @@ export default function NutritionChart({ userId }: NutritionChartProps) {
                     strokeWidth={2}
                   />
                 </ComposedChart>
-              )}
-            </ResponsiveContainer>
+              </ResponsiveContainer>
+            )}
           </div>
         ) : (
           <div className="text-center py-12 text-muted-foreground">
