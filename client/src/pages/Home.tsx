@@ -17,9 +17,9 @@ type HomeProps = {
   };
 };
 
-// Definiamo un tipo Timestamp compatibile con il database
-interface Timestamp {
-  toDate: () => Date;
+// Helper per trasformare una data stringa in un oggetto Date
+function createDate(dateString: string): Date {
+  return new Date(dateString);
 }
 
 type Meal = {
@@ -31,7 +31,7 @@ type Meal = {
   carbs: number;
   fats: number;
   mealType: string;
-  timestamp: string | Timestamp;
+  timestamp: string;
 };
 
 export default function Home({ user }: HomeProps) {
@@ -46,29 +46,43 @@ export default function Home({ user }: HomeProps) {
   
   const avgChartRef = useRef<HTMLCanvasElement>(null);
   const avgChartInstance = useRef<Chart | null>(null);
-  
+
   // Load meals based on filter
   useEffect(() => {
-    let unsubscribe: () => void;
-    
-    if (filter === 'all') {
-      unsubscribe = getMeals(user.uid, (fetchedMeals) => {
-        setMeals(fetchedMeals);
-      });
-    } else {
-      const days = filter === 'week' ? 7 : parseInt(filter);
-      const endDate = new Date();
-      const startDate = new Date();
-      startDate.setDate(startDate.getDate() - days);
-      
-      unsubscribe = getMealsByDateRange(user.uid, startDate, endDate, (fetchedMeals) => {
-        setMeals(fetchedMeals);
-      });
-    }
-    
-    return () => {
-      if (unsubscribe) unsubscribe();
+    const fetchMeals = async () => {
+      try {
+        let url = `/api/meals?userId=${user.uid}`;
+        
+        if (filter !== 'all') {
+          const days = filter === 'week' ? 7 : parseInt(filter);
+          const endDate = new Date();
+          const startDate = new Date();
+          startDate.setDate(startDate.getDate() - days);
+          
+          url += `&startDate=${startDate.toISOString()}&endDate=${endDate.toISOString()}`;
+        }
+        
+        const response = await fetch(url);
+        
+        if (!response.ok) {
+          throw new Error(`Error ${response.status}: ${response.statusText}`);
+        }
+        
+        const fetchedMeals = await response.json();
+        
+        // Trasformiamo i dati per assicurarci che siano nel formato corretto
+        const processedMeals = fetchedMeals.map((meal: any) => ({
+          ...meal,
+          id: meal.id.toString() // Assicuriamoci che l'ID sia una stringa
+        }));
+        
+        setMeals(processedMeals);
+      } catch (error) {
+        console.error("Error fetching meals:", error);
+      }
     };
+    
+    fetchMeals();
   }, [user.uid, filter]);
   
   // Calculate totals when meals change
@@ -95,17 +109,18 @@ export default function Home({ user }: HomeProps) {
     // Get unique days count
     const uniqueDays = new Set(
       meals.map(meal => {
-        const date = meal.timestamp.toDate();
+        const date = createDate(meal.timestamp);
         return `${date.getFullYear()}-${date.getMonth()}-${date.getDate()}`;
       })
     ).size;
     
     const totalDays = uniqueDays || 1; // Prevent division by zero
     
-    const averageCalories = (total.calories / totalDays).toFixed(1);
-    const averageProteins = (total.proteins / totalDays).toFixed(1);
-    const averageCarbs = (total.carbs / totalDays).toFixed(1);
-    const averageFats = (total.fats / totalDays).toFixed(1);
+    // Calcola i valori medi come numeri
+    const averageCalories = parseFloat((total.calories / totalDays).toFixed(1));
+    const averageProteins = parseFloat((total.proteins / totalDays).toFixed(1));
+    const averageCarbs = parseFloat((total.carbs / totalDays).toFixed(1));
+    const averageFats = parseFloat((total.fats / totalDays).toFixed(1));
     
     // Destroy existing chart if it exists
     if (avgChartInstance.current) {
@@ -115,21 +130,23 @@ export default function Home({ user }: HomeProps) {
     const ctx = avgChartRef.current.getContext('2d');
     if (!ctx) return;
     
-    // Create new chart
+    // Create new chart with numeric data
     avgChartInstance.current = new Chart(ctx, {
       type: 'bar',
       data: {
         labels: ['Calories', 'Proteins', 'Carbs', 'Fats'],
         datasets: [{
           label: 'Daily Average',
-          data: [averageCalories, averageProteins, averageCarbs, averageFats],
+          data: [averageCalories, averageProteins, averageCarbs, averageFats] as number[],
           backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0']
         }]
       },
       options: {
         responsive: true,
         scales: {
-          y: { beginAtZero: true }
+          y: { 
+            beginAtZero: true 
+          }
         }
       }
     });

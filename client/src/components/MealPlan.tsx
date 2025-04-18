@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { addMealPlan } from '@/lib/firebase';
 import { useToast } from '@/hooks/use-toast';
 
 type MealPlanProps = {
@@ -67,11 +66,20 @@ export default function MealPlan({ userId }: MealPlanProps) {
         
         setResponse(mealPlanResponse);
         
-        // Save meal plan to firebase
-        addMealPlan({
-          userId,
-          query,
-          response: mealPlanResponse
+        // Salva il piano alimentare nel database
+        fetch('/api/mealplans', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            userId,
+            query,
+            response: mealPlanResponse,
+            timestamp: new Date().toISOString()
+          }),
+        }).catch(err => {
+          console.error("Error saving meal plan:", err);
         });
         
         setIsLoading(false);
