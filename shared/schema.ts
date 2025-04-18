@@ -56,12 +56,17 @@ export const progressEntries = pgTable("progress_entries", {
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
-export const insertUserSchema = createInsertSchema(users).pick({
-  username: true,
-  password: true,
-  firebaseId: true,
-  email: true,
-});
+export const insertUserSchema = createInsertSchema(users)
+  .pick({
+    username: true,
+    password: true,
+    firebaseId: true,
+    email: true,
+  })
+  .transform((data) => ({
+    ...data,
+    firebaseId: data.firebaseId || null, // Rendi firebaseId opzionale
+  }));
 
 export const insertMealSchema = createInsertSchema(meals).pick({
   userId: true,

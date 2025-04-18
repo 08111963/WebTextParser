@@ -5,13 +5,21 @@ import session from "express-session";
 import { scrypt, randomBytes, timingSafeEqual } from "crypto";
 import { promisify } from "util";
 import { db } from "./db";
-import { users, User } from "@shared/schema";
+import { users } from "@shared/schema";
 import { eq } from "drizzle-orm";
 import connectPg from "connect-pg-simple";
 
+// Estendi il namespace Express.User per il tipo corretto
 declare global {
   namespace Express {
-    interface User extends User {}
+    // Definizione esplicita per evitare ricorsione
+    interface User {
+      id: number;
+      username: string;
+      email: string;
+      password: string;
+      firebaseId: string | null;
+    }
   }
 }
 

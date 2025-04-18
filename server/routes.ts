@@ -1,4 +1,4 @@
-import type { Express } from "express";
+import type { Express, Request, Response, NextFunction } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { 
@@ -8,8 +8,19 @@ import {
   insertProgressEntrySchema 
 } from "@shared/schema";
 import { z } from "zod";
+import { setupAuth } from "./auth";
+
+// Middleware per proteggere le route che richiedono autenticazione
+function isAuthenticated(req: Request, res: Response, next: NextFunction) {
+  if (req.isAuthenticated()) {
+    return next();
+  }
+  res.status(401).json({ message: "Unauthorized, please login first" });
+}
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Configura l'autenticazione
+  setupAuth(app);
   // Get meals for user
   app.get("/api/meals", async (req, res) => {
     try {
