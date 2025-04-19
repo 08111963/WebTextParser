@@ -47,7 +47,7 @@ export default function AIObjectives({ userId }: AIObjectivesProps) {
   const [activeTab, setActiveTab] = useState("goals");
   const [isUserAuthenticated, setIsUserAuthenticated] = useState(userId !== "0");
   
-  // Raccomandazioni per obiettivi nutrizionali
+  // Nutrition goal recommendations
   const {
     data: nutritionGoalRecommendations,
     isLoading: isLoadingGoals,
@@ -61,7 +61,7 @@ export default function AIObjectives({ userId }: AIObjectivesProps) {
         if (!res.ok) {
           const errorText = await res.text();
           console.error("API error:", errorText);
-          throw new Error("Impossibile recuperare le raccomandazioni");
+          throw new Error("Unable to retrieve recommendations");
         }
         return await res.json();
       } catch (error) {
@@ -74,18 +74,18 @@ export default function AIObjectives({ userId }: AIObjectivesProps) {
     refetchOnWindowFocus: false,
   });
 
-  // Gestione errori
+  // Error handling
   if (goalError) {
     console.error("Error fetching nutrition goal recommendations:", goalError);
   }
 
-  // Funzione per aggiornare le raccomandazioni
+  // Function to update recommendations
   const handleRefresh = async () => {
-    // Se l'utente non è autenticato, mostra messaggio di login
+    // If the user is not authenticated, show login message
     if (!isUserAuthenticated) {
       toast({
-        title: "Autenticazione richiesta",
-        description: "Per utilizzare le raccomandazioni AI personalizzate è necessario accedere o registrarsi.",
+        title: "Authentication Required",
+        description: "To use personalized AI recommendations, you need to log in or register.",
         variant: "destructive",
       });
       return;
@@ -93,48 +93,48 @@ export default function AIObjectives({ userId }: AIObjectivesProps) {
 
     try {
       toast({
-        title: "Aggiornamento",
-        description: "Generazione di nuove raccomandazioni in corso...",
+        title: "Updating",
+        description: "Generating new recommendations...",
       });
 
-      // Facciamo una chiamata diretta all'API per generare nuove raccomandazioni
+      // Make a direct API call to generate new recommendations
       const res = await apiRequest("GET", `/api/recommendations/nutrition-goals?userId=${userId}&forceNew=true&timestamp=${Date.now()}`);
       
       if (!res.ok) {
         const errorText = await res.text();
         console.error("API refresh error:", errorText);
-        throw new Error("Impossibile recuperare le raccomandazioni");
+        throw new Error("Unable to retrieve recommendations");
       }
       
       const data = await res.json();
-      console.log("Raccomandazioni generate dall'API:", data);
+      console.log("Recommendations generated from API:", data);
       
-      // Assicuriamoci che ci siano raccomandazioni valide
+      // Make sure there are valid recommendations
       if (!data.recommendations || data.recommendations.length === 0) {
-        throw new Error("Nessuna raccomandazione ricevuta dall'API");
+        throw new Error("No recommendations received from API");
       }
       
-      // Aggiorniamo la cache di React Query con i risultati reali dall'API
+      // Update React Query cache with actual results from API
       queryClient.setQueryData(["/api/recommendations/nutrition-goals", userId], data);
       
-      // Proviamo anche con una invalidazione esplicita della query per forzare un refresh
+      // Also try with explicit query invalidation to force refresh
       await queryClient.invalidateQueries({
         queryKey: ["/api/recommendations/nutrition-goals", userId]
       });
       
       toast({
-        title: "Completato",
-        description: "Nuove raccomandazioni generate con successo",
+        title: "Completed",
+        description: "New recommendations successfully generated",
       });
     } catch (error) {
-      console.error("Errore durante l'aggiornamento:", error);
+      console.error("Error during update:", error);
       toast({
-        title: "Errore",
-        description: "Si è verificato un errore durante la generazione. Riprova più tardi.",
+        title: "Error",
+        description: "An error occurred during generation. Please try again later.",
         variant: "destructive",
       });
       
-      // In caso di errore, forziamo un refresh della UI
+      // In case of error, force UI refresh
       queryClient.invalidateQueries({
         queryKey: ["/api/recommendations/nutrition-goals", userId]
       });
@@ -146,28 +146,28 @@ export default function AIObjectives({ userId }: AIObjectivesProps) {
       <CardHeader>
         <CardTitle className="flex items-center space-x-2">
           <Sparkles className="h-5 w-5 text-primary" />
-          <span>Raccomandazioni AI</span>
+          <span>AI Recommendations</span>
         </CardTitle>
         <CardDescription>
-          Suggerimenti personalizzati basati sul tuo profilo e i tuoi dati nutrizionali
+          Personalized suggestions based on your profile and nutritional data
         </CardDescription>
       </CardHeader>
       <CardContent>
         {!isUserAuthenticated ? (
           <div className="text-center py-10 border rounded-lg">
             <Sparkles className="h-12 w-12 text-primary mx-auto mb-4" />
-            <h3 className="text-xl font-medium mb-2">Attiva Raccomandazioni Personalizzate</h3>
+            <h3 className="text-xl font-medium mb-2">Activate Personalized Recommendations</h3>
             <p className="text-muted-foreground max-w-md mx-auto mb-6">
-              Accedi o registrati per sbloccare raccomandazioni personalizzate basate sul tuo profilo e sui tuoi obiettivi nutrizionali.
+              Log in or register to unlock personalized recommendations based on your profile and nutritional goals.
             </p>
             <Button onClick={() => {
               toast({
-                title: "Autenticazione richiesta",
-                description: "Per utilizzare le raccomandazioni AI personalizzate è necessario accedere o registrarsi.",
+                title: "Authentication Required",
+                description: "To use personalized AI recommendations, you need to log in or register.",
                 duration: 5000
               });
             }}>
-              Accedi per Sbloccare
+              Log in to Unlock
             </Button>
           </div>
         ) : (
@@ -176,7 +176,7 @@ export default function AIObjectives({ userId }: AIObjectivesProps) {
               <TabsList>
                 <TabsTrigger value="goals" className="flex items-center gap-1">
                   <Target className="h-4 w-4" />
-                  <span>Obiettivi Nutrizionali</span>
+                  <span>Nutritional Goals</span>
                 </TabsTrigger>
               </TabsList>
               
@@ -191,7 +191,7 @@ export default function AIObjectives({ userId }: AIObjectivesProps) {
                 ) : (
                   <Sparkles className="h-4 w-4 mr-1" />
                 )}
-                Genera Nuovi
+                Generate New
               </Button>
             </div>
             
@@ -204,7 +204,7 @@ export default function AIObjectives({ userId }: AIObjectivesProps) {
                 <div className="border-t pt-6 mt-4">
                   <h3 className="text-xl font-bold mb-5 flex items-center gap-2">
                     <Star className="h-6 w-6 text-yellow-500" />
-                    <span>Obiettivi Nutrizionali Consigliati</span>
+                    <span>Recommended Nutritional Goals</span>
                   </h3>
                   
                   <div className="space-y-4">
@@ -231,27 +231,27 @@ export default function AIObjectives({ userId }: AIObjectivesProps) {
                               </div>
                               <div className="border rounded-lg p-4 text-center bg-red-50 dark:bg-red-900/10">
                                 <div className="text-2xl font-medium">{rec.proteins}</div>
-                                <div className="text-sm text-muted-foreground">Proteine (g)</div>
+                                <div className="text-sm text-muted-foreground">Protein (g)</div>
                               </div>
                               <div className="border rounded-lg p-4 text-center bg-green-50 dark:bg-green-900/10">
                                 <div className="text-2xl font-medium">{rec.carbs}</div>
-                                <div className="text-sm text-muted-foreground">Carboidrati (g)</div>
+                                <div className="text-sm text-muted-foreground">Carbs (g)</div>
                               </div>
                               <div className="border rounded-lg p-4 text-center bg-yellow-50 dark:bg-yellow-900/10">
                                 <div className="text-2xl font-medium">{rec.fats}</div>
-                                <div className="text-sm text-muted-foreground">Grassi (g)</div>
+                                <div className="text-sm text-muted-foreground">Fat (g)</div>
                               </div>
                             </div>
                             
                             <div className="mt-4 flex justify-end">
                               <Button variant="outline" className="text-sm" onClick={() => {
                                 toast({
-                                  title: "Funzionalità in arrivo",
-                                  description: "La creazione automatica di obiettivi sarà disponibile presto!",
+                                  title: "Coming Soon",
+                                  description: "Automatic goal creation will be available soon!",
                                 });
                               }}>
                                 <CircleCheck className="h-4 w-4 mr-2" />
-                                Usa questo obiettivo
+                                Use this goal
                               </Button>
                             </div>
                           </div>
@@ -268,7 +268,7 @@ export default function AIObjectives({ userId }: AIObjectivesProps) {
                             ) : (
                               <Sparkles className="h-5 w-5 mr-2" />
                             )}
-                            Genera Nuovi Obiettivi
+                            Generate New Goals
                           </Button>
                         </div>
                       </div>
@@ -278,9 +278,9 @@ export default function AIObjectives({ userId }: AIObjectivesProps) {
                           <Sparkles className="h-6 w-6 text-muted-foreground" />
                         </div>
                         <div>
-                          <h3 className="text-lg font-medium mb-1">Nessuna raccomandazione disponibile</h3>
+                          <h3 className="text-lg font-medium mb-1">No recommendations available</h3>
                           <p className="text-muted-foreground">
-                            Clicca "Genera Nuovi" per ricevere raccomandazioni personalizzate per i tuoi obiettivi nutrizionali.
+                            Click "Generate New" to receive personalized recommendations for your nutritional goals.
                           </p>
                         </div>
                         <Button 
@@ -294,7 +294,7 @@ export default function AIObjectives({ userId }: AIObjectivesProps) {
                           ) : (
                             <Sparkles className="h-4 w-4 mr-2" />
                           )}
-                          Genera Raccomandazioni
+                          Generate Recommendations
                         </Button>
                       </div>
                     )}
