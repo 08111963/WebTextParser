@@ -29,6 +29,18 @@ const sessionStore = new PostgresSessionStore({
   createTableIfMissing: true,
 });
 
+// Definiamo il tipo di dati che possono essere salvati nella sessione
+declare module 'express-session' {
+  interface SessionData {
+    subscription?: {
+      active: boolean;
+      plan: string;
+      startDate: string;
+      endDate: string;
+    };
+  }
+}
+
 const scryptAsync = promisify(scrypt);
 
 async function hashPassword(password: string) {

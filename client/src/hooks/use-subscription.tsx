@@ -121,10 +121,11 @@ export function SubscriptionProvider({ children }: { children: ReactNode }) {
         
         // Imposta il piano in base allo stato dell'abbonamento
         // Usa il piano dall'API se disponibile
-        if (trialStatus.subscriptionPlan) {
-          setPlan(trialStatus.subscriptionPlan as SubscriptionPlan);
+        if (trialStatus.isPremium) {
+          // Se l'utente ha un abbonamento attivo, usa il suo piano
+          setPlan(trialStatus.subscriptionPlan as SubscriptionPlan || "premium-monthly");
         } else {
-          // Se non specificato, usa il piano base
+          // Se non specificato, usa il piano di prova
           setPlan(trialStatus.trialActive ? "trial" : "trial");
         }
       } else {
