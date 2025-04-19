@@ -53,8 +53,8 @@ export default function ActiveNutritionGoal({
     return (
       <Card className="w-full">
         <CardHeader className="pb-2">
-          <CardTitle className="text-lg">Obiettivo Nutrizionale</CardTitle>
-          <CardDescription>Caricamento in corso...</CardDescription>
+          <CardTitle className="text-lg">Nutrition Goal</CardTitle>
+          <CardDescription>Loading...</CardDescription>
         </CardHeader>
       </Card>
     );
@@ -65,24 +65,24 @@ export default function ActiveNutritionGoal({
     return (
       <Card className="w-full">
         <CardHeader className="pb-2">
-          <CardTitle className="text-lg">Obiettivo Nutrizionale</CardTitle>
-          <CardDescription>Accedi per visualizzare i tuoi obiettivi</CardDescription>
+          <CardTitle className="text-lg">Nutrition Goal</CardTitle>
+          <CardDescription>Login to view your goals</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="text-center py-6 border rounded-lg">
             <UserCircle2 className="h-10 w-10 text-primary mx-auto mb-2" />
-            <h3 className="text-base font-medium mb-2">Accesso richiesto</h3>
+            <h3 className="text-base font-medium mb-2">Authentication required</h3>
             <p className="text-sm text-muted-foreground max-w-md mx-auto mb-4">
-              Accedi o registrati per impostare e monitorare i tuoi obiettivi nutrizionali.
+              Login or register to set and monitor your nutritional goals.
             </p>
             <Button size="sm" onClick={() => {
               toast({
-                title: "Autenticazione richiesta",
-                description: "Per visualizzare e gestire gli obiettivi è necessario accedere o registrarsi.",
+                title: "Authentication required",
+                description: "You need to login or register to view and manage your goals.",
                 duration: 5000
               });
             }}>
-              Accedi per Continuare
+              Login to Continue
             </Button>
           </div>
         </CardContent>
@@ -94,17 +94,17 @@ export default function ActiveNutritionGoal({
     return (
       <Card className="w-full">
         <CardHeader className="pb-2">
-          <CardTitle className="text-lg">Obiettivo Nutrizionale</CardTitle>
+          <CardTitle className="text-lg">Nutrition Goal</CardTitle>
           <CardDescription>
             {error 
-              ? "Si è verificato un errore nel caricamento dell'obiettivo."
-              : "Nessun obiettivo nutrizionale attivo."}
+              ? "An error occurred while loading the goal."
+              : "No active nutrition goal."}
           </CardDescription>
         </CardHeader>
         <CardFooter>
           <Dialog>
             <DialogTrigger asChild>
-              <Button className="w-full">Crea un obiettivo</Button>
+              <Button className="w-full">Create a goal</Button>
             </DialogTrigger>
             <DialogContent className="max-w-xl max-h-[90vh] overflow-y-auto">
               <NutritionGoalForm userId={userId} />

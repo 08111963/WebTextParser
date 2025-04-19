@@ -40,7 +40,7 @@ type NutritionGoalFormProps = {
   goalId?: number;
 };
 
-// Tipo per il profilo nutrizionale
+// Type for nutrition profile
 type NutritionProfile = {
   name: string;
   calories: number;
@@ -50,7 +50,7 @@ type NutritionProfile = {
   description: string;
 };
 
-// Profili nutrizionali predefiniti
+// Predefined nutrition profiles
 const nutritionProfiles: Record<string, NutritionProfile> = {
   maintenance: { 
     name: "Maintenance", 
@@ -138,7 +138,7 @@ export default function NutritionGoalForm({
     defaultValues,
   });
   
-  // Funzione per applicare un profilo predefinito
+  // Function to apply a predefined profile
   const applyNutritionProfile = (profileKey: string) => {
     if (profileKey === 'custom') return;
     
@@ -156,11 +156,11 @@ export default function NutritionGoalForm({
     try {
       setIsSubmitting(true);
       
-      // Prepara i dati per l'API
+      // Prepare data for the API
       const goalData = {
         ...values,
         userId,
-        // Converti le date in formato ISO per l'API
+        // Convert dates to ISO format for the API
         startDate: values.startDate.toISOString(),
         endDate: values.endDate ? values.endDate.toISOString() : null,
       };
@@ -191,11 +191,11 @@ export default function NutritionGoalForm({
         });
       }
       
-      // Invalida le query per aggiornare i dati
+      // Invalidate queries to update data
       queryClient.invalidateQueries({queryKey: ['/api/nutrition-goals']});
       queryClient.invalidateQueries({queryKey: ['/api/nutrition-goals/active']});
       
-      // Forza il refetch dell'obiettivo attivo per aggiornare l'interfaccia immediatamente
+      // Force refetch of the active goal to immediately update the interface
       queryClient.refetchQueries({queryKey: ['/api/nutrition-goals/active', userId]});
       
       if (onSuccess) {
@@ -208,8 +208,8 @@ export default function NutritionGoalForm({
     } catch (error) {
       console.error("Error:", error);
       toast({
-        title: "Errore",
-        description: error instanceof Error ? error.message : "Si è verificato un errore. Riprova più tardi.",
+        title: "Error",
+        description: error instanceof Error ? error.message : "An error occurred. Please try again later.",
         variant: "destructive"
       });
     } finally {
