@@ -1,16 +1,16 @@
 /**
- * Calcola l'indice di massa corporea (BMI)
- * Formula: peso (kg) / (altezza (m) * altezza (m))
+ * Calculate Body Mass Index (BMI)
+ * Formula: weight (kg) / (height (m) * height (m))
  */
 export function calculateBMI(weight: number, height: number): number {
   if (!weight || !height) return 0;
-  // altezza da cm a metri
+  // height from cm to meters
   const heightInMeters = height / 100;
   return Number((weight / (heightInMeters * heightInMeters)).toFixed(1));
 }
 
 /**
- * Interpreta il valore BMI secondo le categorie standard dell'OMS
+ * Interpret the BMI value according to WHO standard categories
  */
 export function interpretBMI(bmi: number): {
   category: string;
@@ -19,43 +19,43 @@ export function interpretBMI(bmi: number): {
 } {
   if (bmi <= 0) return { 
     category: "N/A", 
-    description: "Dati insufficienti per il calcolo", 
+    description: "Insufficient data for calculation", 
     color: "gray" 
   };
   
   if (bmi < 18.5) return { 
-    category: "Sottopeso", 
-    description: "Indica un peso inferiore al normale per l'altezza", 
+    category: "Underweight", 
+    description: "Indicates a weight lower than normal for height", 
     color: "blue" 
   };
   
   if (bmi < 25) return { 
-    category: "Normopeso", 
-    description: "Indica un peso sano per l'altezza", 
+    category: "Normal", 
+    description: "Indicates a healthy weight for height", 
     color: "green" 
   };
   
   if (bmi < 30) return { 
-    category: "Sovrappeso", 
-    description: "Indica un peso superiore al normale per l'altezza", 
+    category: "Overweight", 
+    description: "Indicates a weight higher than normal for height", 
     color: "orange" 
   };
   
   return { 
-    category: "Obesità", 
-    description: "Indica un peso significativamente superiore al normale per l'altezza", 
+    category: "Obese", 
+    description: "Indicates a weight significantly higher than normal for height", 
     color: "red" 
   };
 }
 
 /**
- * Calcola il metabolismo basale utilizzando la formula di Harris-Benedict
- * Stima le calorie necessarie a riposo in base a sesso, peso, altezza ed età
+ * Calculate Basal Metabolic Rate using the Harris-Benedict formula
+ * Estimates the calories needed at rest based on gender, weight, height, and age
  */
 export function calculateBMR(weight: number, height: number, age: number, gender: string): number {
   if (!weight || !height || !age) return 0;
   
-  // Formula Harris-Benedict rivista
+  // Revised Harris-Benedict formula
   if (gender.toLowerCase() === "maschio" || gender.toLowerCase() === "male") {
     return Math.round(88.362 + (13.397 * weight) + (4.799 * height) - (5.677 * age));
   } else {
@@ -64,22 +64,22 @@ export function calculateBMR(weight: number, height: number, age: number, gender
 }
 
 /**
- * Calcola il fabbisogno calorico totale giornaliero
- * Moltiplica il BMR per il fattore di attività fisica
+ * Calculate Total Daily Energy Expenditure
+ * Multiplies BMR by the physical activity factor
  */
 export function calculateTDEE(bmr: number, activityLevel: string): number {
   if (!bmr) return 0;
   
   const activityFactors: Record<string, number> = {
-    "sedentario": 1.2, // Attività sedentaria, poco o nessun esercizio
+    "sedentario": 1.2, // Sedentary activity, little or no exercise
     "sedentary": 1.2,
-    "leggero": 1.375, // Esercizio leggero 1-3 volte/settimana
+    "leggero": 1.375, // Light exercise 1-3 times/week
     "light": 1.375,
-    "moderato": 1.55, // Esercizio moderato 3-5 volte/settimana
+    "moderato": 1.55, // Moderate exercise 3-5 times/week
     "moderate": 1.55,
-    "attivo": 1.725, // Esercizio intenso 6-7 volte/settimana
+    "attivo": 1.725, // Intense exercise 6-7 times/week
     "active": 1.725,
-    "molto attivo": 1.9, // Esercizio molto intenso, lavoro fisico o 2x allenamento
+    "molto attivo": 1.9, // Very intense exercise, physical work or 2x training
     "very active": 1.9
   };
   
@@ -88,12 +88,12 @@ export function calculateTDEE(bmr: number, activityLevel: string): number {
 }
 
 /**
- * Suggerisce distribuzioni di macronutrienti in base all'obiettivo
+ * Suggests macronutrient distributions based on the goal
  */
 export function suggestMacroDistribution(goal: string): {
-  proteins: number; // percentuale
-  carbs: number; // percentuale
-  fats: number; // percentuale
+  proteins: number; // percentage
+  carbs: number; // percentage
+  fats: number; // percentage
 } {
   const defaultDistribution = { proteins: 30, carbs: 40, fats: 30 };
   
@@ -101,19 +101,22 @@ export function suggestMacroDistribution(goal: string): {
   
   const lowerGoal = goal.toLowerCase();
   
-  if (lowerGoal.includes("dimagrimento") || lowerGoal.includes("perdita")) {
+  if (lowerGoal.includes("dimagrimento") || lowerGoal.includes("perdita") || 
+      lowerGoal.includes("weight loss") || lowerGoal.includes("fat loss")) {
     return { proteins: 40, carbs: 30, fats: 30 };
   }
   
-  if (lowerGoal.includes("muscolo") || lowerGoal.includes("massa")) {
+  if (lowerGoal.includes("muscolo") || lowerGoal.includes("massa") || 
+      lowerGoal.includes("muscle") || lowerGoal.includes("mass")) {
     return { proteins: 35, carbs: 45, fats: 20 };
   }
   
-  if (lowerGoal.includes("mantenimento")) {
+  if (lowerGoal.includes("mantenimento") || lowerGoal.includes("maintenance")) {
     return { proteins: 30, carbs: 40, fats: 30 };
   }
   
-  if (lowerGoal.includes("keto") || lowerGoal.includes("chetogenica")) {
+  if (lowerGoal.includes("keto") || lowerGoal.includes("chetogenica") || 
+      lowerGoal.includes("ketogenic")) {
     return { proteins: 25, carbs: 5, fats: 70 };
   }
   

@@ -17,7 +17,7 @@ export default function BMICard({ weight, height }: BMICardProps) {
       <CardHeader className="pb-2">
         <CardTitle className="text-lg flex items-center gap-2">
           <Scale className="h-5 w-5 text-primary" />
-          <span>Indice di Massa Corporea (BMI)</span>
+          <span>Body Mass Index (BMI)</span>
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
@@ -25,15 +25,15 @@ export default function BMICard({ weight, height }: BMICardProps) {
               </TooltipTrigger>
               <TooltipContent className="max-w-sm">
                 <p>
-                  L'Indice di Massa Corporea (BMI) è un indicatore che mette in relazione peso e altezza. 
-                  Formula: peso (kg) / altezza² (m). La valutazione va sempre contestualizzata con altri parametri clinici.
+                  Body Mass Index (BMI) is an indicator that relates weight and height.
+                  Formula: weight (kg) / height² (m). The assessment should always be contextualised with other clinical parameters.
                 </p>
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>
         </CardTitle>
         <CardDescription>
-          Rapporto tra peso e altezza secondo gli standard dell'OMS
+          Weight-to-height ratio according to WHO standards
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -60,16 +60,16 @@ export default function BMICard({ weight, height }: BMICardProps) {
             </div>
             
             <div className="flex justify-between items-center mt-4 text-xs text-muted-foreground pt-2 border-t">
-              <div>Sottopeso: &lt;18.5</div>
-              <div>Normopeso: 18.5-24.9</div>
-              <div>Sovrappeso: 25-29.9</div>
-              <div>Obesità: ≥30</div>
+              <div>Underweight: &lt;18.5</div>
+              <div>Normal: 18.5-24.9</div>
+              <div>Overweight: 25-29.9</div>
+              <div>Obese: ≥30</div>
             </div>
           </div>
         ) : (
           <div className="text-center py-8 text-muted-foreground">
-            <p>Dati insufficienti per il calcolo</p>
-            <p className="text-sm mt-1">Assicurati di aver inserito peso e altezza nel tuo profilo</p>
+            <p>Insufficient data for calculation</p>
+            <p className="text-sm mt-1">Make sure you have entered weight and height in your profile</p>
           </div>
         )}
       </CardContent>
