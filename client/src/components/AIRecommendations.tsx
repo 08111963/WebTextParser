@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { apiRequest } from "@/lib/queryClient";
+import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 
 import {
@@ -162,23 +162,40 @@ export default function AIRecommendations({ userId }: AIRecommendationsProps) {
         description: "Generazione di nuovi suggerimenti pasti in corso...",
       });
       
-      // Aggiungiamo forzaNew=true direttamente nella chiamata API
-      let url = `/api/recommendations/meals?userId=${userId}&forceNew=true`;
+      // Aggiungiamo timestamp unico e forzaNew=true direttamente nella chiamata API
+      const timestamp = new Date().getTime();
+      let url = `/api/recommendations/meals?userId=${userId}&forceNew=true&ts=${timestamp}`;
       if (selectedMealType && selectedMealType !== 'all') {
         url += `&mealType=${selectedMealType}`;
       }
       
-      console.log("Richiesta generazione nuovo pasto:", url);
-      const res = await apiRequest("GET", url);
+      console.log("Richiesta generazione nuovi pasti:", url);
+      
+      // Disabilita temporaneamente la cache per questa richiesta
+      const res = await fetch(url, {
+        method: "GET",
+        headers: {
+          "Cache-Control": "no-cache, no-store, must-revalidate",
+          "Pragma": "no-cache",
+          "Expires": "0"
+        },
+        credentials: "same-origin"
+      });
+      
+      if (!res.ok) {
+        throw new Error(`Errore durante il fetch: ${res.status}`);
+      }
+      
       const data = await res.json();
       console.log("Nuovi pasti generati:", data);
       
-      // Forza il refetch per aggiornare l'UI con i nuovi dati
-      await refetchMeals();
+      // Forza l'aggiornamento dei dati con il risultato appena ottenuto
+      // Questo usa TanStack Query per aggiornare la cache
+      queryClient.setQueryData(["/api/recommendations/meals", userId, selectedMealType], data);
       
       toast({
         title: "Completato",
-        description: "Nuovi suggerimenti generati con successo",
+        description: `${data.suggestions?.length || 0} nuovi suggerimenti generati con successo`,
       });
     } catch (error) {
       console.error("Errore durante l'aggiornamento:", error);
@@ -271,7 +288,7 @@ export default function AIRecommendations({ userId }: AIRecommendationsProps) {
                         </Badge>
                       </div>
                       
-                      <p className="text-sm text-muted-foreground mt-2 mb-3 leading-relaxed min-h-[4.5rem] max-h-none">{meal.description}</p>
+                      <p className="text-sm text-muted-foreground mt-2 mb-3 leading-relaxed min-h-[5rem] overflow-visible">{meal.description}</p>
                       
                       <div className="flex flex-wrap gap-2 mt-2">
                         <Badge variant="secondary">{meal.calories} kcal</Badge>
