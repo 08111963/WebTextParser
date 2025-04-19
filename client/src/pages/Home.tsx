@@ -29,6 +29,9 @@ export default function Home() {
   
   // Effetto per resettare la posizione di scroll quando cambia la tab
   useEffect(() => {
+    // Registriamo che stiamo cambiando tab
+    const isChangingTab = true;
+    
     // Reset lo scroll della pagina intera in una posizione sicura
     window.scrollTo(0, 0);
     
@@ -37,22 +40,32 @@ export default function Home() {
     if (tabContent) {
       // Forza lo scroll alla posizione 0 in modo che inizi dall'alto
       tabContent.scrollTop = 0;
-      
-      // Ulteriore controllo per assicurarsi che lo scroll sia effettivamente a 0
-      setTimeout(() => {
-        if (tabContent.scrollTop !== 0) {
-          tabContent.scrollTop = 0;
-        }
-      }, 50);
     }
     
-    // Assicura che il tab-top sia visibile ma senza saltare ad esso
-    const tabTop = document.getElementById(`${activeTab}-tab-top`);
-    if (tabTop) {
-      // Usiamo scrollIntoView ma con behavior 'instant' per evitare animazioni
-      // e non renderlo come target primario che potrebbe causare salti
-      tabTop.scrollIntoView({ behavior: 'instant', block: 'start' });
-    }
+    // Per garantire che lo scroll sia effettivamente a 0, utilizziamo un approccio a più fasi
+    setTimeout(() => {
+      // Primo tentativo immediato
+      if (tabContent) {
+        tabContent.scrollTop = 0;
+      }
+      
+      // Secondo tentativo dopo che il DOM si è stabilizzato
+      requestAnimationFrame(() => {
+        if (tabContent) {
+          tabContent.scrollTop = 0;
+          
+          // Terzo tentativo dopo il render completo
+          setTimeout(() => {
+            if (tabContent) {
+              tabContent.scrollTop = 0;
+              
+              // Scroll forzato al top della pagina per sicurezza
+              window.scrollTo(0, 0);
+            }
+          }, 50);
+        }
+      });
+    }, 10);
   }, [activeTab]);
   
   // Se l'utente non è autenticato, mostriamo un caricamento
@@ -135,14 +148,35 @@ export default function Home() {
         <Tabs 
           value={activeTab} 
           onValueChange={(value) => {
+            // Prima aggiorniamo lo stato
             setActiveTab(value);
-            // Reset scroll position all'inizio quando si cambia tab
+            
+            // Resettiamo lo scroll della pagina
             window.scrollTo(0, 0);
-            // Reset anche lo scroll delle tab con contenuto lungo
-            const tabContent = document.querySelector(`[data-state="active"][role="tabpanel"]`);
-            if (tabContent) {
-              tabContent.scrollTop = 0;
-            }
+            
+            // Resettiamo lo scroll del contenuto della tab
+            requestAnimationFrame(() => {
+              const tabContent = document.querySelector(`[data-state="active"][role="tabpanel"]`);
+              if (tabContent) {
+                tabContent.scrollTop = 0;
+              }
+              
+              // Forziamo uno scroll a 0 per sicurezza
+              window.scrollTo(0, 0);
+              
+              // Tenta di scorrere al top-marker della tab
+              const tabTop = document.getElementById(`${value}-tab-top`);
+              if (tabTop) {
+                tabTop.scrollIntoView({ behavior: 'auto', block: 'start' });
+              }
+              
+              // Ulteriore tentativo dopo il render
+              setTimeout(() => {
+                if (tabContent) {
+                  tabContent.scrollTop = 0;
+                }
+              }, 100);
+            });
           }} 
           className="w-full"
         >
