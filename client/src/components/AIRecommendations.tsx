@@ -154,12 +154,20 @@ export default function AIRecommendations({ userId }: AIRecommendationsProps) {
     console.error("Error fetching meal suggestions:", mealError);
   }
 
+  // Stato locale per il caricamento manuale
+  const [isManualLoading, setIsManualLoading] = useState(false);
+
   // Funzione per aggiornare le raccomandazioni
   const handleRefresh = async () => {
     try {
+      // Imposta manualmente lo stato di caricamento
+      setIsManualLoading(true);
+
+      // Mostra un toast con caricamento in corso
       toast({
         title: "Aggiornamento",
-        description: "Generazione di nuovi suggerimenti pasti in corso...",
+        description: "Generazione di nuovi suggerimenti pasti in corso... (potrebbe richiedere 30-60 secondi)",
+        duration: 30000, // Lungo a sufficienza per il caricamento completo
       });
       
       // Aggiungiamo timestamp unico e forzaNew=true direttamente nella chiamata API
@@ -193,6 +201,7 @@ export default function AIRecommendations({ userId }: AIRecommendationsProps) {
       // Questo usa TanStack Query per aggiornare la cache
       queryClient.setQueryData(["/api/recommendations/meals", userId, selectedMealType], data);
       
+      // Mostra il toast di completamento
       toast({
         title: "Completato",
         description: `${data.suggestions?.length || 0} nuovi suggerimenti generati con successo`,
@@ -204,6 +213,9 @@ export default function AIRecommendations({ userId }: AIRecommendationsProps) {
         description: "Si è verificato un errore durante la generazione. Riprova più tardi.",
         variant: "destructive",
       });
+    } finally {
+      // Imposta lo stato di caricamento a false indipendentemente dal risultato
+      setIsManualLoading(false);
     }
   };
 
@@ -234,9 +246,9 @@ export default function AIRecommendations({ userId }: AIRecommendationsProps) {
             variant="outline" 
             size="sm" 
             onClick={handleRefresh} 
-            disabled={isLoadingMeals}
+            disabled={isLoadingMeals || isManualLoading}
           >
-            {isLoadingMeals ? (
+            {(isLoadingMeals || isManualLoading) ? (
               <Loader2 className="h-4 w-4 mr-1 animate-spin" />
             ) : (
               <Sparkles className="h-4 w-4 mr-1" />
@@ -326,9 +338,9 @@ export default function AIRecommendations({ userId }: AIRecommendationsProps) {
                     variant="outline" 
                     className="mt-2" 
                     onClick={handleRefresh} 
-                    disabled={isLoadingMeals}
+                    disabled={isLoadingMeals || isManualLoading}
                   >
-                    {isLoadingMeals ? (
+                    {(isLoadingMeals || isManualLoading) ? (
                       <Loader2 className="h-4 w-4 mr-2 animate-spin" />
                     ) : (
                       <Sparkles className="h-4 w-4 mr-2" />
