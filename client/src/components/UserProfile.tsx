@@ -136,7 +136,7 @@ export default function UserProfile() {
     }
   }, [profile, form]);
 
-  // Creazione nuovo profilo
+  // Create new profile
   const createProfileMutation = useMutation({
     mutationFn: async (data: ProfileFormValues) => {
       const res = await apiRequest("POST", "/api/user-profile", {
