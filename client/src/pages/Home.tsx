@@ -277,17 +277,15 @@ export default function Home() {
 
           <TabsContent value="meals" className="max-h-[calc(100vh-13rem)] overflow-y-auto">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="space-y-4 flex flex-col">
-                {/* Placeholder vuoto all'inizio per evitare scroll automatico */}
-                <div id="meal-form-top" className="h-1"></div>
-                
+              <div className="space-y-4">
                 {/* Form per aggiungere un nuovo pasto */}
                 <MealForm userId={user.id.toString()} />
-                
-                {/* Raccomandazioni IA per pasti spostato sotto */}
-                <div className="mt-4">
-                  <AIRecommendations userId={user.id.toString()} />
-                </div>
+              </div>
+              
+              {/* Raccomandazioni IA in una colonna separata */}
+              <div className="md:col-span-3 mt-6">
+                <h2 className="text-xl font-bold mb-4">Raccomandazioni AI per Pasti</h2>
+                <AIRecommendations userId={user.id.toString()} />
               </div>
               
               {/* Lista dei pasti */}
@@ -309,17 +307,15 @@ export default function Home() {
 
           <TabsContent value="goals" className="max-h-[calc(100vh-13rem)] overflow-y-auto">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="space-y-4 flex flex-col">
-                {/* Placeholder vuoto all'inizio per evitare scroll automatico */}
-                <div id="goal-form-top" className="h-1"></div>
-                
+              <div className="space-y-4">
                 {/* Form per aggiungere un nuovo obiettivo */}
                 <NutritionGoalForm userId={user.id.toString()} />
-                
-                {/* Raccomandazioni IA per obiettivi nutrizionali */}
-                <div className="mt-4">
-                  <AIObjectives userId={user.id.toString()} />
-                </div>
+              </div>
+              
+              {/* Raccomandazioni IA in una colonna separata */}
+              <div className="md:col-span-3 mt-6">
+                <h2 className="text-xl font-bold mb-4">Raccomandazioni AI per Obiettivi</h2>
+                <AIObjectives userId={user.id.toString()} />
               </div>
               
               {/* Visualizzazione dell'obiettivo attivo e cronologia */}
