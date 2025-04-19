@@ -632,41 +632,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
           isResponseSent = true;
           clearTimeout(timeoutHandle);
           
-          // Rispondiamo con un set predefinito di suggerimenti in caso di errore
-          const fallbackSuggestions = [
-            {
-              name: "Bowl di Yogurt Greco e Frutti di Bosco",
-              description: "Una colazione bilanciata a base di yogurt greco ricco di proteine, mirtilli, lamponi e granola. Ottima fonte di antiossidanti e probiotici per iniziare la giornata.",
-              mealType: mealType || "colazione",
-              calories: 420,
-              proteins: 22,
-              carbs: 58,
-              fats: 14
-            },
-            {
-              name: "Frittata di Verdure Mediterranea",
-              description: "Frittata soffice con spinaci, pomodorini, olive e un tocco di feta. Un piatto completo ricco di nutrienti essenziali e grassi sani.",
-              mealType: mealType || "pranzo",
-              calories: 380,
-              proteins: 25,
-              carbs: 15,
-              fats: 22
-            },
-            {
-              name: "Salmone al Forno con Asparagi",
-              description: "Filetto di salmone al forno con asparagi e una spruzzata di limone. Ricco di omega-3 e proteine di alta qualità per supportare la salute muscolare e cardiovascolare.",
-              mealType: mealType || "cena",
-              calories: 450,
-              proteins: 35,
-              carbs: 12,
-              fats: 28
-            }
-          ];
-          
-          res.json({ 
-            suggestions: fallbackSuggestions,
-            timestamp: new Date().toISOString(),
-            source: "fallback"
+          // Informiamo l'utente dell'errore e non forniamo dati predefiniti
+          res.status(500).json({
+            error: "Si è verificato un errore durante la generazione dei suggerimenti. Riprova più tardi.",
+            timestamp: new Date().toISOString()
           });
         }
       }
