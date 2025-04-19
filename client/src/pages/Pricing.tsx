@@ -14,11 +14,6 @@ const pricingData = [
       { text: "BMI calculator", included: true },
       { text: "Metabolic rate calculator", included: true },
       { text: "Limited meal history (15 days)", included: true },
-      { text: "Basic nutritional information", included: true },
-      { text: "AI nutrition chatbot", included: false },
-      { text: "Goal tracking & analytics", included: false },
-      { text: "Meal plan export", included: false },
-      { text: "Premium customer support", included: false },
     ],
   },
   {
