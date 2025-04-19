@@ -104,7 +104,20 @@ export default function Home() {
           <p className="text-gray-600">Monitora la tua nutrizione e raggiungi i tuoi obiettivi.</p>
         </div>
 
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+        <Tabs 
+          value={activeTab} 
+          onValueChange={(value) => {
+            setActiveTab(value);
+            // Reset scroll position all'inizio quando si cambia tab
+            window.scrollTo(0, 0);
+            // Reset anche lo scroll delle tab con contenuto lungo
+            const tabContent = document.querySelector(`[data-state="active"][role="tabpanel"]`);
+            if (tabContent) {
+              tabContent.scrollTop = 0;
+            }
+          }} 
+          className="w-full"
+        >
           <TabsList className="grid w-full md:w-auto grid-cols-4 mb-6">
             <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
             <TabsTrigger value="meals">Pasti</TabsTrigger>
@@ -264,12 +277,17 @@ export default function Home() {
 
           <TabsContent value="meals" className="max-h-[calc(100vh-13rem)] overflow-y-auto">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {/* Form per aggiungere un nuovo pasto */}
-              <div className="space-y-4">
+              <div className="space-y-4 flex flex-col">
+                {/* Placeholder vuoto all'inizio per evitare scroll automatico */}
+                <div id="meal-form-top" className="h-1"></div>
+                
+                {/* Form per aggiungere un nuovo pasto */}
                 <MealForm userId={user.id.toString()} />
                 
-                {/* Raccomandazioni IA per pasti */}
-                <AIRecommendations userId={user.id.toString()} />
+                {/* Raccomandazioni IA per pasti spostato sotto */}
+                <div className="mt-4">
+                  <AIRecommendations userId={user.id.toString()} />
+                </div>
               </div>
               
               {/* Lista dei pasti */}
@@ -291,12 +309,17 @@ export default function Home() {
 
           <TabsContent value="goals" className="max-h-[calc(100vh-13rem)] overflow-y-auto">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="space-y-4">
+              <div className="space-y-4 flex flex-col">
+                {/* Placeholder vuoto all'inizio per evitare scroll automatico */}
+                <div id="goal-form-top" className="h-1"></div>
+                
                 {/* Form per aggiungere un nuovo obiettivo */}
                 <NutritionGoalForm userId={user.id.toString()} />
                 
                 {/* Raccomandazioni IA per obiettivi nutrizionali */}
-                <AIObjectives userId={user.id.toString()} />
+                <div className="mt-4">
+                  <AIObjectives userId={user.id.toString()} />
+                </div>
               </div>
               
               {/* Visualizzazione dell'obiettivo attivo e cronologia */}
