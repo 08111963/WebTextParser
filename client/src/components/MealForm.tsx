@@ -19,13 +19,13 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { foodItems } from '@/data/foodDatabase';
 
 const mealFormSchema = z.object({
-  mealType: z.string().min(1, 'Tipo di pasto richiesto'),
-  food: z.string().min(1, 'Nome del cibo richiesto'),
+  mealType: z.string().min(1, 'Meal type is required'),
+  food: z.string().min(1, 'Food name is required'),
   foodPreset: z.string().optional(),
-  calories: z.coerce.number().min(0, 'Le calorie devono essere almeno 0'),
-  proteins: z.coerce.number().min(0, 'Le proteine devono essere almeno 0'),
-  carbs: z.coerce.number().min(0, 'I carboidrati devono essere almeno 0'),
-  fats: z.coerce.number().min(0, 'I grassi devono essere almeno 0'),
+  calories: z.coerce.number().min(0, 'Calories must be at least 0'),
+  proteins: z.coerce.number().min(0, 'Proteins must be at least 0'),
+  carbs: z.coerce.number().min(0, 'Carbs must be at least 0'),
+  fats: z.coerce.number().min(0, 'Fats must be at least 0'),
 });
 
 type MealFormValues = z.infer<typeof mealFormSchema>;
