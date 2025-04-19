@@ -27,6 +27,24 @@ export default function Home() {
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState('dashboard');
   
+  // Effetto per resettare la posizione di scroll quando cambia la tab
+  useEffect(() => {
+    // Reset lo scroll della pagina intera
+    window.scrollTo(0, 0);
+    
+    // Reset lo scroll dentro il container della tab
+    const tabContent = document.querySelector(`[data-state="active"][role="tabpanel"]`);
+    if (tabContent) {
+      tabContent.scrollTop = 0;
+    }
+    
+    // Trova lo specifico ancora all'inizio della tab
+    const tabTop = document.getElementById(`${activeTab}-tab-top`);
+    if (tabTop) {
+      tabTop.scrollIntoView({ behavior: 'instant' });
+    }
+  }, [activeTab]);
+  
   // Se l'utente non è autenticato, mostriamo un caricamento
   if (!user) {
     return (
@@ -276,112 +294,126 @@ export default function Home() {
           </TabsContent>
 
           <TabsContent value="meals" className="max-h-[calc(100vh-13rem)] overflow-y-auto">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="space-y-4">
-                {/* Form per aggiungere un nuovo pasto */}
-                <MealForm userId={user.id.toString()} />
+            {/* Inizio con un div vuoto per garantire che la pagina inizi in cima */}
+            <div id="meals-tab-top" className="h-1"></div>
+            
+            {/* Container separato per il form e la lista dei pasti */}
+            <div className="mb-12">
+              <h2 className="text-2xl font-bold mb-6">Aggiungi un Nuovo Pasto</h2>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="space-y-4">
+                  {/* Form per aggiungere un nuovo pasto */}
+                  <MealForm userId={user.id.toString()} />
+                </div>
+                
+                {/* Lista dei pasti */}
+                <Card className="md:col-span-2">
+                  <CardHeader>
+                    <CardTitle>I Tuoi Pasti</CardTitle>
+                    <CardDescription>Gli ultimi pasti registrati</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <MealList
+                      meals={meals || []}
+                      isLoading={mealsLoading}
+                      userId={user.id.toString()}
+                    />
+                  </CardContent>
+                </Card>
               </div>
-              
-              {/* Raccomandazioni IA in una colonna separata */}
-              <div className="md:col-span-3 mt-6">
-                <h2 className="text-xl font-bold mb-4">Raccomandazioni AI per Pasti</h2>
-                <AIRecommendations userId={user.id.toString()} />
-              </div>
-              
-              {/* Lista dei pasti */}
-              <Card className="md:col-span-2">
-                <CardHeader>
-                  <CardTitle>I Tuoi Pasti</CardTitle>
-                  <CardDescription>Gli ultimi pasti registrati</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <MealList
-                    meals={meals || []}
-                    isLoading={mealsLoading}
-                    userId={user.id.toString()}
-                  />
-                </CardContent>
-              </Card>
+            </div>
+            
+            {/* Sezione separata per le raccomandazioni AI */}
+            <div className="mt-10 border-t pt-10">
+              <h2 className="text-2xl font-bold mb-6">Raccomandazioni AI per Pasti</h2>
+              <AIRecommendations userId={user.id.toString()} />
             </div>
           </TabsContent>
 
           <TabsContent value="goals" className="max-h-[calc(100vh-13rem)] overflow-y-auto">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="space-y-4">
-                {/* Form per aggiungere un nuovo obiettivo */}
-                <NutritionGoalForm userId={user.id.toString()} />
-              </div>
-              
-              {/* Raccomandazioni IA in una colonna separata */}
-              <div className="md:col-span-3 mt-6">
-                <h2 className="text-xl font-bold mb-4">Raccomandazioni AI per Obiettivi</h2>
-                <AIObjectives userId={user.id.toString()} />
-              </div>
-              
-              {/* Visualizzazione dell'obiettivo attivo e cronologia */}
-              <Card className="md:col-span-2">
-                <CardHeader>
-                  <CardTitle>Obiettivo Attivo</CardTitle>
-                  <CardDescription>Il tuo obiettivo nutrizionale attuale</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  {goalLoading ? (
-                    <div className="flex justify-center py-8">
-                      <Loader2 className="h-8 w-8 animate-spin text-primary" />
-                    </div>
-                  ) : (
-                    <div className="space-y-8">
-                      {/* Obiettivo attivo */}
-                      <div>
-                        {activeGoal ? (
-                          <div className="border rounded-md p-4">
-                            <h3 className="text-xl font-semibold">{activeGoal.name}</h3>
-                            {activeGoal.description && (
-                              <p className="text-muted-foreground mt-1">{activeGoal.description}</p>
-                            )}
-                            
-                            <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mt-4">
-                              <div className="bg-background p-3 rounded border text-center flex flex-col h-20 justify-between">
-                                <p className="text-xs text-gray-500 mt-1">Calorie</p>
-                                <p className="font-bold text-base">{activeGoal.calories}</p>
-                                <p className="text-xs mb-1">kcal</p>
+            {/* Inizio con un div vuoto per garantire che la pagina inizi in cima */}
+            <div id="goals-tab-top" className="h-1"></div>
+            
+            {/* Container separato per il form e la lista dei obiettivi attivi */}
+            <div className="mb-12">
+              <h2 className="text-2xl font-bold mb-6">Imposta un Nuovo Obiettivo</h2>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="space-y-4">
+                  {/* Form per aggiungere un nuovo obiettivo */}
+                  <NutritionGoalForm userId={user.id.toString()} />
+                </div>
+                
+                {/* Visualizzazione dell'obiettivo attivo e cronologia */}
+                <Card className="md:col-span-2">
+                  <CardHeader>
+                    <CardTitle>Obiettivo Attivo</CardTitle>
+                    <CardDescription>Il tuo obiettivo nutrizionale attuale</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    {goalLoading ? (
+                      <div className="flex justify-center py-8">
+                        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                      </div>
+                    ) : (
+                      <div className="space-y-8">
+                        {/* Obiettivo attivo */}
+                        <div>
+                          {activeGoal ? (
+                            <div className="border rounded-md p-4">
+                              <h3 className="text-xl font-semibold">{activeGoal.name}</h3>
+                              {activeGoal.description && (
+                                <p className="text-muted-foreground mt-1">{activeGoal.description}</p>
+                              )}
+                              
+                              <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mt-4">
+                                <div className="bg-background p-3 rounded border text-center flex flex-col h-20 justify-between">
+                                  <p className="text-xs text-gray-500 mt-1">Calorie</p>
+                                  <p className="font-bold text-base">{activeGoal.calories}</p>
+                                  <p className="text-xs mb-1">kcal</p>
+                                </div>
+                                <div className="bg-background p-3 rounded border text-center flex flex-col h-20 justify-between">
+                                  <p className="text-xs text-gray-500 mt-1">Proteine</p>
+                                  <p className="font-bold text-base">{activeGoal.proteins}</p>
+                                  <p className="text-xs mb-1">grammi</p>
+                                </div>
+                                <div className="bg-background p-3 rounded border text-center flex flex-col h-20 justify-between">
+                                  <p className="text-xs text-gray-500 mt-1">Carboidrati</p>
+                                  <p className="font-bold text-base">{activeGoal.carbs}</p>
+                                  <p className="text-xs mb-1">grammi</p>
+                                </div>
+                                <div className="bg-background p-3 rounded border text-center flex flex-col h-20 justify-between">
+                                  <p className="text-xs text-gray-500 mt-1">Grassi</p>
+                                  <p className="font-bold text-base">{activeGoal.fats}</p>
+                                  <p className="text-xs mb-1">grammi</p>
+                                </div>
                               </div>
-                              <div className="bg-background p-3 rounded border text-center flex flex-col h-20 justify-between">
-                                <p className="text-xs text-gray-500 mt-1">Proteine</p>
-                                <p className="font-bold text-base">{activeGoal.proteins}</p>
-                                <p className="text-xs mb-1">grammi</p>
-                              </div>
-                              <div className="bg-background p-3 rounded border text-center flex flex-col h-20 justify-between">
-                                <p className="text-xs text-gray-500 mt-1">Carboidrati</p>
-                                <p className="font-bold text-base">{activeGoal.carbs}</p>
-                                <p className="text-xs mb-1">grammi</p>
-                              </div>
-                              <div className="bg-background p-3 rounded border text-center flex flex-col h-20 justify-between">
-                                <p className="text-xs text-gray-500 mt-1">Grassi</p>
-                                <p className="font-bold text-base">{activeGoal.fats}</p>
-                                <p className="text-xs mb-1">grammi</p>
+                              <div className="mt-4 text-sm text-gray-500">
+                                Data inizio: {new Date(activeGoal.startDate).toLocaleDateString('it-IT')}
                               </div>
                             </div>
-                            <div className="mt-4 text-sm text-gray-500">
-                              Data inizio: {new Date(activeGoal.startDate).toLocaleDateString('it-IT')}
+                          ) : (
+                            <div className="border rounded-md p-6 text-center text-muted-foreground">
+                              <p>Nessun obiettivo attivo</p>
+                              <p className="text-sm mt-1">Crea un nuovo obiettivo dal form a sinistra</p>
                             </div>
-                          </div>
-                        ) : (
-                          <div className="border rounded-md p-6 text-center text-muted-foreground">
-                            <p>Nessun obiettivo attivo</p>
-                            <p className="text-sm mt-1">Crea un nuovo obiettivo dal form a sinistra</p>
-                          </div>
-                        )}
+                          )}
+                        </div>
+                        
+                        {/* Lista di tutti gli obiettivi */}
+                        <div className="mt-8">
+                          <NutritionGoalHistory userId={user.id.toString()} />
+                        </div>
                       </div>
-                      
-                      {/* Lista di tutti gli obiettivi */}
-                      <div className="mt-8">
-                        <NutritionGoalHistory userId={user.id.toString()} />
-                      </div>
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
+                    )}
+                  </CardContent>
+                </Card>
+              </div>
+            </div>
+            
+            {/* Sezione separata per le raccomandazioni AI */}
+            <div className="mt-10 border-t pt-10">
+              <h2 className="text-2xl font-bold mb-6">Raccomandazioni AI per Obiettivi</h2>
+              <AIObjectives userId={user.id.toString()} />
             </div>
           </TabsContent>
 
