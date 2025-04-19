@@ -14,9 +14,9 @@ export default function Welcome() {
       <div className="flex-grow flex flex-col items-center justify-center p-8 text-center">
         <div className="mb-6">
           <Bolt className="h-20 w-20 text-primary mx-auto" />
-          <h1 className="text-4xl font-bold text-primary mt-4">Benvenuto su NutriFacile</h1>
+          <h1 className="text-4xl font-bold text-primary mt-4">Welcome to NutriEasy</h1>
           <p className="text-xl text-gray-600 mt-2 max-w-md mx-auto">
-            Monitora la tua nutrizione, raggiungi i tuoi obiettivi e mantieni uno stile di vita sano.
+            Track your nutrition, achieve your goals, and maintain a healthy lifestyle.
           </p>
           <div className="mt-6">
             <Button 
@@ -24,31 +24,31 @@ export default function Welcome() {
               size="lg"
               className="bg-primary border-2 border-primary text-white hover:bg-primary/90 font-bold px-8 py-2 rounded-md"
             >
-              Registrati Ora
+              Register Now
             </Button>
           </div>
         </div>
 
         <div className="grid gap-4 md:grid-cols-2 max-w-xl w-full mt-6">
           <div className="bg-white p-6 rounded-lg shadow-md text-center">
-            <h2 className="text-xl font-semibold mb-2">Traccia i tuoi pasti</h2>
-            <p className="text-gray-600 mb-4">Registra facilmente ciò che mangi e monitora le calorie e i nutrienti.</p>
+            <h2 className="text-xl font-semibold mb-2">Track Your Meals</h2>
+            <p className="text-gray-600 mb-4">Easily record what you eat and monitor calories and nutrients.</p>
             <Button 
               onClick={() => navigateTo('meals')} 
               className="bg-primary hover:bg-primary/80 text-white font-medium py-2 px-6 rounded-md transition-colors"
             >
-              Esplora Pasti
+              Explore Meals
             </Button>
           </div>
           
           <div className="bg-white p-6 rounded-lg shadow-md text-center">
-            <h2 className="text-xl font-semibold mb-2">Gestisci Obiettivi</h2>
-            <p className="text-gray-600 mb-4">Imposta obiettivi personalizzati e monitora i tuoi progressi nel tempo.</p>
+            <h2 className="text-xl font-semibold mb-2">Manage Goals</h2>
+            <p className="text-gray-600 mb-4">Set personalized goals and track your progress over time.</p>
             <Button 
               onClick={() => navigateTo('goals')} 
               className="bg-primary hover:bg-primary/80 text-white font-medium py-2 px-6 rounded-md transition-colors"
             >
-              Esplora Obiettivi
+              Explore Goals
             </Button>
           </div>
         </div>
@@ -57,45 +57,45 @@ export default function Welcome() {
       {/* Demo Section */}
       <div id="demo-section" className="bg-gray-50 py-16">
         <div className="container mx-auto px-4">
-          <h2 className="text-3xl font-bold text-center mb-12">Ecco come funziona NutriFacile</h2>
+          <h2 className="text-3xl font-bold text-center mb-12">Here's How NutriEasy Works</h2>
           
           {/* Feature 1 - Dashboard */}
           <div className="flex flex-col md:flex-row items-center mb-16">
             <div className="md:w-1/2 p-4">
-              <h3 className="text-2xl font-semibold mb-4">Dashboard Nutrizionale</h3>
+              <h3 className="text-2xl font-semibold mb-4">Nutritional Dashboard</h3>
               <p className="text-lg text-gray-700 mb-4">
-                Visualizza in modo chiaro e intuitivo il tuo apporto giornaliero di calorie e nutrienti con grafici interattivi.
+                View your daily calorie and nutrient intake clearly and intuitively with interactive charts.
               </p>
               <div className="flex items-center space-x-4">
                 <div className="bg-green-100 p-3 rounded-full">
                   <PieChart className="h-6 w-6 text-green-600" />
                 </div>
-                <span className="text-gray-700">Analisi dettagliata di proteine, carboidrati e grassi</span>
+                <span className="text-gray-700">Detailed analysis of proteins, carbohydrates, and fats</span>
               </div>
             </div>
             <div className="md:w-1/2 p-6 bg-white rounded-lg shadow-lg mt-6 md:mt-0">
               {/* Mock Dashboard UI */}
               <div className="border border-gray-200 rounded-md p-4">
                 <div className="flex justify-between items-center mb-4">
-                  <h4 className="font-semibold">Riepilogo Nutrienti</h4>
-                  <span className="text-sm text-gray-500">Oggi</span>
+                  <h4 className="font-semibold">Nutrient Summary</h4>
+                  <span className="text-sm text-gray-500">Today</span>
                 </div>
                 <div className="grid grid-cols-2 gap-4 mb-4">
                   <div className="bg-blue-50 p-3 rounded-lg text-center">
                     <div className="text-2xl font-bold text-blue-600">1450</div>
-                    <div className="text-sm text-gray-600">Calorie</div>
+                    <div className="text-sm text-gray-600">Calories</div>
                   </div>
                   <div className="bg-green-50 p-3 rounded-lg text-center">
                     <div className="text-2xl font-bold text-green-600">85g</div>
-                    <div className="text-sm text-gray-600">Proteine</div>
+                    <div className="text-sm text-gray-600">Protein</div>
                   </div>
                   <div className="bg-yellow-50 p-3 rounded-lg text-center">
                     <div className="text-2xl font-bold text-yellow-600">120g</div>
-                    <div className="text-sm text-gray-600">Carboidrati</div>
+                    <div className="text-sm text-gray-600">Carbs</div>
                   </div>
                   <div className="bg-red-50 p-3 rounded-lg text-center">
                     <div className="text-2xl font-bold text-red-600">45g</div>
-                    <div className="text-sm text-gray-600">Grassi</div>
+                    <div className="text-sm text-gray-600">Fat</div>
                   </div>
                 </div>
                 <div className="h-36 flex items-end">
@@ -111,47 +111,47 @@ export default function Welcome() {
           {/* Feature 2 - Meal Tracking */}
           <div className="flex flex-col md:flex-row-reverse items-center mb-16">
             <div className="md:w-1/2 p-4">
-              <h3 className="text-2xl font-semibold mb-4">Registrazione Pasti Semplice</h3>
+              <h3 className="text-2xl font-semibold mb-4">Simple Meal Tracking</h3>
               <p className="text-lg text-gray-700 mb-4">
-                Aggiungi facilmente i tuoi pasti con una semplice interfaccia. Inserisci i dettagli nutrizionali o cerca negli alimenti comuni.
+                Easily add your meals with a simple interface. Enter nutritional details or search among common foods.
               </p>
               <div className="flex items-center space-x-4">
                 <div className="bg-blue-100 p-3 rounded-full">
                   <Plus className="h-6 w-6 text-blue-600" />
                 </div>
-                <span className="text-gray-700">Registra colazione, pranzo, cena e spuntini</span>
+                <span className="text-gray-700">Record breakfast, lunch, dinner, and snacks</span>
               </div>
             </div>
             <div className="md:w-1/2 p-6 bg-white rounded-lg shadow-lg mt-6 md:mt-0">
               {/* Mock Meal Entry UI */}
               <div className="border border-gray-200 rounded-md p-4">
                 <div className="flex justify-between items-center mb-4">
-                  <h4 className="font-semibold">Aggiungi Pasto</h4>
-                  <span className="text-sm text-primary">Pranzo</span>
+                  <h4 className="font-semibold">Add Meal</h4>
+                  <span className="text-sm text-primary">Lunch</span>
                 </div>
                 <div className="space-y-3 mb-4">
                   <div className="p-2 border border-gray-200 rounded-md">
-                    <div className="font-medium">Insalata di pollo</div>
+                    <div className="font-medium">Chicken salad</div>
                     <div className="text-sm text-gray-600 flex justify-between">
                       <span>320 kcal</span>
-                      <span>32g proteine</span>
-                      <span>12g grassi</span>
+                      <span>32g protein</span>
+                      <span>12g fat</span>
                     </div>
                   </div>
                   <div className="p-2 border border-gray-200 rounded-md">
-                    <div className="font-medium">Pane integrale</div>
+                    <div className="font-medium">Whole grain bread</div>
                     <div className="text-sm text-gray-600 flex justify-between">
                       <span>80 kcal</span>
-                      <span>3g proteine</span>
-                      <span>15g carboidrati</span>
+                      <span>3g protein</span>
+                      <span>15g carbs</span>
                     </div>
                   </div>
                   <div className="p-2 border border-gray-200 rounded-md bg-gray-50 flex items-center justify-center text-primary">
                     <Plus className="h-4 w-4 mr-2" />
-                    <span>Aggiungi alimento</span>
+                    <span>Add food</span>
                   </div>
                 </div>
-                <button className="w-full bg-primary text-white py-2 rounded-md">Salva Pasto</button>
+                <button className="w-full bg-primary text-white py-2 rounded-md">Save Meal</button>
               </div>
             </div>
           </div>
@@ -159,25 +159,25 @@ export default function Welcome() {
           {/* Feature 3 - Progress */}
           <div className="flex flex-col md:flex-row items-center">
             <div className="md:w-1/2 p-4">
-              <h3 className="text-2xl font-semibold mb-4">Monitora i Tuoi Progressi</h3>
+              <h3 className="text-2xl font-semibold mb-4">Track Your Progress</h3>
               <p className="text-lg text-gray-700 mb-4">
-                Visualizza i tuoi progressi nel tempo con grafici dettagliati e statistiche che mostrano le tue abitudini alimentari.
+                View your progress over time with detailed charts and statistics that show your eating habits.
               </p>
               <div className="flex items-center space-x-4">
                 <div className="bg-purple-100 p-3 rounded-full">
                   <BarChart3 className="h-6 w-6 text-purple-600" />
                 </div>
-                <span className="text-gray-700">Analizza i trend settimanali e mensili</span>
+                <span className="text-gray-700">Analyze weekly and monthly trends</span>
               </div>
             </div>
             <div className="md:w-1/2 p-6 bg-white rounded-lg shadow-lg mt-6 md:mt-0">
               {/* Mock Progress Charts */}
               <div className="border border-gray-200 rounded-md p-4">
                 <div className="flex justify-between items-center mb-4">
-                  <h4 className="font-semibold">Statistiche Settimanali</h4>
+                  <h4 className="font-semibold">Weekly Statistics</h4>
                   <div className="flex space-x-2">
-                    <span className="px-2 py-1 bg-primary/10 text-primary text-xs rounded-md">Calorie</span>
-                    <span className="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded-md">Proteine</span>
+                    <span className="px-2 py-1 bg-primary/10 text-primary text-xs rounded-md">Calories</span>
+                    <span className="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded-md">Protein</span>
                   </div>
                 </div>
                 <div className="h-48 flex items-end space-x-1">
@@ -187,12 +187,12 @@ export default function Welcome() {
                         className="w-full bg-primary/80 rounded-t-sm" 
                         style={{height: `${height}%`}}
                       ></div>
-                      <div className="text-xs mt-1">{['L', 'M', 'M', 'G', 'V', 'S', 'D'][index]}</div>
+                      <div className="text-xs mt-1">{['M', 'T', 'W', 'T', 'F', 'S', 'S'][index]}</div>
                     </div>
                   ))}
                 </div>
                 <div className="mt-4 text-center text-sm text-gray-500">
-                  Media settimanale: 1820 calorie
+                  Weekly average: 1820 calories
                 </div>
               </div>
             </div>
@@ -203,9 +203,9 @@ export default function Welcome() {
       {/* Call to Action */}
       <div className="bg-primary text-white py-12 text-center">
         <div className="container mx-auto px-4">
-          <h2 className="text-3xl font-bold mb-6">Pronto per iniziare?</h2>
+          <h2 className="text-3xl font-bold mb-6">Ready to Start?</h2>
           <p className="text-xl mb-8 max-w-2xl mx-auto">
-            Registrati ora e inizia subito a tracciare la tua nutrizione per raggiungere i tuoi obiettivi di salute.
+            Register now and start tracking your nutrition to achieve your health goals.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button 
@@ -213,14 +213,14 @@ export default function Welcome() {
               size="lg"
               className="bg-white border-2 border-white text-primary hover:bg-gray-100 font-bold py-3 px-8 rounded-md text-lg"
             >
-              Registrati
+              Register
             </Button>
             <Button 
               onClick={() => navigateTo('dashboard')} 
               size="lg"
               className="bg-white border-2 border-white text-primary hover:bg-gray-100 font-bold py-3 px-8 rounded-md text-lg"
             >
-              Esplora Demo
+              Explore Demo
             </Button>
           </div>
         </div>
