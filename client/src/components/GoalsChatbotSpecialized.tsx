@@ -184,7 +184,7 @@ export default function GoalsChatbotSpecialized({ userId }: GoalsChatbotProps) {
       <CardFooter className="border-t p-3">
         <form onSubmit={handleSubmit} className="flex w-full gap-2">
           <Input
-            placeholder="Chiedi informazioni sugli obiettivi nutrizionali..."
+            placeholder="Ask about nutritional goals..."
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             disabled={aiChatMutation.isPending}

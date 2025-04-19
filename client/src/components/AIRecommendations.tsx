@@ -88,7 +88,7 @@ export default function AIRecommendations({ userId }: AIRecommendationsProps) {
   const [selectedMealType, setSelectedMealType] = useState<string>("all");
   const [isUserAuthenticated, setIsUserAuthenticated] = useState(userId !== "0");
   
-  // Raccomandazioni per obiettivi nutrizionali
+  // Recommendations for nutritional goals
   const {
     data: nutritionGoalRecommendations,
     isLoading: isLoadingGoals,
