@@ -728,12 +728,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Create user profile (protected route)
   app.post("/api/user-profile", isAuthenticated, async (req, res) => {
     try {
-      // Pre-processing dei dati per garantire formati corretti
+      // Pre-processing data to ensure correct formats
       const processedData = {
         ...req.body,
-        // Assicura che userId sia una stringa
+        // Ensure userId is a string
         userId: String(req.body.userId),
-        // Converte i valori numerici
+        // Convert numeric values
         age: req.body.age ? Number(req.body.age) : null,
         weight: req.body.weight ? Number(req.body.weight) : null,
         height: req.body.height ? Number(req.body.height) : null
@@ -757,7 +757,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Update user profile (route protetta)
+  // Update user profile (protected route)
   app.patch("/api/user-profile/:userId", isAuthenticated, async (req, res) => {
     try {
       const userId = req.params.userId;
@@ -766,10 +766,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "User ID is required" });
       }
       
-      // Validazione parziale dei dati
+      // Partial data validation
       const updateData = req.body;
       
-      // Converti i valori numerici se presenti
+      // Convert numeric values if present
       if (updateData.age !== undefined) {
         updateData.age = Number(updateData.age);
       }

@@ -117,118 +117,118 @@ export async function generateNutritionGoalRecommendations(
       ? Math.round((profile.weight / ((profile.height / 100) * (profile.height / 100))) * 10) / 10
       : null;
       
-    // Costruisci un prompt dettagliato con tutte le informazioni disponibili
-    const systemPrompt = `Tu sei un esperto nutrizionista che fornisce consigli personalizzati. 
-    Esamina il seguente profilo utente e genera 3 diversi obiettivi nutrizionali adatti alle sue caratteristiche. 
-    Rispondi in italiano.`;
+    // Build a detailed prompt with all available information
+    const systemPrompt = `You are an expert nutritionist providing personalized advice. 
+    Examine the following user profile and generate 3 different nutritional goals suitable for their characteristics. 
+    Answer in English.`;
     
     const userInfo = {
-      profilo: {
-        età: profile.age || "Non specificata",
-        peso: profile.weight ? `${profile.weight} kg` : "Non specificato",
-        altezza: profile.height ? `${profile.height} cm` : "Non specificata",
-        genere: profile.gender || "Non specificato",
-        livelloAttività: profile.activityLevel || "Non specificato",
-        bmi: bmi || "Non calcolabile",
+      profile: {
+        age: profile.age || "Not specified",
+        weight: profile.weight ? `${profile.weight} kg` : "Not specified",
+        height: profile.height ? `${profile.height} cm` : "Not specified",
+        gender: profile.gender || "Not specified",
+        activityLevel: profile.activityLevel || "Not specified",
+        bmi: bmi || "Not calculable",
       },
-      obiettivoAttuale: currentGoal ? {
-        nome: currentGoal.name,
-        calorie: currentGoal.calories,
-        proteine: currentGoal.proteins,
-        carboidrati: currentGoal.carbs,
-        grassi: currentGoal.fats,
-      } : "Nessun obiettivo attualmente impostato",
-      pastiRecenti: recentMeals && recentMeals.length > 0 
+      currentGoal: currentGoal ? {
+        name: currentGoal.name,
+        calories: currentGoal.calories,
+        proteins: currentGoal.proteins,
+        carbs: currentGoal.carbs,
+        fats: currentGoal.fats,
+      } : "No goal currently set",
+      recentMeals: recentMeals && recentMeals.length > 0 
         ? recentMeals.slice(0, 5).map(m => ({
-            cibo: m.food,
-            tipo: m.mealType,
-            calorie: m.calories,
-            proteine: m.proteins,
-            carboidrati: m.carbs,
-            grassi: m.fats
+            food: m.food,
+            type: m.mealType,
+            calories: m.calories,
+            proteins: m.proteins,
+            carbs: m.carbs,
+            fats: m.fats
           }))
-        : "Nessun pasto registrato recentemente"
+        : "No recently recorded meals"
     };
     
-    // Forziamo la creazione di tre obiettivi generando tre prompt separati con stili nutrizionali forzati
-    // Questo evita che l'API ritorni un solo suggerimento
+    // Force the creation of three goals by generating three separate prompts with forced nutritional styles
+    // This prevents the API from returning only one suggestion
 
-    // Primo prompt: Approccio Mediterraneo/Equilibrato
+    // First prompt: Mediterranean/Balanced Approach
     const prompt1 = `
-    Crea UN SOLO obiettivo nutrizionale personalizzato con approccio MEDITERRANEO/EQUILIBRATO per questo utente:
+    Create ONLY ONE personalized nutritional goal with a MEDITERRANEAN/BALANCED approach for this user:
     ${JSON.stringify(userInfo, null, 2)}
     
-    Devi fornire:
-    1. Un titolo breve e creativo per questo obiettivo MEDITERRANEO (sii originale, usa termini accattivanti)
-    2. Una breve descrizione che spieghi perché l'approccio mediterraneo equilibrato è adatto a questo utente
-    3. Calorie giornaliere raccomandate per questo approccio
-    4. Distribuzione di macronutrienti (proteine, carboidrati, grassi) in grammi
+    You must provide:
+    1. A short, creative title for this MEDITERRANEAN goal (be original, use engaging terms)
+    2. A brief description explaining why the balanced Mediterranean approach is suitable for this user
+    3. Recommended daily calories for this approach
+    4. Macronutrient distribution (proteins, carbs, fats) in grams
     
-    QUERY ID UNICO: ${new Date().getTime().toString() + "-med"} (genera una risposta completamente nuova)
+    UNIQUE QUERY ID: ${new Date().getTime().toString() + "-med"} (generate a completely new response)
     
-    Rispondi SOLO con un oggetto JSON nel seguente formato:
+    Respond ONLY with a JSON object in the following format:
     {
-      "title": "Titolo obiettivo mediterraneo",
-      "description": "Descrizione e motivazione",
-      "calories": numero_calorie,
-      "proteins": grammi_proteine,
-      "carbs": grammi_carboidrati,
-      "fats": grammi_grassi
+      "title": "Mediterranean goal title",
+      "description": "Description and motivation",
+      "calories": calories_number,
+      "proteins": protein_grams,
+      "carbs": carbs_grams,
+      "fats": fat_grams
     }
     `;
 
-    // Secondo prompt: Approccio Proteico/Energetico
+    // Second prompt: Protein/Energy Approach
     const prompt2 = `
-    Crea UN SOLO obiettivo nutrizionale personalizzato con approccio PROTEICO/ENERGETICO per questo utente:
+    Create ONLY ONE personalized nutritional goal with a PROTEIN/ENERGY approach for this user:
     ${JSON.stringify(userInfo, null, 2)}
     
-    Devi fornire:
-    1. Un titolo breve e creativo per questo obiettivo PROTEICO (sii originale, usa termini accattivanti)
-    2. Una breve descrizione che spieghi perché un approccio ad alto contenuto proteico è adatto a questo utente
-    3. Calorie giornaliere raccomandate (più alte del normale per favorire l'energia)
-    4. Distribuzione di macronutrienti con PROTEINE ELEVATE (almeno 25-30% delle calorie totali)
+    You must provide:
+    1. A short, creative title for this PROTEIN goal (be original, use engaging terms)
+    2. A brief description explaining why a high-protein approach is suitable for this user
+    3. Recommended daily calories (higher than normal to promote energy)
+    4. Macronutrient distribution with HIGH PROTEIN (at least 25-30% of total calories)
     
-    QUERY ID UNICO: ${new Date().getTime().toString() + "-prot"} (genera una risposta completamente nuova)
+    UNIQUE QUERY ID: ${new Date().getTime().toString() + "-prot"} (generate a completely new response)
     
-    Rispondi SOLO con un oggetto JSON nel seguente formato:
+    Respond ONLY with a JSON object in the following format:
     {
-      "title": "Titolo obiettivo proteico",
-      "description": "Descrizione e motivazione",
-      "calories": numero_calorie,
-      "proteins": grammi_proteine_elevate,
-      "carbs": grammi_carboidrati,
-      "fats": grammi_grassi
+      "title": "Protein goal title",
+      "description": "Description and motivation",
+      "calories": calories_number,
+      "proteins": high_protein_grams,
+      "carbs": carbs_grams,
+      "fats": fat_grams
     }
     `;
 
-    // Terzo prompt: Approccio Plant-Based/Low-Carb
+    // Third prompt: Plant-Based/Low-Carb Approach
     const prompt3 = `
-    Crea UN SOLO obiettivo nutrizionale personalizzato con approccio PLANT-BASED o LOW-CARB per questo utente:
+    Create ONLY ONE personalized nutritional goal with a PLANT-BASED or LOW-CARB approach for this user:
     ${JSON.stringify(userInfo, null, 2)}
     
-    Devi fornire:
-    1. Un titolo breve e creativo per questo obiettivo PLANT-BASED o LOW-CARB (sii originale, usa termini accattivanti)
-    2. Una breve descrizione che spieghi perché questo approccio è adatto a questo utente
-    3. Calorie giornaliere raccomandate (leggermente ridotte rispetto al normale)
-    4. Distribuzione di macronutrienti con CARBOIDRATI RIDOTTI e grassi sani aumentati
+    You must provide:
+    1. A short, creative title for this PLANT-BASED or LOW-CARB goal (be original, use engaging terms)
+    2. A brief description explaining why this approach is suitable for this user
+    3. Recommended daily calories (slightly reduced from normal)
+    4. Macronutrient distribution with REDUCED CARBS and increased healthy fats
     
-    QUERY ID UNICO: ${new Date().getTime().toString() + "-plant"} (genera una risposta completamente nuova)
+    UNIQUE QUERY ID: ${new Date().getTime().toString() + "-plant"} (generate a completely new response)
     
-    Rispondi SOLO con un oggetto JSON nel seguente formato:
+    Respond ONLY with a JSON object in the following format:
     {
-      "title": "Titolo obiettivo plant-based/low-carb",
-      "description": "Descrizione e motivazione",
-      "calories": numero_calorie_ridotte,
-      "proteins": grammi_proteine,
-      "carbs": grammi_carboidrati_ridotti,
-      "fats": grammi_grassi_elevati
+      "title": "Plant-based/low-carb goal title",
+      "description": "Description and motivation",
+      "calories": reduced_calories_number,
+      "proteins": protein_grams,
+      "carbs": reduced_carbs_grams,
+      "fats": increased_fat_grams
     }
     `;
 
     console.log("Sending multiple nutrition recommendations requests to OpenAI...");
     
-    // Eseguiamo tre chiamate separate in parallelo per generare tre obiettivi diversi
-    // Utilizziamo openaiGoals per le raccomandazioni sugli obiettivi nutrizionali
+    // Execute three separate calls in parallel to generate three different goals
+    // We use openaiGoals for nutritional goal recommendations
     console.log("Using OPENAI_API_KEY_GOALS for nutrition recommendations");
     const [response1, response2, response3] = await Promise.all([
       openaiGoals.chat.completions.create({
@@ -262,7 +262,7 @@ export async function generateNutritionGoalRecommendations(
 
     console.log("All OpenAI responses received for objectives");
     
-    // Processiamo ogni risposta separatamente
+    // Process each response separately
     let recommendation1: any = {};
     let recommendation2: any = {};
     let recommendation3: any = {};
@@ -406,9 +406,9 @@ export async function generateMealSuggestions(
   preferences?: string[]
 ) {
   try {
-    const systemPrompt = `Tu sei un esperto di nutrizione che suggerisce pasti sani e deliziosi. 
-    Esamina il profilo dell'utente e il suo obiettivo nutrizionale, quindi suggerisci pasti adatti.
-    Rispondi in italiano.`;
+    const systemPrompt = `You are a nutrition expert who suggests healthy and delicious meals.
+    Examine the user's profile and nutritional goal, then suggest suitable meals.
+    Answer in English.`;
     
     const userInfo = {
       profilo: {
