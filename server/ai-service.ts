@@ -318,10 +318,10 @@ export async function generateNutritionGoalRecommendations(
       };
     }
     
-    // Applicare un leggero offset casuale ai valori numerici di ogni raccomandazione
-    // per garantire ancora di più che siano diversi, anche se l'API dovesse rispondere in modo simile
+    // Apply a slight random offset to the numerical values of each recommendation
+    // to ensure even more that they are different, even if the API should respond similarly
     const applyRandomOffset = (value: number): number => {
-      const offsetPercentage = Math.random() * 0.15 - 0.075; // Offset tra -7.5% e +7.5%
+      const offsetPercentage = Math.random() * 0.15 - 0.075; // Offset between -7.5% and +7.5%
       return Math.round(value * (1 + offsetPercentage));
     };
     
@@ -411,64 +411,64 @@ export async function generateMealSuggestions(
     Answer in English.`;
     
     const userInfo = {
-      profilo: {
-        età: profile.age || "Non specificata",
-        peso: profile.weight ? `${profile.weight} kg` : "Non specificato",
-        altezza: profile.height ? `${profile.height} cm` : "Non specificata",
-        genere: profile.gender || "Non specificato",
-        livelloAttività: profile.activityLevel || "Non specificato",
+      profile: {
+        age: profile.age || "Not specified",
+        weight: profile.weight ? `${profile.weight} kg` : "Not specified",
+        height: profile.height ? `${profile.height} cm` : "Not specified",
+        gender: profile.gender || "Not specified",
+        activityLevel: profile.activityLevel || "Not specified",
       },
-      obiettivoNutrizionale: nutritionGoal ? {
-        calorie: nutritionGoal.calories,
-        proteine: nutritionGoal.proteins,
-        carboidrati: nutritionGoal.carbs,
-        grassi: nutritionGoal.fats,
-      } : "Obiettivo non impostato",
-      tipoPasto: mealType || "Qualsiasi",
-      preferenze: preferences && preferences.length > 0 ? preferences : "Nessuna preferenza specificata"
+      nutritionalGoal: nutritionGoal ? {
+        calories: nutritionGoal.calories,
+        proteins: nutritionGoal.proteins,
+        carbs: nutritionGoal.carbs,
+        fats: nutritionGoal.fats,
+      } : "No goal set",
+      mealType: mealType || "Any",
+      preferences: preferences && preferences.length > 0 ? preferences : "No specific preferences"
     };
     
     const userPrompt = `
-    Analizza queste informazioni sull'utente:
+    Analyze this user information:
     ${JSON.stringify(userInfo, null, 2)}
     
-    Genera 3 idee COMPLETAMENTE ORIGINALI per pasti che:
-    ${mealType ? `- Siano adatti per ${mealType}` : '- Includano diverse tipologie (colazione, pranzo, cena, spuntino)'}
-    - Rispettino i limiti calorici e i macronutrienti dell'obiettivo nutrizionale (se presente)
-    - Tengano conto dell'età, peso, altezza e livello di attività dell'utente
-    ${preferences && preferences.length > 0 ? `- Considerino le preferenze: ${preferences.join(', ')}` : ''}
+    Generate 3 COMPLETELY ORIGINAL meal ideas that:
+    ${mealType ? `- Are suitable for ${mealType}` : '- Include different types (breakfast, lunch, dinner, snack)'}
+    - Respect the caloric limits and macronutrients of the nutritional goal (if present)
+    - Take into account age, weight, height and activity level of the user
+    ${preferences && preferences.length > 0 ? `- Consider the preferences: ${preferences.join(', ')}` : ''}
     
-    QUERY ID UNICO: ${new Date().getTime().toString()} (ignora questo ID, serve solo a garantire che la tua risposta sia sempre diversa)
+    UNIQUE QUERY ID: ${new Date().getTime().toString()} (ignore this ID, it only ensures your response is always different)
     
-    Per ciascun pasto, fornisci:
-    1. Un nome breve, creativo e appetitoso (DEVE ESSERE UNICO e MAI utilizzato prima)
-    2. Una breve descrizione chiara e concisa che includa ingredienti principali e benefici nutrizionali (massimo 2-3 frasi)
-    3. Il tipo di pasto (colazione, pranzo, cena, spuntino)
-    4. Il contenuto calorico e i macronutrienti (proteine, carboidrati, grassi)
+    For each meal, provide:
+    1. A short, creative and appetizing name (MUST BE UNIQUE and NEVER used before)
+    2. A clear and concise brief description that includes main ingredients and nutritional benefits (maximum 2-3 sentences)
+    3. The meal type (breakfast, lunch, dinner, snack)
+    4. The caloric content and macronutrients (proteins, carbs, fats)
     
-    IMPORTANTE! REGOLE DA SEGUIRE:
-    - Ad ogni chiamata, DEVI fornire idee di pasti COMPLETAMENTE DIVERSE da qualsiasi altra generata in precedenza.
-    - NON ripetere MAI piatti precedenti o loro varianti, anche se distanti nel tempo.
-    - Sii ESTREMAMENTE creativo con gli ingredienti e le preparazioni.
-    - Proponi combinazioni di ingredienti ORIGINALI e diverse culture culinarie.
-    - NON suggerire MAI "Tacos di Quinoa" o qualsiasi tipo di tacos.
+    IMPORTANT! RULES TO FOLLOW:
+    - With each call, you MUST provide COMPLETELY DIFFERENT meal ideas from any previously generated.
+    - NEVER repeat previous dishes or their variants, even if distant in time.
+    - Be EXTREMELY creative with ingredients and preparations.
+    - Propose ORIGINAL ingredient combinations and different culinary cultures.
+    - NEVER suggest "Quinoa Tacos" or any type of tacos.
     
-    Rispondi con un JSON nel seguente formato:
+    Respond with a JSON in the following format:
     [
       {
-        "name": "Nome del pasto",
-        "description": "Descrizione con ingredienti e benefici",
-        "mealType": "Tipo di pasto",
-        "calories": numero_calorie,
-        "proteins": grammi_proteine,
-        "carbs": grammi_carboidrati,
-        "fats": grammi_grassi
+        "name": "Meal name",
+        "description": "Description with ingredients and benefits",
+        "mealType": "Meal type",
+        "calories": calories_number,
+        "proteins": protein_grams,
+        "carbs": carbs_grams,
+        "fats": fat_grams
       },
       ...
     ]
     
-    Assicurati che tutti i valori numerici siano ragionevoli e arrotondati all'intero più vicino.
-    Sii creativo ma realistico, suggerendo pasti che siano effettivamente preparabili e appetitosi.
+    Make sure all numerical values are reasonable and rounded to the nearest integer.
+    Be creative but realistic, suggesting meals that are actually preparable and appetizing.
     `;
 
     console.log("Sending meal suggestions request to OpenAI...");
@@ -481,14 +481,14 @@ export async function generateMealSuggestions(
         { role: "user", content: userPrompt }
       ],
       response_format: { type: "json_object" },
-      temperature: 0.7, // Temperatura più bilanciata per stabilità
+      temperature: 0.7, // More balanced temperature for stability
     });
 
     console.log("OpenAI meal suggestions response received:", response.choices[0].message.content);
     
     const responseContent = response.choices[0].message.content || '[]';
     
-    // Se la risposta non è un array, crea un array vuoto
+    // If the response is not an array, create an empty array
     let suggestions: any;
     try {
       suggestions = JSON.parse(responseContent);
@@ -498,10 +498,10 @@ export async function generateMealSuggestions(
       suggestions = [];
     }
     
-    // Assicurati che i valori siano tutti numeri interi
+    // Ensure all values are integers
     let processedSuggestions = [];
     
-    // Se abbiamo un array, usa direttamente quello
+    // If we have an array, use it directly
     if (Array.isArray(suggestions)) {
       processedSuggestions = suggestions.map((sug: any) => ({
         name: sug.name,
@@ -513,9 +513,9 @@ export async function generateMealSuggestions(
         fats: Math.round(Number(sug.fats))
       }));
     } 
-    // Se abbiamo un oggetto con proprietà 'suggestions', 'mealIdeas', 'meals', 'pasti' o altra struttura
+    // If we have an object with properties 'suggestions', 'mealIdeas', 'meals', 'pasti' or another structure
     else if (suggestions && typeof suggestions === 'object') {
-      // Check per varie strutture che OpenAI potrebbe restituire
+      // Check for various structures that OpenAI might return
       if (suggestions.suggestions && Array.isArray(suggestions.suggestions)) {
         processedSuggestions = suggestions.suggestions.map((sug: any) => ({
           name: sug.name,
@@ -527,7 +527,7 @@ export async function generateMealSuggestions(
           fats: Math.round(Number(sug.fats))
         }));
       }
-      // Check per la struttura 'mealIdeas'
+      // Check for 'mealIdeas' structure
       else if (suggestions.mealIdeas && Array.isArray(suggestions.mealIdeas)) {
         processedSuggestions = suggestions.mealIdeas.map((sug: any) => ({
           name: sug.name,
@@ -539,7 +539,7 @@ export async function generateMealSuggestions(
           fats: Math.round(Number(sug.fats))
         }));
       }
-      // Check per la struttura 'meals'
+      // Check for 'meals' structure
       else if (suggestions.meals && Array.isArray(suggestions.meals)) {
         processedSuggestions = suggestions.meals.map((sug: any) => ({
           name: sug.name,
@@ -551,7 +551,7 @@ export async function generateMealSuggestions(
           fats: Math.round(Number(sug.fats))
         }));
       }
-      // Check per la struttura italiana 'pasti'
+      // Check for the Italian 'pasti' structure
       else if (suggestions.pasti && Array.isArray(suggestions.pasti)) {
         processedSuggestions = suggestions.pasti.map((sug: any) => ({
           name: sug.name || sug.nome,
@@ -563,13 +563,13 @@ export async function generateMealSuggestions(
           fats: Math.round(Number(sug.fats || sug.grassi))
         }));
       }
-      // Gestisci il caso in cui abbiamo un singolo pasto come oggetto
+      // Handle the case where we have a single meal as an object
       else if ((suggestions.name || suggestions.nome) && 
               ((suggestions.calories !== undefined) || (suggestions.calorie !== undefined))) {
         processedSuggestions = [{
           name: suggestions.name || suggestions.nome,
           description: suggestions.description || suggestions.descrizione || "",
-          mealType: suggestions.mealType || suggestions.tipoPasto || "Pasto generico",
+          mealType: suggestions.mealType || suggestions.tipoPasto || "Generic meal",
           calories: Math.round(Number(suggestions.calories || suggestions.calorie)),
           proteins: Math.round(Number(suggestions.proteins || suggestions.proteine)),
           carbs: Math.round(Number(suggestions.carbs || suggestions.carboidrati)),
@@ -582,7 +582,7 @@ export async function generateMealSuggestions(
   } catch (error: any) {
     console.error("Error generating meal suggestions:", error);
     
-    // Registriamo l'errore specifico per debug ma lanciamo un messaggio generico all'utente
+    // Log the specific error for debugging but throw a generic message to the user
     if (error.status === 429) {
       console.log("API rate limit exceeded for meal suggestions");
     } else if (error.status === 401 || error.status === 403) {
@@ -591,7 +591,7 @@ export async function generateMealSuggestions(
       console.log("Connection issue with OpenAI API", error.code);
     }
     
-    // Messaggio generico per l'utente
+    // Generic message for the user
     throw new Error("A connection issue occurred while generating recommendations. Please try again later.");
   }
 }
