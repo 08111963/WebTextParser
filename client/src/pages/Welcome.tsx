@@ -18,6 +18,15 @@ export default function Welcome() {
           <p className="text-xl text-gray-600 mt-2 max-w-md mx-auto">
             Monitora la tua nutrizione, raggiungi i tuoi obiettivi e mantieni uno stile di vita sano.
           </p>
+          <div className="mt-6">
+            <Button 
+              onClick={() => navigate('/auth')} 
+              size="lg"
+              className="bg-primary text-white hover:bg-primary/90 font-bold px-8 py-2 rounded-md"
+            >
+              Registrati Ora
+            </Button>
+          </div>
         </div>
 
         <div className="grid gap-4 md:grid-cols-2 max-w-xl w-full mt-6">
@@ -200,19 +209,19 @@ export default function Welcome() {
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button 
-              onClick={() => navigateTo('dashboard')} 
+              onClick={() => navigate('/auth')} 
               size="lg"
               className="bg-white text-primary hover:bg-gray-100 font-bold py-3 px-8 rounded-md text-lg"
             >
-              Esplora Dashboard
+              Registrati
             </Button>
             <Button 
-              onClick={() => navigate('/auth')} 
+              onClick={() => navigateTo('dashboard')} 
               size="lg"
               variant="outline"
               className="border-white text-white hover:bg-white/10 font-bold py-3 px-8 rounded-md text-lg"
             >
-              Registrati
+              Esplora Demo
             </Button>
           </div>
         </div>
