@@ -93,12 +93,12 @@ const nutritionProfiles: Record<string, NutritionProfile> = {
     description: "Ketogenic diet with high fat and very low carbohydrates."
   },
   mediterranean: { 
-    name: "Mediterranea", 
+    name: "Mediterranean", 
     calories: 2100, 
     proteins: 110, 
     carbs: 270, 
     fats: 75,
-    description: "Dieta mediterranea tradizionale basata su cibi non processati."
+    description: "Traditional Mediterranean diet based on unprocessed foods."
   },
   custom: { 
     name: "Custom", 

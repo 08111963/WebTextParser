@@ -88,17 +88,17 @@ export default function AIRecommendationsGoals({ userId }: AIRecommendationsGoal
       <CardHeader>
         <CardTitle className="flex items-center space-x-2">
           <Sparkles className="h-5 w-5 text-primary" />
-          <span>Raccomandazioni AI per Obiettivi</span>
+          <span>AI Goal Recommendations</span>
         </CardTitle>
         <CardDescription>
-          Suggerimenti personalizzati per obiettivi nutrizionali basati sul tuo profilo
+          Personalized suggestions for nutritional goals based on your profile
         </CardDescription>
       </CardHeader>
       <CardContent>
         <div className="flex justify-between items-center mb-4">
           <div className="flex items-center gap-2">
             <Target className="h-5 w-5 text-primary" />
-            <span className="font-medium">Obiettivi Nutrizionali</span>
+            <span className="font-medium">Nutritional Goals</span>
           </div>
           
           <Button 
@@ -112,7 +112,7 @@ export default function AIRecommendationsGoals({ userId }: AIRecommendationsGoal
             ) : (
               <Sparkles className="h-4 w-4 mr-1" />
             )}
-            Genera Nuovi
+            Generate New
           </Button>
         </div>
           
@@ -124,7 +124,7 @@ export default function AIRecommendationsGoals({ userId }: AIRecommendationsGoal
           <div className="border-t pt-6 mt-4">
             <h3 className="text-lg font-medium mb-4 flex items-center gap-2">
               <Star className="h-5 w-5 text-yellow-500" />
-              <span>Obiettivi Nutrizionali Consigliati</span>
+              <span>Recommended Nutritional Goals</span>
             </h3>
             
             <div className="space-y-4">
@@ -149,17 +149,17 @@ export default function AIRecommendationsGoals({ userId }: AIRecommendationsGoal
                           <div className="text-xs">kcal</div>
                         </div>
                         <div className="flex-1 min-w-24 bg-muted/40 p-2 rounded text-center">
-                          <div className="text-xs text-muted-foreground">Pro</div>
+                          <div className="text-xs text-muted-foreground">Prot</div>
                           <div className="text-base md:text-lg font-semibold">{rec.proteins}</div>
                           <div className="text-xs">g</div>
                         </div>
                         <div className="flex-1 min-w-24 bg-muted/40 p-2 rounded text-center">
-                          <div className="text-xs text-muted-foreground">Carb</div>
+                          <div className="text-xs text-muted-foreground">Carbs</div>
                           <div className="text-base md:text-lg font-semibold">{rec.carbs}</div>
                           <div className="text-xs">g</div>
                         </div>
                         <div className="flex-1 min-w-24 bg-muted/40 p-2 rounded text-center">
-                          <div className="text-xs text-muted-foreground">Gras</div>
+                          <div className="text-xs text-muted-foreground">Fats</div>
                           <div className="text-base md:text-lg font-semibold">{rec.fats}</div>
                           <div className="text-xs">g</div>
                         </div>
@@ -168,12 +168,12 @@ export default function AIRecommendationsGoals({ userId }: AIRecommendationsGoal
                       <div className="mt-3 flex justify-end">
                         <Button variant="outline" size="sm" className="text-xs" onClick={() => {
                           toast({
-                            title: "Funzionalità in arrivo",
-                            description: "La creazione automatica di obiettivi sarà disponibile presto!",
+                            title: "Coming Soon",
+                            description: "Automatic goal creation will be available soon!",
                           });
                         }}>
                           <CircleCheck className="h-3.5 w-3.5 mr-1" />
-                          Usa questo obiettivo
+                          Use this goal
                         </Button>
                       </div>
                     </div>
@@ -185,9 +185,9 @@ export default function AIRecommendationsGoals({ userId }: AIRecommendationsGoal
                     <Sparkles className="h-6 w-6 text-muted-foreground" />
                   </div>
                   <div>
-                    <h3 className="text-lg font-medium mb-1">Nessuna raccomandazione disponibile</h3>
+                    <h3 className="text-lg font-medium mb-1">No recommendations available</h3>
                     <p className="text-muted-foreground">
-                      Clicca "Genera Nuovi" per ricevere raccomandazioni personalizzate per i tuoi obiettivi nutrizionali.
+                      Click "Generate New" to receive personalized recommendations for your nutritional goals.
                     </p>
                   </div>
                   <Button 
@@ -201,7 +201,7 @@ export default function AIRecommendationsGoals({ userId }: AIRecommendationsGoal
                     ) : (
                       <Sparkles className="h-4 w-4 mr-2" />
                     )}
-                    Genera Raccomandazioni
+                    Generate Recommendations
                   </Button>
                 </div>
               )}
