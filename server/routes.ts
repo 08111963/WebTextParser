@@ -583,7 +583,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           // Rispondiamo con un messaggio di timeout
           console.log("Meal suggestions API request timed out after 30 seconds");
           res.status(504).json({ 
-            error: "La richiesta ha impiegato troppo tempo. Riprova più tardi.",
+            error: "The request took too long. Please try again later.",
             timestamp: new Date().toISOString()
           });
         }
@@ -715,7 +715,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.error("Error generating AI chat response:", error);
       
       // Usiamo un messaggio di errore generico indipendentemente dal tipo di errore
-      let errorMessage = "Si è verificato un problema di connessione nella generazione dei suggerimenti. Riprova più tardi.";
+      let errorMessage = "A connection issue occurred while generating recommendations. Please try again later.";
       
       res.status(500).json({ 
         message: "Failed to generate AI response", 
@@ -810,13 +810,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
         : undefined;
       
       if (!userId) {
-        return res.status(400).json({ message: "userId è obbligatorio" });
+        return res.status(400).json({ message: "userId is required" });
       }
 
       // Recupera il profilo utente
       const userProfile = await storage.getUserProfile(userId as string);
       if (!userProfile) {
-        return res.status(404).json({ message: "Profilo utente non trovato" });
+        return res.status(404).json({ message: "User profile not found" });
       }
 
       // Recupera l'obiettivo attivo dell'utente (se esiste)
@@ -846,13 +846,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const { userId, query } = req.body;
       
       if (!userId || !query) {
-        return res.status(400).json({ message: "userId e query sono obbligatori" });
+        return res.status(400).json({ message: "userId and query are required" });
       }
 
       // Recupera il profilo utente
       const userProfile = await storage.getUserProfile(userId);
       if (!userProfile) {
-        return res.status(404).json({ message: "Profilo utente non trovato" });
+        return res.status(404).json({ message: "User profile not found" });
       }
 
       // Genera consigli nutrizionali con Perplexity
