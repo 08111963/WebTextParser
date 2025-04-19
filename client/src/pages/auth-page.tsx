@@ -13,17 +13,17 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Loader2, ChevronLeft, Home } from "lucide-react";
 
 const loginSchema = z.object({
-  username: z.string().min(3, "Il nome utente deve contenere almeno 3 caratteri"),
-  password: z.string().min(6, "La password deve contenere almeno 6 caratteri"),
+  username: z.string().min(3, "Username must be at least 3 characters"),
+  password: z.string().min(6, "Password must be at least 6 characters"),
 });
 
 const registerSchema = z.object({
-  username: z.string().min(3, "Il nome utente deve contenere almeno 3 caratteri"),
-  email: z.string().email("Inserisci un indirizzo email valido"),
-  password: z.string().min(6, "La password deve contenere almeno 6 caratteri"),
-  confirmPassword: z.string().min(6, "Conferma la password"),
+  username: z.string().min(3, "Username must be at least 3 characters"),
+  email: z.string().email("Please enter a valid email address"),
+  password: z.string().min(6, "Password must be at least 6 characters"),
+  confirmPassword: z.string().min(6, "Please confirm your password"),
 }).refine((data) => data.password === data.confirmPassword, {
-  message: "Le password non corrispondono",
+  message: "Passwords do not match",
   path: ["confirmPassword"],
 });
 
@@ -37,7 +37,7 @@ export default function AuthPage() {
   const [redirectPath, setRedirectPath] = useState<string>("/home");
   
   useEffect(() => {
-    // Controlla se c'è un parametro di redirect nell'URL
+    // Check if there's a redirect parameter in the URL
     if (loc.includes('?')) {
       const params = new URLSearchParams(loc.split('?')[1]);
       const redirectParam = params.get('redirect');
@@ -80,7 +80,7 @@ export default function AuthPage() {
     });
   };
 
-  // Se l'utente è già autenticato, reindirizza al percorso specificato o alla home protetta
+  // If the user is already authenticated, redirect to the specified path or protected home
   if (user) {
     return <Redirect to={redirectPath} />;
   }
@@ -93,22 +93,22 @@ export default function AuthPage() {
             <Link href="/">
               <Button variant="outline" size="sm" className="flex items-center">
                 <ChevronLeft className="h-4 w-4 mr-2" />
-                Torna alla Home
+                Back to Home
               </Button>
             </Link>
           </div>
           <Tabs defaultValue={activeTab} onValueChange={setActiveTab} className="w-full">
             <TabsList className="grid w-full grid-cols-2 mb-6">
-              <TabsTrigger value="login">Accesso</TabsTrigger>
-              <TabsTrigger value="register">Registrazione</TabsTrigger>
+              <TabsTrigger value="login">Login</TabsTrigger>
+              <TabsTrigger value="register">Register</TabsTrigger>
             </TabsList>
 
             <TabsContent value="login">
               <Card>
                 <CardHeader>
-                  <CardTitle>Accedi al tuo account</CardTitle>
+                  <CardTitle>Log in to your account</CardTitle>
                   <CardDescription>
-                    Inserisci le tue credenziali per accedere al tuo account.
+                    Enter your credentials to access your account.
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
@@ -119,9 +119,9 @@ export default function AuthPage() {
                         name="username"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>Nome Utente</FormLabel>
+                            <FormLabel>Username</FormLabel>
                             <FormControl>
-                              <Input placeholder="Inserisci il tuo nome utente" {...field} />
+                              <Input placeholder="Enter your username" {...field} />
                             </FormControl>
                             <FormMessage />
                           </FormItem>
@@ -147,10 +147,10 @@ export default function AuthPage() {
                       >
                         {loginMutation.isPending ? (
                           <>
-                            <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Accesso in corso...
+                            <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Logging in...
                           </>
                         ) : (
-                          "Accedi"
+                          "Login"
                         )}
                       </Button>
                     </form>
@@ -158,9 +158,9 @@ export default function AuthPage() {
                 </CardContent>
                 <CardFooter className="flex justify-center">
                   <p className="text-sm text-muted-foreground">
-                    Non hai un account?{" "}
+                    Don't have an account?{" "}
                     <Button variant="link" className="p-0" onClick={() => setActiveTab("register")}>
-                      Registrati
+                      Register
                     </Button>
                   </p>
                 </CardFooter>
@@ -170,9 +170,9 @@ export default function AuthPage() {
             <TabsContent value="register">
               <Card>
                 <CardHeader>
-                  <CardTitle>Crea un nuovo account</CardTitle>
+                  <CardTitle>Create a new account</CardTitle>
                   <CardDescription>
-                    Inserisci i tuoi dati per creare un nuovo account.
+                    Enter your information to create a new account.
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
@@ -183,9 +183,9 @@ export default function AuthPage() {
                         name="username"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>Nome Utente</FormLabel>
+                            <FormLabel>Username</FormLabel>
                             <FormControl>
-                              <Input placeholder="Scegli un nome utente" {...field} />
+                              <Input placeholder="Choose a username" {...field} />
                             </FormControl>
                             <FormMessage />
                           </FormItem>
@@ -198,7 +198,7 @@ export default function AuthPage() {
                           <FormItem>
                             <FormLabel>Email</FormLabel>
                             <FormControl>
-                              <Input type="email" placeholder="nome@esempio.com" {...field} />
+                              <Input type="email" placeholder="name@example.com" {...field} />
                             </FormControl>
                             <FormMessage />
                           </FormItem>
@@ -222,7 +222,7 @@ export default function AuthPage() {
                         name="confirmPassword"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>Conferma Password</FormLabel>
+                            <FormLabel>Confirm Password</FormLabel>
                             <FormControl>
                               <Input type="password" placeholder="••••••••" {...field} />
                             </FormControl>
@@ -237,10 +237,10 @@ export default function AuthPage() {
                       >
                         {registerMutation.isPending ? (
                           <>
-                            <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Registrazione in corso...
+                            <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Registering...
                           </>
                         ) : (
-                          "Registrati"
+                          "Register"
                         )}
                       </Button>
                     </form>
@@ -248,9 +248,9 @@ export default function AuthPage() {
                 </CardContent>
                 <CardFooter className="flex justify-center">
                   <p className="text-sm text-muted-foreground">
-                    Hai già un account?{" "}
+                    Already have an account?{" "}
                     <Button variant="link" className="p-0" onClick={() => setActiveTab("login")}>
-                      Accedi
+                      Login
                     </Button>
                   </p>
                 </CardFooter>
@@ -263,10 +263,10 @@ export default function AuthPage() {
       <div className="flex-1 bg-primary p-6 flex flex-col justify-center items-center text-white md:p-10">
         <div className="max-w-md mx-auto">
           <h1 className="text-3xl md:text-4xl font-bold mb-6">
-            Benvenuto in NutriFacile
+            Welcome to NutriEasy
           </h1>
           <p className="text-lg mb-8">
-            La piattaforma completa per il monitoraggio della tua alimentazione, la gestione dei tuoi obiettivi nutrizionali e il tracciamento dei tuoi progressi.
+            The complete platform for monitoring your nutrition, managing your nutritional goals, and tracking your progress.
           </p>
           <div className="space-y-4">
             <div className="flex items-start">
@@ -278,8 +278,8 @@ export default function AuthPage() {
                 </svg>
               </div>
               <div>
-                <h3 className="font-semibold text-xl">Traccia i tuoi pasti</h3>
-                <p className="text-white/80">Registra facilmente tutti i tuoi pasti e monitora l'apporto nutrizionale.</p>
+                <h3 className="font-semibold text-xl">Track your meals</h3>
+                <p className="text-white/80">Easily record all your meals and monitor your nutritional intake.</p>
               </div>
             </div>
             <div className="flex items-start">
@@ -291,8 +291,8 @@ export default function AuthPage() {
                 </svg>
               </div>
               <div>
-                <h3 className="font-semibold text-xl">Imposta obiettivi</h3>
-                <p className="text-white/80">Definisci i tuoi obiettivi nutrizionali e tieni traccia dei tuoi progressi.</p>
+                <h3 className="font-semibold text-xl">Set goals</h3>
+                <p className="text-white/80">Define your nutritional goals and track your progress.</p>
               </div>
             </div>
             <div className="flex items-start">
@@ -303,8 +303,8 @@ export default function AuthPage() {
                 </svg>
               </div>
               <div>
-                <h3 className="font-semibold text-xl">Analizza i dati</h3>
-                <p className="text-white/80">Visualizza statistiche dettagliate e report personalizzati sul tuo percorso.</p>
+                <h3 className="font-semibold text-xl">Analyze data</h3>
+                <p className="text-white/80">View detailed statistics and personalized reports on your journey.</p>
               </div>
             </div>
           </div>
