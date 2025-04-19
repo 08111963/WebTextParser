@@ -62,15 +62,15 @@ type MealSuggestion = {
   fats: number;
 };
 
-// Mappa le tipologie di pasto in italiano
+// Map meal types in English
 const mealTypeMap: Record<string, string> = {
-  "colazione": "Colazione",
-  "pranzo": "Pranzo",
-  "cena": "Cena",
-  "spuntino": "Spuntino",
+  "colazione": "Breakfast",
+  "pranzo": "Lunch",
+  "cena": "Dinner",
+  "spuntino": "Snack",
 };
 
-// Icone per le tipologie di pasto
+// Icons for meal types
 const mealTypeIcons: Record<string, React.ReactNode> = {
   "colazione": <Coffee className="h-4 w-4" />,
   "pranzo": <UtensilsCrossed className="h-4 w-4" />,
@@ -160,25 +160,25 @@ export default function AIRecommendations({ userId }: AIRecommendationsProps) {
 
   // Funzione per aggiornare le raccomandazioni
   const handleRefresh = async () => {
-    // Se l'utente non è autenticato, mostra messaggio di login
+    // If user is not authenticated, show login message
     if (!isUserAuthenticated) {
       toast({
-        title: "Autenticazione richiesta",
-        description: "Per utilizzare le raccomandazioni AI personalizzate è necessario accedere o registrarsi.",
+        title: "Authentication Required",
+        description: "To use personalized AI recommendations, you need to sign in or register.",
         variant: "destructive",
       });
       return;
     }
     
     try {
-      // Imposta manualmente lo stato di caricamento
+      // Manually set loading state
       setIsManualLoading(true);
       
-      // Mostra un toast con caricamento in corso
+      // Show a toast with loading progress
       toast({
-        title: "Generazione in corso",
-        description: "Stiamo creando nuovi suggerimenti personalizzati in base al tuo profilo",
-        duration: 60000, // Lungo a sufficienza per il caricamento completo
+        title: "Generation in Progress",
+        description: "We're creating new personalized suggestions based on your profile",
+        duration: 60000, // Long enough for complete loading
       });
       
       // Aggiungiamo timestamp unico e forzaNew=true direttamente nella chiamata API
@@ -222,20 +222,20 @@ export default function AIRecommendations({ userId }: AIRecommendationsProps) {
         queryKey: ["/api/recommendations/meals", userId, selectedMealType]
       });
       
-      // Mostra il toast di completamento
+      // Show completion toast
       toast({
-        title: "Completato",
-        description: `${data.suggestions?.length || 0} nuovi suggerimenti generati con successo`,
+        title: "Completed",
+        description: `${data.suggestions?.length || 0} new suggestions successfully generated`,
       });
     } catch (error) {
-      console.error("Errore durante l'aggiornamento:", error);
+      console.error("Error during update:", error);
       toast({
-        title: "Errore",
-        description: "Si è verificato un errore durante la generazione. Riprova più tardi.",
+        title: "Error",
+        description: "An error occurred during generation. Please try again later.",
         variant: "destructive",
       });
     } finally {
-      // Imposta lo stato di caricamento a false indipendentemente dal risultato
+      // Set loading state to false regardless of result
       setIsManualLoading(false);
     }
   };
@@ -250,28 +250,28 @@ export default function AIRecommendations({ userId }: AIRecommendationsProps) {
       <CardHeader>
         <CardTitle className="flex items-center space-x-2">
           <Sparkles className="h-5 w-5 text-primary" />
-          <span>Raccomandazioni AI Personalizzate</span>
+          <span>Personalized AI Recommendations</span>
         </CardTitle>
         <CardDescription>
-          Suggerimenti personalizzati basati sul tuo profilo e i tuoi dati nutrizionali
+          Custom suggestions based on your profile and nutritional data
         </CardDescription>
       </CardHeader>
       <CardContent>
         {!isUserAuthenticated ? (
           <div className="text-center py-10 border rounded-lg">
             <Sparkles className="h-12 w-12 text-primary mx-auto mb-4" />
-            <h3 className="text-xl font-medium mb-2">Attiva Raccomandazioni Personalizzate</h3>
+            <h3 className="text-xl font-medium mb-2">Activate Personalized Recommendations</h3>
             <p className="text-muted-foreground max-w-md mx-auto mb-6">
-              Accedi o registrati per sbloccare raccomandazioni personalizzate basate sul tuo profilo e sui tuoi obiettivi nutrizionali.
+              Sign in or register to unlock personalized recommendations based on your profile and nutritional goals.
             </p>
             <Button onClick={() => {
               toast({
-                title: "Autenticazione richiesta",
-                description: "Per utilizzare le raccomandazioni AI personalizzate è necessario accedere o registrarsi.",
+                title: "Authentication Required",
+                description: "To use personalized AI recommendations, you need to sign in or register.",
                 duration: 5000
               });
             }}>
-              Accedi per Sbloccare
+              Sign In to Unlock
             </Button>
           </div>
         ) : (
@@ -279,7 +279,7 @@ export default function AIRecommendations({ userId }: AIRecommendationsProps) {
             <div className="flex justify-between items-center mb-4">
               <div className="flex items-center gap-2">
                 <Utensils className="h-5 w-5 text-primary" />
-                <span className="font-medium">Idee per Pasti</span>
+                <span className="font-medium">Meal Ideas</span>
               </div>
               
               <Button 
@@ -293,7 +293,7 @@ export default function AIRecommendations({ userId }: AIRecommendationsProps) {
                 ) : (
                   <Sparkles className="h-4 w-4 mr-1" />
                 )}
-                Genera Nuovi
+                Generate New
               </Button>
             </div>
               
@@ -306,19 +306,19 @@ export default function AIRecommendations({ userId }: AIRecommendationsProps) {
                 <div className="flex items-center justify-between mb-4">
                   <h3 className="text-lg font-medium flex items-center gap-2">
                     <Utensils className="h-5 w-5 text-primary" />
-                    <span>Suggerimenti Pasti Personalizzati</span>
+                    <span>Personalized Meal Suggestions</span>
                   </h3>
                   
                   <Select value={selectedMealType} onValueChange={handleMealTypeChange}>
                     <SelectTrigger className="w-[150px]">
-                      <SelectValue placeholder="Tipo di pasto" />
+                      <SelectValue placeholder="Meal type" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="all">Tutti i pasti</SelectItem>
-                      <SelectItem value="colazione">Colazione</SelectItem>
-                      <SelectItem value="pranzo">Pranzo</SelectItem>
-                      <SelectItem value="cena">Cena</SelectItem>
-                      <SelectItem value="spuntino">Spuntino</SelectItem>
+                      <SelectItem value="all">All meals</SelectItem>
+                      <SelectItem value="colazione">Breakfast</SelectItem>
+                      <SelectItem value="pranzo">Lunch</SelectItem>
+                      <SelectItem value="cena">Dinner</SelectItem>
+                      <SelectItem value="spuntino">Snack</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
