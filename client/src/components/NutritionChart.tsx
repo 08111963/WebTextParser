@@ -430,21 +430,21 @@ export default function NutritionChart({ userId }: NutritionChartProps) {
                   />
                   <Bar
                     dataKey="calories"
-                    name="Calorie"
+                    name="Calories"
                     fill="#8884d8"
                     barSize={20}
                   />
                   <Line
                     type="monotone"
                     dataKey="proteins"
-                    name="Proteine"
+                    name="Proteins"
                     stroke="#82ca9d"
                     strokeWidth={2}
                   />
                   <Area
                     type="monotone"
                     dataKey="carbs"
-                    name="Carboidrati"
+                    name="Carbs"
                     stroke="#ffc658"
                     fill="#ffc658"
                     fillOpacity={0.3}
@@ -452,7 +452,7 @@ export default function NutritionChart({ userId }: NutritionChartProps) {
                   <Line
                     type="monotone"
                     dataKey="fats"
-                    name="Grassi"
+                    name="Fats"
                     stroke="#ff8042"
                     strokeWidth={2}
                   />

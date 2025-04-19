@@ -220,11 +220,11 @@ export default function NutritionGoalForm({
   return (
     <Card className="w-full max-w-xl mx-auto">
       <CardHeader>
-        <CardTitle>{isEditing ? "Modifica" : "Crea"} Obiettivo Nutrizionale</CardTitle>
+        <CardTitle>{isEditing ? "Edit" : "Create"} Nutrition Goal</CardTitle>
         <CardDescription>
           {isEditing 
-            ? "Modifica le tue mete nutrizionali" 
-            : "Definisci un nuovo obiettivo di assunzione nutrizionale"}
+            ? "Modify your nutritional targets" 
+            : "Define a new nutrition intake goal"}
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -232,11 +232,11 @@ export default function NutritionGoalForm({
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             {!isEditing && (
               <FormItem>
-                <FormLabel>Profilo nutrizionale predefinito</FormLabel>
+                <FormLabel>Predefined nutrition profile</FormLabel>
                 <Select defaultValue="custom" onValueChange={applyNutritionProfile}>
                   <FormControl>
                     <SelectTrigger>
-                      <SelectValue placeholder="Seleziona un profilo predefinito" />
+                      <SelectValue placeholder="Select a predefined profile" />
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
@@ -246,7 +246,7 @@ export default function NutritionGoalForm({
                   </SelectContent>
                 </Select>
                 <p className="text-sm text-muted-foreground mt-1">
-                  Scegli un profilo predefinito oppure personalizza i valori manualmente
+                  Choose a predefined profile or customize values manually
                 </p>
               </FormItem>
             )}
@@ -256,9 +256,9 @@ export default function NutritionGoalForm({
               name="name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Nome dell'obiettivo</FormLabel>
+                  <FormLabel>Goal name</FormLabel>
                   <FormControl>
-                    <Input placeholder="Es: Dieta di mantenimento" {...field} />
+                    <Input placeholder="E.g., Maintenance diet" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -271,7 +271,7 @@ export default function NutritionGoalForm({
                 name="calories"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Calorie (kcal)</FormLabel>
+                    <FormLabel>Calories (kcal)</FormLabel>
                     <FormControl>
                       <Input type="number" {...field} />
                     </FormControl>
@@ -285,7 +285,7 @@ export default function NutritionGoalForm({
                 name="proteins"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Proteine (g)</FormLabel>
+                    <FormLabel>Proteins (g)</FormLabel>
                     <FormControl>
                       <Input type="number" {...field} />
                     </FormControl>
@@ -299,7 +299,7 @@ export default function NutritionGoalForm({
                 name="carbs"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Carboidrati (g)</FormLabel>
+                    <FormLabel>Carbs (g)</FormLabel>
                     <FormControl>
                       <Input type="number" {...field} />
                     </FormControl>
@@ -313,7 +313,7 @@ export default function NutritionGoalForm({
                 name="fats"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Grassi (g)</FormLabel>
+                    <FormLabel>Fats (g)</FormLabel>
                     <FormControl>
                       <Input type="number" {...field} />
                     </FormControl>
