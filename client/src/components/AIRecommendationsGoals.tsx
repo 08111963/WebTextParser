@@ -142,25 +142,25 @@ export default function AIRecommendationsGoals({ userId }: AIRecommendationsGoal
                       
                       <p className="text-sm text-muted-foreground mt-2 mb-3 leading-relaxed max-h-24 overflow-y-auto">{rec.description}</p>
                       
-                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mt-3">
-                        <div className="bg-muted/40 p-2 rounded text-center">
+                      <div className="flex flex-wrap gap-2 mt-3">
+                        <div className="flex-1 min-w-24 bg-muted/40 p-2 rounded text-center">
                           <div className="text-xs text-muted-foreground">Cal</div>
-                          <div className="text-lg font-semibold">{rec.calories}</div>
+                          <div className="text-base md:text-lg font-semibold">{rec.calories}</div>
                           <div className="text-xs">kcal</div>
                         </div>
-                        <div className="bg-muted/40 p-2 rounded text-center">
+                        <div className="flex-1 min-w-24 bg-muted/40 p-2 rounded text-center">
                           <div className="text-xs text-muted-foreground">Pro</div>
-                          <div className="text-lg font-semibold">{rec.proteins}</div>
+                          <div className="text-base md:text-lg font-semibold">{rec.proteins}</div>
                           <div className="text-xs">g</div>
                         </div>
-                        <div className="bg-muted/40 p-2 rounded text-center">
+                        <div className="flex-1 min-w-24 bg-muted/40 p-2 rounded text-center">
                           <div className="text-xs text-muted-foreground">Carb</div>
-                          <div className="text-lg font-semibold">{rec.carbs}</div>
+                          <div className="text-base md:text-lg font-semibold">{rec.carbs}</div>
                           <div className="text-xs">g</div>
                         </div>
-                        <div className="bg-muted/40 p-2 rounded text-center">
+                        <div className="flex-1 min-w-24 bg-muted/40 p-2 rounded text-center">
                           <div className="text-xs text-muted-foreground">Gras</div>
-                          <div className="text-lg font-semibold">{rec.fats}</div>
+                          <div className="text-base md:text-lg font-semibold">{rec.fats}</div>
                           <div className="text-xs">g</div>
                         </div>
                       </div>
