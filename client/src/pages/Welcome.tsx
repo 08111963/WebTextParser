@@ -22,7 +22,7 @@ export default function Welcome() {
             <Button 
               onClick={() => navigate('/auth')} 
               size="lg"
-              className="bg-primary text-white hover:bg-primary/90 font-bold px-8 py-2 rounded-md"
+              className="bg-primary border-2 border-primary text-white hover:bg-primary/90 font-bold px-8 py-2 rounded-md"
             >
               Registrati Ora
             </Button>
@@ -211,14 +211,14 @@ export default function Welcome() {
             <Button 
               onClick={() => navigate('/auth')} 
               size="lg"
-              className="bg-white text-primary hover:bg-gray-100 font-bold py-3 px-8 rounded-md text-lg"
+              className="bg-white border-2 border-white text-primary hover:bg-gray-100 font-bold py-3 px-8 rounded-md text-lg"
             >
               Registrati
             </Button>
             <Button 
               onClick={() => navigateTo('dashboard')} 
               size="lg"
-              className="bg-white/20 border-2 border-white text-white hover:bg-white/30 font-bold py-3 px-8 rounded-md text-lg"
+              className="bg-primary/10 border-2 border-white text-white hover:bg-primary/20 font-bold py-3 px-8 rounded-md text-lg"
             >
               Esplora Demo
             </Button>
