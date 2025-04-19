@@ -32,6 +32,8 @@ export default function Pricing() {
         { text: "AI Meal Recommendations", included: true },
         { text: "AI Goal Recommendations", included: true },
       ],
+      buttonText: "Current Plan",
+      disableButton: true,
     },
     {
       id: "premium-monthly",
@@ -57,6 +59,7 @@ export default function Pricing() {
         { text: "AI Goal Recommendations", included: true },
         { text: "API access", included: true },
       ],
+      buttonText: "Subscribe Monthly",
     },
     {
       id: "premium-yearly",
@@ -81,6 +84,7 @@ export default function Pricing() {
         { text: "AI Goal Recommendations", included: true },
         { text: "API access", included: true },
       ],
+      buttonText: "Subscribe Yearly",
     },
   ];
 

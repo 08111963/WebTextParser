@@ -18,6 +18,8 @@ type PricingTier = {
   }[];
   highlighted?: boolean;
   badge?: string;
+  buttonText?: string;
+  disableButton?: boolean;
 };
 
 type PricingCardProps = {
@@ -92,8 +94,9 @@ export default function PricingCard({ pricingData }: PricingCardProps) {
                 className={`w-full ${tier.highlighted ? 'bg-primary hover:bg-primary/90' : 'bg-card hover:bg-muted'}`}
                 variant={tier.highlighted ? "default" : "outline"}
                 onClick={() => handleGetStarted(tier.id)}
+                disabled={tier.disableButton}
               >
-                {tier.id === 'free' ? 'Start Free' : 'Subscribe Now'}
+                {tier.buttonText || (tier.id === 'free' ? 'Start Free' : 'Subscribe Now')}
               </Button>
             </CardFooter>
           </Card>
