@@ -31,8 +31,11 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger
 } from "@/components/ui/dropdown-menu";
-import { Loader2, MoreVertical, Trash2, Lock } from "lucide-react";
+import { Loader2, MoreVertical, Trash2, Lock, Sparkles } from "lucide-react";
 import { useLocation } from "wouter";
+
+// Durata del periodo di prova in giorni
+const TRIAL_PERIOD_DAYS = 5;
 
 type Meal = {
   id: number;
@@ -68,8 +71,8 @@ export default function MealList({ meals, isLoading, userId }: MealListProps) {
   const [mealToDelete, setMealToDelete] = useState<Meal | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   
-  // Verifica se l'utente ha accesso alla cronologia illimitata
-  const hasFullHistory = canAccess("unlimited-meal-history");
+  // Ottiene le informazioni sulla prova gratuita
+  const { trialActive, trialDaysLeft, plan } = useSubscription();
 
   // Mutation to delete a meal
   const deleteMealMutation = useMutation({
@@ -130,17 +133,11 @@ export default function MealList({ meals, isLoading, userId }: MealListProps) {
     );
   }
 
-  // Filtra i pasti in base al piano dell'utente (solo 15 giorni per utenti free)
-  const now = new Date();
-  const limitDate = subDays(now, 15); // 15 giorni fa
-
-  // Se l'utente non ha accesso alla cronologia completa, mostra solo i pasti degli ultimi 15 giorni
-  const filteredMeals = hasFullHistory 
-    ? meals 
-    : meals.filter(meal => new Date(meal.timestamp) > limitDate);
-    
+  // Non filtriamo più i pasti in base al piano, mostriamo tutti i pasti 
+  // durante il periodo di prova gratuita
+  
   // Group meals by date
-  const mealsByDate = filteredMeals.reduce((acc: Record<string, Meal[]>, meal) => {
+  const mealsByDate = meals.reduce((acc: Record<string, Meal[]>, meal) => {
     const date = format(new Date(meal.timestamp), "yyyy-MM-dd");
     if (!acc[date]) {
       acc[date] = [];
@@ -156,21 +153,42 @@ export default function MealList({ meals, isLoading, userId }: MealListProps) {
 
   return (
     <div>
-      {!hasFullHistory && (
+      {trialActive ? (
         <div className="mb-6 p-4 border border-primary/20 rounded-lg bg-primary/5">
           <div className="flex flex-col md:flex-row items-start md:items-center gap-4">
             <div className="p-2 rounded-full bg-primary/10">
-              <Lock className="h-5 w-5 text-primary" />
+              <Sparkles className="h-5 w-5 text-primary" />
             </div>
             <div className="flex-1">
-              <h3 className="text-sm font-medium mb-1">Free Plan Limitation</h3>
+              <h3 className="text-sm font-medium mb-1">Free Trial Active - {trialDaysLeft} {trialDaysLeft === 1 ? 'day' : 'days'} left</h3>
               <p className="text-sm text-muted-foreground mb-3">
-                Your meal history is limited to the last 15 days. Upgrade to Premium to unlock your complete meal history.
+                You're enjoying all premium features for {TRIAL_PERIOD_DAYS} days. Subscribe to premium to keep access after your trial ends.
               </p>
             </div>
             <Button
               className="whitespace-nowrap w-full md:w-auto"
               onClick={() => navigate("/pricing")}
+            >
+              Upgrade Now
+            </Button>
+          </div>
+        </div>
+      ) : (
+        <div className="mb-6 p-4 border border-destructive/20 rounded-lg bg-destructive/5">
+          <div className="flex flex-col md:flex-row items-start md:items-center gap-4">
+            <div className="p-2 rounded-full bg-destructive/10">
+              <Lock className="h-5 w-5 text-destructive" />
+            </div>
+            <div className="flex-1">
+              <h3 className="text-sm font-medium mb-1">Trial Period Expired</h3>
+              <p className="text-sm text-muted-foreground mb-3">
+                Your free trial has ended. Subscribe to premium to regain access to all premium features.
+              </p>
+            </div>
+            <Button
+              className="whitespace-nowrap w-full md:w-auto"
+              onClick={() => navigate("/pricing")}
+              variant="destructive"
             >
               Upgrade to Premium
             </Button>
