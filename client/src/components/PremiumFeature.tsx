@@ -2,8 +2,11 @@ import { ReactNode } from "react";
 import { useSubscription } from "@/hooks/use-subscription";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Lock, Sparkles } from "lucide-react";
+import { Lock, Sparkles, Clock } from "lucide-react";
 import { useLocation } from "wouter";
+
+// Durata del periodo di prova in giorni
+const TRIAL_PERIOD_DAYS = 5;
 
 type PremiumFeatureProps = {
   children: ReactNode;
@@ -18,7 +21,7 @@ export default function PremiumFeature({
   title,
   description 
 }: PremiumFeatureProps) {
-  const { canAccess, isPremium } = useSubscription();
+  const { canAccess, trialActive, trialDaysLeft } = useSubscription();
   const [_, navigate] = useLocation();
 
   if (canAccess(feature)) {
@@ -28,9 +31,17 @@ export default function PremiumFeature({
   return (
     <Card className="border-2 border-primary/20">
       <CardHeader className="bg-gradient-to-r from-primary/10 to-transparent">
-        <div className="flex items-center">
-          <Lock className="w-5 h-5 mr-2 text-primary" />
-          <CardTitle className="text-lg">{title}</CardTitle>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center">
+            <Lock className="w-5 h-5 mr-2 text-primary" />
+            <CardTitle className="text-lg">{title}</CardTitle>
+          </div>
+          {trialActive && (
+            <div className="flex items-center bg-amber-100 text-amber-800 text-xs px-2 py-1 rounded-full">
+              <Clock className="w-3 h-3 mr-1" />
+              <span>{trialDaysLeft} {trialDaysLeft === 1 ? 'day' : 'days'} left in trial</span>
+            </div>
+          )}
         </div>
       </CardHeader>
       <CardContent className="py-6">
@@ -55,12 +66,26 @@ export default function PremiumFeature({
         </div>
       </CardContent>
       <CardFooter className="bg-slate-50">
-        <Button 
-          className="w-full bg-primary hover:bg-primary/90" 
-          onClick={() => navigate("/pricing")}
-        >
-          Upgrade to Premium
-        </Button>
+        {trialActive ? (
+          <div className="w-full">
+            <p className="text-sm text-center mb-2 text-muted-foreground">
+              Enjoy this premium feature free during your {TRIAL_PERIOD_DAYS}-day trial!
+            </p>
+            <Button 
+              className="w-full bg-primary hover:bg-primary/90" 
+              onClick={() => navigate("/pricing")}
+            >
+              Upgrade Now
+            </Button>
+          </div>
+        ) : (
+          <Button 
+            className="w-full bg-primary hover:bg-primary/90" 
+            onClick={() => navigate("/pricing")}
+          >
+            Unlock Premium Features
+          </Button>
+        )}
       </CardFooter>
     </Card>
   );
