@@ -52,13 +52,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     onSuccess: (user: User) => {
       queryClient.setQueryData(["/api/user"], user);
       toast({
-        title: "Login effettuato",
-        description: `Benvenuto, ${user.username}!`,
+        title: "Login successful",
+        description: `Welcome, ${user.username}!`,
       });
     },
     onError: (error: Error) => {
       toast({
-        title: "Login fallito",
+        title: "Login failed",
         description: error.message,
         variant: "destructive",
       });
@@ -73,13 +73,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     onSuccess: (user: User) => {
       queryClient.setQueryData(["/api/user"], user);
       toast({
-        title: "Registrazione completata",
-        description: `Benvenuto, ${user.username}!`,
+        title: "Registration completed",
+        description: `Welcome, ${user.username}!`,
       });
     },
     onError: (error: Error) => {
       toast({
-        title: "Registrazione fallita",
+        title: "Registration failed",
         description: error.message,
         variant: "destructive",
       });
@@ -93,15 +93,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     onSuccess: () => {
       queryClient.setQueryData(["/api/user"], null);
       toast({
-        title: "Logout effettuato",
-        description: "Hai effettuato il logout con successo.",
+        title: "Logout successful",
+        description: "You have successfully logged out.",
       });
-      // Redirect alla pagina di benvenuto invece che alla pagina di login
+      // Redirect to welcome page instead of login page
       window.location.href = "/";
     },
     onError: (error: Error) => {
       toast({
-        title: "Logout fallito",
+        title: "Logout failed",
         description: error.message,
         variant: "destructive",
       });
@@ -128,7 +128,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 export function useAuth() {
   const context = useContext(AuthContext);
   if (!context) {
-    throw new Error("useAuth deve essere utilizzato all'interno di un AuthProvider");
+    throw new Error("useAuth must be used within an AuthProvider");
   }
   return context;
 }
