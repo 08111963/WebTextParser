@@ -182,16 +182,16 @@ export default function NutritionChart({ userId }: NutritionChartProps) {
             onValueChange={handleChartTypeChange}
           >
             <SelectTrigger className="w-[130px]">
-              <SelectValue placeholder="Tipo di grafico" />
+              <SelectValue placeholder="Chart type" />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="line" className="flex items-center gap-2">
                 <TrendingUp className="h-4 w-4" />
-                <span>Linea</span>
+                <span>Line</span>
               </SelectItem>
               <SelectItem value="bar" className="flex items-center gap-2">
                 <BarChart2 className="h-4 w-4" />
-                <span>Barre</span>
+                <span>Bar</span>
               </SelectItem>
               <SelectItem value="area" className="flex items-center gap-2">
                 <AreaChartIcon className="h-4 w-4" />
@@ -199,7 +199,7 @@ export default function NutritionChart({ userId }: NutritionChartProps) {
               </SelectItem>
               <SelectItem value="composed" className="flex items-center gap-2">
                 <Activity className="h-4 w-4" />
-                <span>Misto</span>
+                <span>Mixed</span>
               </SelectItem>
             </SelectContent>
           </Select>
@@ -209,12 +209,12 @@ export default function NutritionChart({ userId }: NutritionChartProps) {
             onValueChange={handlePeriodChange}
           >
             <SelectTrigger className="w-[120px]">
-              <SelectValue placeholder="Periodo" />
+              <SelectValue placeholder="Period" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="7">7 giorni</SelectItem>
-              <SelectItem value="14">14 giorni</SelectItem>
-              <SelectItem value="30">30 giorni</SelectItem>
+              <SelectItem value="7">7 days</SelectItem>
+              <SelectItem value="14">14 days</SelectItem>
+              <SelectItem value="30">30 days</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -223,18 +223,18 @@ export default function NutritionChart({ userId }: NutritionChartProps) {
         {!isUserAuthenticated ? (
           <div className="text-center py-10 border rounded-lg h-72 flex flex-col items-center justify-center">
             <UserCircle2 className="h-12 w-12 text-primary mx-auto mb-4" />
-            <h3 className="text-xl font-medium mb-2">Accedi per Visualizzare l'Andamento</h3>
+            <h3 className="text-xl font-medium mb-2">Sign In to View Trends</h3>
             <p className="text-muted-foreground max-w-md mx-auto mb-6">
-              Accedi o registrati per visualizzare l'andamento dei tuoi valori nutrizionali nel tempo.
+              Sign in or register to view the trends of your nutritional values over time.
             </p>
             <Button onClick={() => {
               toast({
-                title: "Autenticazione richiesta",
-                description: "Per visualizzare il grafico dell'andamento nutrizionale è necessario accedere o registrarsi.",
+                title: "Authentication Required",
+                description: "To view the nutritional trend chart, you need to sign in or register.",
                 duration: 5000
               });
             }}>
-              Accedi per Sbloccare
+              Sign In to Unlock
             </Button>
           </div>
         ) : isLoading ? (
@@ -243,7 +243,7 @@ export default function NutritionChart({ userId }: NutritionChartProps) {
           </div>
         ) : error ? (
           <div className="text-center py-12 text-destructive">
-            <p>Si è verificato un errore nel caricamento dei dati</p>
+            <p>An error occurred while loading data</p>
           </div>
         ) : chartData.length > 0 ? (
           <div className="h-72">
@@ -270,7 +270,7 @@ export default function NutritionChart({ userId }: NutritionChartProps) {
                   <Line
                     type="monotone"
                     dataKey="calories"
-                    name="Calorie"
+                    name="Calories"
                     stroke="#8884d8"
                     activeDot={{ r: 8 }}
                     strokeWidth={2}
@@ -278,21 +278,21 @@ export default function NutritionChart({ userId }: NutritionChartProps) {
                   <Line
                     type="monotone"
                     dataKey="proteins"
-                    name="Proteine"
+                    name="Proteins"
                     stroke="#82ca9d"
                     strokeWidth={2}
                   />
                   <Line
                     type="monotone"
                     dataKey="carbs"
-                    name="Carboidrati"
+                    name="Carbs"
                     stroke="#ffc658"
                     strokeWidth={2}
                   />
                   <Line
                     type="monotone"
                     dataKey="fats"
-                    name="Grassi"
+                    name="Fats"
                     stroke="#ff8042"
                     strokeWidth={2}
                   />
@@ -322,25 +322,25 @@ export default function NutritionChart({ userId }: NutritionChartProps) {
                   />
                   <Bar
                     dataKey="calories"
-                    name="Calorie"
+                    name="Calories"
                     fill="#8884d8"
                     barSize={20}
                   />
                   <Bar
                     dataKey="proteins"
-                    name="Proteine"
+                    name="Proteins"
                     fill="#82ca9d"
                     barSize={20}
                   />
                   <Bar
                     dataKey="carbs"
-                    name="Carboidrati"
+                    name="Carbs"
                     fill="#ffc658"
                     barSize={20}
                   />
                   <Bar
                     dataKey="fats"
-                    name="Grassi"
+                    name="Fats"
                     fill="#ff8042"
                     barSize={20}
                   />
@@ -371,7 +371,7 @@ export default function NutritionChart({ userId }: NutritionChartProps) {
                   <Area
                     type="monotone"
                     dataKey="calories"
-                    name="Calorie"
+                    name="Calories"
                     stroke="#8884d8"
                     fill="#8884d8"
                     fillOpacity={0.3}
@@ -380,7 +380,7 @@ export default function NutritionChart({ userId }: NutritionChartProps) {
                   <Area
                     type="monotone"
                     dataKey="proteins"
-                    name="Proteine"
+                    name="Proteins"
                     stroke="#82ca9d"
                     fill="#82ca9d"
                     fillOpacity={0.3}
@@ -389,7 +389,7 @@ export default function NutritionChart({ userId }: NutritionChartProps) {
                   <Area
                     type="monotone"
                     dataKey="carbs"
-                    name="Carboidrati"
+                    name="Carbs"
                     stroke="#ffc658"
                     fill="#ffc658"
                     fillOpacity={0.3}
@@ -398,7 +398,7 @@ export default function NutritionChart({ userId }: NutritionChartProps) {
                   <Area
                     type="monotone"
                     dataKey="fats"
-                    name="Grassi"
+                    name="Fats"
                     stroke="#ff8042"
                     fill="#ff8042"
                     fillOpacity={0.3}
@@ -462,7 +462,7 @@ export default function NutritionChart({ userId }: NutritionChartProps) {
           </div>
         ) : (
           <div className="text-center py-12 text-muted-foreground">
-            <p>Nessun dato disponibile per il periodo selezionato</p>
+            <p>No data available for the selected period</p>
           </div>
         )}
       </CardContent>
