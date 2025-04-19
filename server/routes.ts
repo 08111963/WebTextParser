@@ -511,20 +511,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
           
           // Utilizzare le raccomandazioni genuine dell'AI se esistono e non sono vuote
           if (recommendations && Array.isArray(recommendations) && recommendations.length > 0) {
-            // Se non ci sono raccomandazioni, restituisci un array vuoto invece di null
+            // Se abbiamo ricevuto raccomandazioni valide dall'AI, le restituiamo
             res.json({ 
               recommendations: recommendations,
               timestamp: new Date().toISOString(),
               source: "ai"
             });
           } else {
-            // Se non abbiamo ricevuto raccomandazioni valide, usiamo il fallback
-            console.log("Empty recommendations from API, using fallback");
-            const fallbackRecommendations = getFallbackRecommendations();
-            res.json({ 
-              recommendations: fallbackRecommendations,
-              timestamp: new Date().toISOString(),
-              source: "fallback"
+            // Se non abbiamo ricevuto raccomandazioni valide, restituiamo un errore
+            console.log("Empty recommendations from API");
+            res.status(500).json({
+              error: "Non è stato possibile generare raccomandazioni. Riprova più tardi.",
+              timestamp: new Date().toISOString()
             });
           }
         }
@@ -535,61 +533,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
           isResponseSent = true;
           clearTimeout(timeoutHandle);
           
-          // Rispondiamo con un set predefinito di raccomandazioni in caso di errore
-          console.log("AI error occurred, using fallback recommendations");
-          const fallbackRecommendations = getFallbackRecommendations();
+          // Informiamo l'utente dell'errore e non forniamo dati predefiniti
+          console.log("AI error occurred, returning error message");
           
-          // Funzione helper per ottenere raccomandazioni di fallback con variazione
-          function getFallbackRecommendations() {
-            // Definizione delle raccomandazioni base
-            const baseRecommendations = [
-              {
-                title: "Mediterranea Equilibrata",
-                description: "Approccio mediterraneo con equilibrio tra tutti i macronutrienti, ideale per sostenere energia e salute in modo bilanciato.",
-                calories: 2200,
-                proteins: 120,
-                carbs: 270,
-                fats: 70
-              },
-              {
-                title: "Proteica Potenziata",
-                description: "Un approccio ad alto contenuto proteico per supportare la massa muscolare e migliorare la sazietà durante la giornata.",
-                calories: 2300,
-                proteins: 150,
-                carbs: 250,
-                fats: 75
-              },
-              {
-                title: "Low-Carb Naturale",
-                description: "Una strategia con carboidrati ridotti e grassi sani aumentati, ideale per stabilizzare i livelli di energia e migliorare il metabolismo.",
-                calories: 2000,
-                proteins: 125,
-                carbs: 180,
-                fats: 100
-              }
-            ];
-            
-            // Funzione per aggiungere una variazione casuale del ±7.5% a un valore
-            const addRandomVariation = (value: number) => {
-              const variation = 0.075; // ±7.5%
-              const randomFactor = 1 + (Math.random() * variation * 2 - variation);
-              return Math.round(value * randomFactor);
-            };
-            
-            // Applica variazioni casuali ai valori numerici
-            return baseRecommendations.map(rec => ({
-              ...rec,
-              calories: addRandomVariation(rec.calories),
-              proteins: addRandomVariation(rec.proteins),
-              carbs: addRandomVariation(rec.carbs),
-              fats: addRandomVariation(rec.fats)
-            }));
-          }
-          
-          res.json({ 
-            recommendations: fallbackRecommendations,
-            timestamp: new Date().toISOString(),
-            source: "fallback"
+          res.status(500).json({
+            error: "Si è verificato un errore durante la generazione delle raccomandazioni. Riprova più tardi.",
+            timestamp: new Date().toISOString()
           });
         }
       }
@@ -628,42 +577,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
         if (!isResponseSent) {
           isResponseSent = true;
           
-          // Rispondiamo con un set predefinito di raccomandazioni di fallback
-          const fallbackSuggestions = [
-            {
-              name: "Bowl di Yogurt Greco e Frutti di Bosco",
-              description: "Una colazione bilanciata a base di yogurt greco ricco di proteine, mirtilli, lamponi e granola. Ottima fonte di antiossidanti e probiotici per iniziare la giornata.",
-              mealType: mealType || "colazione",
-              calories: 420,
-              proteins: 22,
-              carbs: 58,
-              fats: 14
-            },
-            {
-              name: "Frittata di Verdure Mediterranea",
-              description: "Frittata soffice con spinaci, pomodorini, olive e un tocco di feta. Un piatto completo ricco di nutrienti essenziali e grassi sani.",
-              mealType: mealType || "pranzo",
-              calories: 380,
-              proteins: 25,
-              carbs: 15,
-              fats: 22
-            },
-            {
-              name: "Salmone al Forno con Asparagi",
-              description: "Filetto di salmone al forno con asparagi e una spruzzata di limone. Ricco di omega-3 e proteine di alta qualità per supportare la salute muscolare e cardiovascolare.",
-              mealType: mealType || "cena",
-              calories: 450,
-              proteins: 35,
-              carbs: 12,
-              fats: 28
-            }
-          ];
-          
-          console.log("Meal suggestions API request timed out after 30 seconds, returning fallback suggestions");
-          res.json({ 
-            suggestions: fallbackSuggestions,
-            timestamp: new Date().toISOString(),
-            source: "fallback"
+          // Rispondiamo con un messaggio di timeout
+          console.log("Meal suggestions API request timed out after 30 seconds");
+          res.status(504).json({ 
+            error: "La richiesta ha impiegato troppo tempo. Riprova più tardi.",
+            timestamp: new Date().toISOString()
           });
         }
       }, TIMEOUT_MS);

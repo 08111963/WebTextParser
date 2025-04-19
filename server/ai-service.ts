@@ -71,9 +71,9 @@ export async function generateAIResponse(
     Fornisci una risposta completa e personalizzata, tenendo conto del profilo dell'utente e dei suoi dati nutrizionali.
     `;
 
-    console.log("Sending user query to OpenAI:", query);
+    console.log("Sending user query to OpenAI using goals API key:", query);
     
-    const response = await openai.chat.completions.create({
+    const response = await openaiGoals.chat.completions.create({
       model: MODEL,
       messages: [
         { role: "system", content: systemPrompt },
@@ -217,8 +217,10 @@ export async function generateNutritionGoalRecommendations(
     console.log("Sending multiple nutrition recommendations requests to OpenAI...");
     
     // Eseguiamo tre chiamate separate in parallelo per generare tre obiettivi diversi
+    // Utilizziamo openaiGoals per le raccomandazioni sugli obiettivi nutrizionali
+    console.log("Using OPENAI_API_KEY_GOALS for nutrition recommendations");
     const [response1, response2, response3] = await Promise.all([
-      openai.chat.completions.create({
+      openaiGoals.chat.completions.create({
         model: MODEL,
         messages: [
           { role: "system", content: systemPrompt },
@@ -227,7 +229,7 @@ export async function generateNutritionGoalRecommendations(
         response_format: { type: "json_object" },
         temperature: 0.8,
       }),
-      openai.chat.completions.create({
+      openaiGoals.chat.completions.create({
         model: MODEL,
         messages: [
           { role: "system", content: systemPrompt },
@@ -236,7 +238,7 @@ export async function generateNutritionGoalRecommendations(
         response_format: { type: "json_object" },
         temperature: 0.8,
       }),
-      openai.chat.completions.create({
+      openaiGoals.chat.completions.create({
         model: MODEL,
         messages: [
           { role: "system", content: systemPrompt },
@@ -448,8 +450,9 @@ export async function generateMealSuggestions(
     `;
 
     console.log("Sending meal suggestions request to OpenAI...");
+    console.log("Using OPENAI_API_KEY_MEALS for meal suggestions");
     
-    const response = await openai.chat.completions.create({
+    const response = await openaiMeals.chat.completions.create({
       model: MODEL,
       messages: [
         { role: "system", content: systemPrompt },
