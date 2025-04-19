@@ -99,7 +99,7 @@ export async function generateAIResponse(
     }
     
     // Messaggio generico per l'utente
-    throw new Error("Si è verificato un problema nella generazione della risposta. Riprova più tardi.");
+    throw new Error("Si è verificato un problema di connessione nella generazione dei suggerimenti. Riprova più tardi.");
   }
 }
 
@@ -392,7 +392,7 @@ export async function generateNutritionGoalRecommendations(
     }
     
     // Messaggio generico per l'utente
-    throw new Error("Si è verificato un problema nella generazione delle raccomandazioni. Riprova più tardi.");
+    throw new Error("Si è verificato un problema di connessione nella generazione dei suggerimenti. Riprova più tardi.");
   }
 }
 
@@ -592,6 +592,6 @@ export async function generateMealSuggestions(
     }
     
     // Messaggio generico per l'utente
-    throw new Error("Si è verificato un problema nella generazione dei suggerimenti pasti. Riprova più tardi.");
+    throw new Error("Si è verificato un problema di connessione nella generazione dei suggerimenti. Riprova più tardi.");
   }
 }

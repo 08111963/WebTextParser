@@ -533,22 +533,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
           isResponseSent = true;
           clearTimeout(timeoutHandle);
           
-          // Gestiamo diversi tipi di errori con messaggi specifici
-          let errorMessage = "Si è verificato un errore durante la generazione delle raccomandazioni. Riprova più tardi.";
-          
-          // Verifichiamo se si tratta di un errore specifico di OpenAI
-          if (generationError.message) {
-            if (generationError.message.includes("limite di richieste")) {
-              errorMessage = "Il servizio AI ha raggiunto il limite di richieste. Riprova più tardi.";
-            } else if (generationError.message.includes("autenticazione")) {
-              errorMessage = "Problema di autenticazione con il servizio AI. Contatta l'amministratore.";
-            } else if (generationError.message.includes("connessione")) {
-              errorMessage = "Problema di connessione al servizio AI. Verifica la tua connessione internet e riprova.";
-            } else {
-              // Usiamo il messaggio di errore originale se disponibile
-              errorMessage = generationError.message;
-            }
-          }
+          // Usiamo un messaggio di errore generico indipendentemente dal tipo di errore
+          let errorMessage = "Si è verificato un problema di connessione nella generazione dei suggerimenti. Riprova più tardi.";
           
           console.log("AI error occurred, returning specific error message:", errorMessage);
           
@@ -648,22 +634,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
           isResponseSent = true;
           clearTimeout(timeoutHandle);
           
-          // Gestiamo diversi tipi di errori con messaggi specifici
-          let errorMessage = "Si è verificato un errore durante la generazione dei suggerimenti pasti. Riprova più tardi.";
-          
-          // Verifichiamo se si tratta di un errore specifico di OpenAI
-          if (generationError.message) {
-            if (generationError.message.includes("limite di richieste")) {
-              errorMessage = "Il servizio AI ha raggiunto il limite di richieste per i suggerimenti pasti. Riprova più tardi.";
-            } else if (generationError.message.includes("autenticazione")) {
-              errorMessage = "Problema di autenticazione con il servizio AI. Contatta l'amministratore.";
-            } else if (generationError.message.includes("connessione")) {
-              errorMessage = "Problema di connessione al servizio AI. Verifica la tua connessione internet e riprova.";
-            } else {
-              // Usiamo il messaggio di errore originale se disponibile
-              errorMessage = generationError.message;
-            }
-          }
+          // Usiamo un messaggio di errore generico indipendentemente dal tipo di errore
+          let errorMessage = "Si è verificato un problema di connessione nella generazione dei suggerimenti. Riprova più tardi.";
           
           console.log("AI error occurred, returning specific error message:", errorMessage);
           
