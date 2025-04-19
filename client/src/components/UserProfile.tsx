@@ -266,12 +266,12 @@ export default function UserProfile() {
                 <SheetTrigger asChild>
                   <Button variant="outline" size="sm" className="mt-2">
                     <Edit className="h-4 w-4 mr-2" />
-                    Modifica
+                    Edit
                   </Button>
                 </SheetTrigger>
                 <SheetContent side="right" className="w-[400px] sm:w-[540px]">
                   <SheetHeader>
-                    <SheetTitle>Modifica profilo</SheetTitle>
+                    <SheetTitle>Edit Profile</SheetTitle>
                   </SheetHeader>
                   <ScrollArea className="h-[calc(100vh-10rem)] py-4">
                     <Form {...form}>
@@ -281,9 +281,9 @@ export default function UserProfile() {
                           name="name"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel>Nome</FormLabel>
+                              <FormLabel>Name</FormLabel>
                               <FormControl>
-                                <Input placeholder="Il tuo nome" {...field} />
+                                <Input placeholder="Your name" {...field} />
                               </FormControl>
                               <FormMessage />
                             </FormItem>
@@ -294,7 +294,7 @@ export default function UserProfile() {
                           name="age"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel>Età</FormLabel>
+                              <FormLabel>Age</FormLabel>
                               <FormControl>
                                 <Input type="number" {...field} />
                               </FormControl>
@@ -307,17 +307,17 @@ export default function UserProfile() {
                           name="gender"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel>Genere</FormLabel>
+                              <FormLabel>Gender</FormLabel>
                               <Select onValueChange={field.onChange} defaultValue={field.value}>
                                 <FormControl>
                                   <SelectTrigger>
-                                    <SelectValue placeholder="Seleziona un genere" />
+                                    <SelectValue placeholder="Select a gender" />
                                   </SelectTrigger>
                                 </FormControl>
                                 <SelectContent>
-                                  <SelectItem value="maschio">Maschio</SelectItem>
-                                  <SelectItem value="femmina">Femmina</SelectItem>
-                                  <SelectItem value="altro">Altro</SelectItem>
+                                  <SelectItem value="maschio">Male</SelectItem>
+                                  <SelectItem value="femmina">Female</SelectItem>
+                                  <SelectItem value="altro">Other</SelectItem>
                                 </SelectContent>
                               </Select>
                               <FormMessage />
@@ -329,12 +329,12 @@ export default function UserProfile() {
                           name="weight"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel>Peso (kg)</FormLabel>
+                              <FormLabel>Weight (kg)</FormLabel>
                               <FormControl>
                                 <Input type="number" step="0.1" {...field} />
                               </FormControl>
                               <FormDescription>
-                                Inserisci il tuo peso in kilogrammi
+                                Enter your weight in kilograms
                               </FormDescription>
                               <FormMessage />
                             </FormItem>
@@ -345,12 +345,12 @@ export default function UserProfile() {
                           name="height"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel>Altezza (cm)</FormLabel>
+                              <FormLabel>Height (cm)</FormLabel>
                               <FormControl>
                                 <Input type="number" {...field} />
                               </FormControl>
                               <FormDescription>
-                                Inserisci la tua altezza in centimetri
+                                Enter your height in centimeters
                               </FormDescription>
                               <FormMessage />
                             </FormItem>
@@ -361,23 +361,23 @@ export default function UserProfile() {
                           name="activityLevel"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel>Livello di attività</FormLabel>
+                              <FormLabel>Activity Level</FormLabel>
                               <Select onValueChange={field.onChange} defaultValue={field.value}>
                                 <FormControl>
                                   <SelectTrigger>
-                                    <SelectValue placeholder="Seleziona un livello" />
+                                    <SelectValue placeholder="Select a level" />
                                   </SelectTrigger>
                                 </FormControl>
                                 <SelectContent>
-                                  <SelectItem value="sedentaria">Sedentaria</SelectItem>
-                                  <SelectItem value="leggera">Leggera</SelectItem>
-                                  <SelectItem value="moderata">Moderata</SelectItem>
-                                  <SelectItem value="attiva">Attiva</SelectItem>
-                                  <SelectItem value="molto attiva">Molto attiva</SelectItem>
+                                  <SelectItem value="sedentaria">Sedentary</SelectItem>
+                                  <SelectItem value="leggera">Light</SelectItem>
+                                  <SelectItem value="moderata">Moderate</SelectItem>
+                                  <SelectItem value="attiva">Active</SelectItem>
+                                  <SelectItem value="molto attiva">Very Active</SelectItem>
                                 </SelectContent>
                               </Select>
                               <FormDescription>
-                                Quanto sei attivo durante la giornata
+                                How active you are during the day
                               </FormDescription>
                               <FormMessage />
                             </FormItem>
@@ -385,7 +385,7 @@ export default function UserProfile() {
                         />
                         <SheetFooter className="pt-4">
                           <SheetClose asChild>
-                            <Button variant="outline" type="button">Annulla</Button>
+                            <Button variant="outline" type="button">Cancel</Button>
                           </SheetClose>
                           <Button 
                             type="submit" 
@@ -394,7 +394,7 @@ export default function UserProfile() {
                           >
                             {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                             <Save className="mr-2 h-4 w-4" />
-                            Salva
+                            Save
                           </Button>
                         </SheetFooter>
                       </form>
@@ -416,7 +416,7 @@ export default function UserProfile() {
               </SheetTrigger>
               <SheetContent side="right" className="w-[400px] sm:w-[540px]">
                 <SheetHeader>
-                  <SheetTitle>Crea profilo</SheetTitle>
+                  <SheetTitle>Create Profile</SheetTitle>
                 </SheetHeader>
                 <ScrollArea className="h-[calc(100vh-10rem)] py-4">
                   <Form {...form}>
@@ -530,7 +530,7 @@ export default function UserProfile() {
                       />
                       <SheetFooter className="pt-4">
                         <SheetClose asChild>
-                          <Button variant="outline" type="button">Annulla</Button>
+                          <Button variant="outline" type="button">Cancel</Button>
                         </SheetClose>
                         <Button 
                           type="submit" 
@@ -539,7 +539,7 @@ export default function UserProfile() {
                         >
                           {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                           <Save className="mr-2 h-4 w-4" />
-                          Salva
+                          Save
                         </Button>
                       </SheetFooter>
                     </form>
