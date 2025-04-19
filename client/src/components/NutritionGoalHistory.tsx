@@ -43,7 +43,7 @@ export default function NutritionGoalHistory({ userId }: NutritionGoalHistoryPro
     enabled: !!userId && isUserAuthenticated,
   });
 
-  // Funzione per ordinare gli obiettivi
+  // Function to sort the goals
   const requestSort = (key: keyof NutritionGoal) => {
     let direction: 'ascending' | 'descending' = 'ascending';
     if (sortConfig.key === key && sortConfig.direction === 'ascending') {
@@ -52,7 +52,7 @@ export default function NutritionGoalHistory({ userId }: NutritionGoalHistoryPro
     setSortConfig({ key, direction });
   };
 
-  // Ordina gli obiettivi in base alla configurazione di ordinamento
+  // Sort goals based on the sort configuration
   const sortedGoals = goals ? [...goals].sort((a, b) => {
     if (!sortConfig.key) return 0;
     
@@ -390,7 +390,7 @@ export default function NutritionGoalHistory({ userId }: NutritionGoalHistoryPro
           </Table>
         </div>
 
-        {/* Dialog per la modifica dell'obiettivo */}
+        {/* Dialog for editing the goal */}
         {editingGoal && (
           <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
             <DialogContent className="max-w-xl">
@@ -415,14 +415,14 @@ export default function NutritionGoalHistory({ userId }: NutritionGoalHistoryPro
           </Dialog>
         )}
 
-        {/* Dialog per confermare l'eliminazione */}
+        {/* Dialog to confirm deletion */}
         <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>Conferma eliminazione</DialogTitle>
+              <DialogTitle>Confirm Deletion</DialogTitle>
               <DialogDescription>
-                Sei sicuro di voler eliminare l'obiettivo nutrizionale "{goalToDelete?.name}"?
-                Questa azione non può essere annullata.
+                Are you sure you want to delete the nutrition goal "{goalToDelete?.name}"?
+                This action cannot be undone.
               </DialogDescription>
             </DialogHeader>
             <DialogFooter>
@@ -431,7 +431,7 @@ export default function NutritionGoalHistory({ userId }: NutritionGoalHistoryPro
                 onClick={() => setDeleteDialogOpen(false)}
                 disabled={deleteGoalMutation.isPending}
               >
-                Annulla
+                Cancel
               </Button>
               <Button 
                 variant="destructive" 
@@ -441,10 +441,10 @@ export default function NutritionGoalHistory({ userId }: NutritionGoalHistoryPro
                 {deleteGoalMutation.isPending ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Eliminazione...
+                    Deleting...
                   </>
                 ) : (
-                  "Elimina"
+                  "Delete"
                 )}
               </Button>
             </DialogFooter>
