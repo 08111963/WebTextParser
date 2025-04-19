@@ -48,25 +48,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "User profile not found" });
       }
       
-      // Verifica se l'utente ha un abbonamento attivo
-      // Nella versione reale, controlleremmo lo stato dell'abbonamento nel database
-      // e con il provider di pagamento (Stripe)
-      const hasActiveSubscription = false; // Per ora disabilitiamo l'accesso per tutti
+      // Per il test, forziamo tutti i trial a essere scaduti
+      // In una versione reale, controlleremmo lo stato dell'abbonamento nel database o con Stripe
+      const forceTrialExpired = true; 
       
-      // Se l'utente ha un abbonamento attivo, restituiamo info premium
-      if (hasActiveSubscription) {
+      if (forceTrialExpired) {
+        // Restituisci un periodo di prova scaduto
         return res.json({
-          trialActive: true, // Considerato come in trial attivo per attivare le funzionalità
-          trialDaysLeft: 999, // Valore alto per indicare che è un utente premium
-          trialEndDate: new Date(2099, 11, 31).toISOString(), // Data futura
-          trialStartDate: new Date().toISOString(),
-          message: null,
-          isPremium: true,
-          subscriptionPlan: "premium" // Tipo di piano abbonamento
+          trialActive: false,
+          trialDaysLeft: 0,
+          trialEndDate: new Date().toISOString(), // La data di fine è oggi
+          trialStartDate: new Date(new Date().setDate(new Date().getDate() - 5)).toISOString(), // Data fittizia 5 giorni fa
+          message: "Il tuo periodo di prova è scaduto. Passa a premium per continuare a usare tutte le funzionalità.",
+          isPremium: false,
+          subscriptionPlan: "trial"
         });
       }
       
-      // Altrimenti, procediamo con la logica del trial
+      // Questa parte non verrà mai eseguita durante il test, ma la lasciamo per riferimento futuro
+      // Logica normale del periodo di prova
       const registrationDate = userProfile.createdAt ? new Date(userProfile.createdAt) : new Date();
       const trialPeriodDays = 5; // Durata del periodo di prova in giorni
       const trialEndDate = new Date(registrationDate);

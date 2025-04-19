@@ -119,16 +119,19 @@ export function SubscriptionProvider({ children }: { children: ReactNode }) {
         setTrialDaysLeft(trialStatus.trialDaysLeft);
         setTrialEndDate(trialStatus.trialEndDate ? new Date(trialStatus.trialEndDate) : null);
         
-        // Imposta il piano in base allo stato della prova
-        // In una versione reale, controlleremmo se l'utente ha acquistato un abbonamento
-        setPlan(trialStatus.trialActive ? "trial" : "trial"); // Manteniamo "trial" anche dopo la scadenza per la demo
+        // Imposta il piano in base allo stato dell'abbonamento
+        // Usa il piano dall'API se disponibile
+        if (trialStatus.subscriptionPlan) {
+          setPlan(trialStatus.subscriptionPlan as SubscriptionPlan);
+        } else {
+          // Se non specificato, usa il piano base
+          setPlan(trialStatus.trialActive ? "trial" : "trial");
+        }
       } else {
         // Fallback in caso di errore nella chiamata API
-        setTrialActive(true);
-        setTrialDaysLeft(TRIAL_PERIOD_DAYS);
-        const today = new Date();
-        const fallbackEndDate = addDays(today, TRIAL_PERIOD_DAYS);
-        setTrialEndDate(fallbackEndDate);
+        setTrialActive(false); // Forzato a false per il test
+        setTrialDaysLeft(0);
+        setTrialEndDate(new Date()); // Trial già scaduto
         setPlan("trial");
       }
     }

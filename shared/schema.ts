@@ -7,11 +7,6 @@ export const users = pgTable("users", {
   username: text("username").notNull().unique(),
   password: text("password").notNull(),
   email: text("email").notNull().unique(),
-  // Campi relativi all'abbonamento
-  stripeCustomerId: text("stripe_customer_id"),
-  stripeSubscriptionId: text("stripe_subscription_id"),
-  subscriptionStatus: text("subscription_status").default("trial"),
-  subscriptionEndDate: timestamp("subscription_end_date"),
 });
 
 // Schema per i profili utente

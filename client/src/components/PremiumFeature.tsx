@@ -24,13 +24,12 @@ export default function PremiumFeature({
   const { canAccess, trialActive, trialDaysLeft, isPremium } = useSubscription();
   const [_, navigate] = useLocation();
 
-  // Per il test, forziamo il blocco delle funzionalità a prescindere
-  // Nella versione reale utilizzeremmo: if (canAccess(feature))
-  
-  // Stiamo testando la struttura di accesso, quindi disattiviamo temporaneamente tutte le funzionalità
-  const blockAllFeatures = true;
-  
-  if (!blockAllFeatures && canAccess(feature)) {
+  // Verifica se l'utente può accedere alla funzionalità 
+  // basandosi sul suo stato di abbonamento o trial
+  // Consentiamo l'accesso solo se:
+  // 1. Il periodo di prova è attivo OPPURE
+  // 2. L'utente ha un abbonamento premium attivo
+  if (trialActive || isPremium) {
     return <>{children}</>;
   }
 
