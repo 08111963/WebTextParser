@@ -142,25 +142,25 @@ export default function Home({
     enabled: isAuthenticated && user.id !== 0
   });
 
-  // Gestione degli errori
+  // Error handling
   useEffect(() => {
     if (mealsError) {
       toast({
-        title: "Errore",
-        description: "Impossibile caricare i pasti. Riprova più tardi.",
+        title: "Error",
+        description: "Unable to load meals. Please try again later.",
         variant: "destructive",
       });
     }
     if (goalError) {
       toast({
-        title: "Errore",
-        description: "Impossibile caricare gli obiettivi nutrizionali. Riprova più tardi.",
+        title: "Error",
+        description: "Unable to load nutritional goals. Please try again later.",
         variant: "destructive",
       });
     }
   }, [mealsError, goalError, toast]);
 
-  // Calcolo totali nutrizionali
+  // Calculate nutritional totals
   const todayMeals = meals?.filter((meal: any) => {
     const mealDate = new Date(meal.timestamp);
     const today = new Date();
@@ -187,29 +187,29 @@ export default function Home({
         <Tabs 
           value={activeTab} 
           onValueChange={(value) => {
-            // Prima aggiorniamo lo stato
+            // First update the state
             setActiveTab(value);
             
-            // Resettiamo lo scroll della pagina
+            // Reset the page scroll
             window.scrollTo(0, 0);
             
-            // Resettiamo lo scroll del contenuto della tab
+            // Reset the tab content scroll
             requestAnimationFrame(() => {
               const tabContent = document.querySelector(`[data-state="active"][role="tabpanel"]`);
               if (tabContent) {
                 tabContent.scrollTop = 0;
               }
               
-              // Forziamo uno scroll a 0 per sicurezza
+              // Force scroll to 0 for safety
               window.scrollTo(0, 0);
               
-              // Tenta di scorrere al top-marker della tab
+              // Try to scroll to the tab's top-marker
               const tabTop = document.getElementById(`${value}-tab-top`);
               if (tabTop) {
                 tabTop.scrollIntoView({ behavior: 'auto', block: 'start' });
               }
               
-              // Ulteriore tentativo dopo il render
+              // Additional attempt after render
               setTimeout(() => {
                 if (tabContent) {
                   tabContent.scrollTop = 0;
@@ -368,7 +368,7 @@ export default function Home({
                   </Card>
                 </div>
 
-                {/* Grafico dei valori nutrizionali */}
+                {/* Nutritional values chart */}
                 <div className="mt-6">
                   <NutritionChart userId={user.id.toString()} />
                 </div>
@@ -377,32 +377,32 @@ export default function Home({
           </TabsContent>
 
           <TabsContent value="meals" className="max-h-[calc(100vh-13rem)] overflow-y-auto">
-            {/* Inizio con un div vuoto per garantire che la pagina inizi in cima */}
+            {/* Start with an empty div to ensure the page starts at the top */}
             <div id="meals-tab-top" className="h-1"></div>
             
-            {/* Container separato per il form e la lista dei pasti */}
+            {/* Separate container for the form and meal list */}
             <div className="mb-12">
-              <h2 className="text-2xl font-bold mb-6">Aggiungi un Nuovo Pasto</h2>
+              <h2 className="text-2xl font-bold mb-6">Add a New Meal</h2>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div className="space-y-4">
-                  {/* Form per aggiungere un nuovo pasto */}
+                  {/* Form to add a new meal */}
                   {isAuthenticated ? (
                     <MealForm userId={user.id.toString()} />
                   ) : (
                     <div className="border rounded-lg p-6 text-center">
-                      <p className="text-muted-foreground mb-4">Per aggiungere pasti, accedi o registrati</p>
+                      <p className="text-muted-foreground mb-4">To add meals, please login or register</p>
                       <Button onClick={() => requireAuth && requireAuth('meals')}>
-                        Accedi per Aggiungere Pasti
+                        Login to Add Meals
                       </Button>
                     </div>
                   )}
                 </div>
                 
-                {/* Lista dei pasti */}
+                {/* Meal list */}
                 <Card className="md:col-span-2">
                   <CardHeader>
-                    <CardTitle>I Tuoi Pasti</CardTitle>
-                    <CardDescription>Gli ultimi pasti registrati</CardDescription>
+                    <CardTitle>Your Meals</CardTitle>
+                    <CardDescription>Your recently recorded meals</CardDescription>
                   </CardHeader>
                   <CardContent>
                     <MealList
@@ -415,43 +415,43 @@ export default function Home({
               </div>
             </div>
             
-            {/* Sezione Raccomandazioni AI per Pasti */}
+            {/* AI Meal Recommendations Section */}
             <div className="mt-12">
               <h2 className="text-2xl font-bold mb-6 flex items-center">
                 <Sparkles className="h-5 w-5 mr-2 text-primary" />
-                Raccomandazioni AI per Pasti
+                AI Meal Recommendations
               </h2>
               <AIRecommendations userId={user.id.toString()} />
             </div>
           </TabsContent>
 
           <TabsContent value="goals" className="max-h-[calc(100vh-13rem)] overflow-y-auto">
-            {/* Inizio con un div vuoto per garantire che la pagina inizi in cima */}
+            {/* Start with an empty div to ensure the page starts at the top */}
             <div id="goals-tab-top" className="h-1"></div>
             
-            {/* Container separato per il form e la lista dei obiettivi attivi */}
+            {/* Separate container for the form and active goals list */}
             <div className="mb-12">
-              <h2 className="text-2xl font-bold mb-6">Imposta un Nuovo Obiettivo</h2>
+              <h2 className="text-2xl font-bold mb-6">Set a New Goal</h2>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div className="space-y-4">
-                  {/* Form per aggiungere un nuovo obiettivo */}
+                  {/* Form to add a new goal */}
                   {isAuthenticated ? (
                     <NutritionGoalForm userId={user.id.toString()} />
                   ) : (
                     <div className="border rounded-lg p-6 text-center">
-                      <p className="text-muted-foreground mb-4">Per impostare obiettivi, accedi o registrati</p>
+                      <p className="text-muted-foreground mb-4">To set goals, please login or register</p>
                       <Button onClick={() => requireAuth && requireAuth('goals')}>
-                        Accedi per Impostare Obiettivi
+                        Login to Set Goals
                       </Button>
                     </div>
                   )}
                 </div>
                 
-                {/* Visualizzazione dell'obiettivo attivo e cronologia */}
+                {/* Display of active goal and history */}
                 <Card className="md:col-span-2">
                   <CardHeader>
-                    <CardTitle>Obiettivo Attivo</CardTitle>
-                    <CardDescription>Il tuo obiettivo nutrizionale attuale</CardDescription>
+                    <CardTitle>Active Goal</CardTitle>
+                    <CardDescription>Your current nutritional goal</CardDescription>
                   </CardHeader>
                   <CardContent>
                     {goalLoading ? (
@@ -460,7 +460,7 @@ export default function Home({
                       </div>
                     ) : (
                       <div className="space-y-8">
-                        {/* Obiettivo attivo */}
+                        {/* Active goal */}
                         <div>
                           {activeGoal ? (
                             <div className="border rounded-md p-4">
@@ -471,39 +471,39 @@ export default function Home({
                               
                               <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mt-4">
                                 <div className="bg-background p-3 rounded border text-center flex flex-col h-20 justify-between">
-                                  <p className="text-xs text-gray-500 mt-1">Calorie</p>
+                                  <p className="text-xs text-gray-500 mt-1">Calories</p>
                                   <p className="font-bold text-base">{activeGoal.calories}</p>
                                   <p className="text-xs mb-1">kcal</p>
                                 </div>
                                 <div className="bg-background p-3 rounded border text-center flex flex-col h-20 justify-between">
-                                  <p className="text-xs text-gray-500 mt-1">Proteine</p>
+                                  <p className="text-xs text-gray-500 mt-1">Protein</p>
                                   <p className="font-bold text-base">{activeGoal.proteins}</p>
-                                  <p className="text-xs mb-1">grammi</p>
+                                  <p className="text-xs mb-1">grams</p>
                                 </div>
                                 <div className="bg-background p-3 rounded border text-center flex flex-col h-20 justify-between">
-                                  <p className="text-xs text-gray-500 mt-1">Carboidrati</p>
+                                  <p className="text-xs text-gray-500 mt-1">Carbs</p>
                                   <p className="font-bold text-base">{activeGoal.carbs}</p>
-                                  <p className="text-xs mb-1">grammi</p>
+                                  <p className="text-xs mb-1">grams</p>
                                 </div>
                                 <div className="bg-background p-3 rounded border text-center flex flex-col h-20 justify-between">
-                                  <p className="text-xs text-gray-500 mt-1">Grassi</p>
+                                  <p className="text-xs text-gray-500 mt-1">Fat</p>
                                   <p className="font-bold text-base">{activeGoal.fats}</p>
-                                  <p className="text-xs mb-1">grammi</p>
+                                  <p className="text-xs mb-1">grams</p>
                                 </div>
                               </div>
                               <div className="mt-4 text-sm text-gray-500">
-                                Data inizio: {new Date(activeGoal.startDate).toLocaleDateString('it-IT')}
+                                Start date: {new Date(activeGoal.startDate).toLocaleDateString('en-US')}
                               </div>
                             </div>
                           ) : (
                             <div className="border rounded-md p-6 text-center text-muted-foreground">
-                              <p>Nessun obiettivo attivo</p>
-                              <p className="text-sm mt-1">Crea un nuovo obiettivo dal form a sinistra</p>
+                              <p>No active goal</p>
+                              <p className="text-sm mt-1">Create a new goal using the form on the left</p>
                             </div>
                           )}
                         </div>
                         
-                        {/* Lista di tutti gli obiettivi */}
+                        {/* List of all goals */}
                         <div className="mt-8">
                           <NutritionGoalHistory userId={user.id.toString()} />
                         </div>
@@ -514,11 +514,11 @@ export default function Home({
               </div>
             </div>
             
-            {/* Sezione Raccomandazioni AI per Obiettivi */}
+            {/* AI Goal Recommendations Section */}
             <div className="mt-12">
               <h2 className="text-2xl font-bold mb-6 flex items-center">
                 <Target className="h-5 w-5 mr-2 text-primary" />
-                Raccomandazioni AI per Obiettivi
+                AI Goal Recommendations
               </h2>
               <AIObjectives userId={user.id.toString()} />
             </div>
@@ -530,12 +530,12 @@ export default function Home({
                 <UserProfile />
               ) : (
                 <div className="border rounded-lg p-8 text-center">
-                  <p className="text-xl font-semibold mb-2">Profilo Utente</p>
+                  <p className="text-xl font-semibold mb-2">User Profile</p>
                   <p className="text-muted-foreground mb-6">
-                    Accedi per visualizzare e modificare il tuo profilo, impostare i tuoi dati fisici e gestire le tue preferenze.
+                    Login to view and edit your profile, set your physical data, and manage your preferences.
                   </p>
                   <Button onClick={() => requireAuth && requireAuth('profile')}>
-                    Accedi al Tuo Profilo
+                    Login to Your Profile
                   </Button>
                 </div>
               )}
