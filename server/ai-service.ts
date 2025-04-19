@@ -136,10 +136,14 @@ export async function generateNutritionGoalRecommendations(
     ${JSON.stringify(userInfo, null, 2)}
     
     Per ciascun obiettivo nutrizionale, fornisci:
-    1. Un titolo breve e chiaro
+    1. Un titolo breve e creativo (sii originale, usa termini accattivanti)
     2. Una breve descrizione che spieghi perché questo obiettivo è adatto all'utente
     3. Calorie giornaliere raccomandate
     4. Distribuzione di macronutrienti (proteine, carboidrati, grassi) in grammi
+    
+    Importante: Gli obiettivi devono essere significativamente diversi tra loro, con proposte variegate e originali.
+    Ad ogni chiamata, fornisci risposte completamente nuove ed evita formule standardizzate.
+    Includi diverse filosofie nutrizionali (mediterranea, plant-based, ecc.) e approcci (perdita peso, energia, massa muscolare, ecc.).
     
     Rispondi con un JSON nel seguente formato:
     [
@@ -167,7 +171,7 @@ export async function generateNutritionGoalRecommendations(
         { role: "user", content: userPrompt }
       ],
       response_format: { type: "json_object" },
-      temperature: 0.7,
+      temperature: 0.9, // Aumento della temperatura per maggiore variabilità
     });
 
     console.log("OpenAI response received:", response.choices[0].message.content);
@@ -290,17 +294,21 @@ export async function generateMealSuggestions(
     Analizza queste informazioni sull'utente:
     ${JSON.stringify(userInfo, null, 2)}
     
-    Genera 3 idee per pasti che:
+    Genera 3 idee originali per pasti che:
     ${mealType ? `- Siano adatti per ${mealType}` : '- Siano adatti per qualsiasi pasto'}
     - Rispettino i limiti calorici e i macronutrienti dell'obiettivo nutrizionale (se presente)
     - Tengano conto dell'età, peso, altezza e livello di attività dell'utente
     ${preferences && preferences.length > 0 ? `- Considerino le preferenze: ${preferences.join(', ')}` : ''}
     
     Per ciascun pasto, fornisci:
-    1. Un nome breve e appetitoso
+    1. Un nome breve, creativo e appetitoso (sii originale e proponi piatti diversi ogni volta)
     2. Una breve descrizione che includa ingredienti principali e benefici nutrizionali
     3. Il tipo di pasto (colazione, pranzo, cena, spuntino)
     4. Il contenuto calorico e i macronutrienti (proteine, carboidrati, grassi)
+    
+    Importante: Ad ogni chiamata, fornisci idee di pasti completamente diverse. 
+    Evita piatti standard o ripetitivi. Sii creativo con gli ingredienti e le preparazioni.
+    Proponi combinazioni di ingredienti originali e diverse culture culinarie.
     
     Rispondi con un JSON nel seguente formato:
     [
@@ -329,7 +337,7 @@ export async function generateMealSuggestions(
         { role: "user", content: userPrompt }
       ],
       response_format: { type: "json_object" },
-      temperature: 0.8,
+      temperature: 0.95, // Aumento della temperatura per maggiore variabilità nei pasti
     });
 
     console.log("OpenAI meal suggestions response received:", response.choices[0].message.content);
