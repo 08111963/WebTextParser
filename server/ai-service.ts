@@ -297,6 +297,31 @@ export async function generateNutritionGoalRecommendations(
       };
     }
     
+    // Applicare un leggero offset casuale ai valori numerici di ogni raccomandazione
+    // per garantire ancora di più che siano diversi, anche se l'API dovesse rispondere in modo simile
+    const applyRandomOffset = (value: number): number => {
+      const offsetPercentage = Math.random() * 0.15 - 0.075; // Offset tra -7.5% e +7.5%
+      return Math.round(value * (1 + offsetPercentage));
+    };
+    
+    // Applicare l'offset ai valori del primo suggerimento
+    recommendation1.calories = applyRandomOffset(recommendation1.calories || 2200);
+    recommendation1.proteins = applyRandomOffset(recommendation1.proteins || 110);
+    recommendation1.carbs = applyRandomOffset(recommendation1.carbs || 270);
+    recommendation1.fats = applyRandomOffset(recommendation1.fats || 70);
+    
+    // Applicare l'offset ai valori del secondo suggerimento
+    recommendation2.calories = applyRandomOffset(recommendation2.calories || 2400);
+    recommendation2.proteins = applyRandomOffset(recommendation2.proteins || 150);
+    recommendation2.carbs = applyRandomOffset(recommendation2.carbs || 250);
+    recommendation2.fats = applyRandomOffset(recommendation2.fats || 80);
+    
+    // Applicare l'offset ai valori del terzo suggerimento
+    recommendation3.calories = applyRandomOffset(recommendation3.calories || 2000);
+    recommendation3.proteins = applyRandomOffset(recommendation3.proteins || 125);
+    recommendation3.carbs = applyRandomOffset(recommendation3.carbs || 180);
+    recommendation3.fats = applyRandomOffset(recommendation3.fats || 100);
+    
     // Combiniamo le tre risposte in un array
     const recommendations = [
       recommendation1,
@@ -304,78 +329,33 @@ export async function generateNutritionGoalRecommendations(
       recommendation3
     ];
     
-    // Assicurati che i valori siano tutti numeri interi
-    let processedRecommendations = [];
-    
-    // Se abbiamo un array, usa direttamente quello
-    if (Array.isArray(recommendations)) {
-      processedRecommendations = recommendations.map(rec => ({
-        title: rec.title,
-        description: rec.description,
-        calories: Math.round(Number(rec.calories)),
-        proteins: Math.round(Number(rec.proteins)),
-        carbs: Math.round(Number(rec.carbs)),
-        fats: Math.round(Number(rec.fats))
-      }));
-    } 
-    // Se abbiamo un oggetto con proprietà 'objectives', 'obiettiviNutrizionali', 'goals', 'obiettivi' o altra struttura
-    else if (recommendations && typeof recommendations === 'object') {
-      // Check per varie strutture che OpenAI potrebbe restituire
-      if (recommendations.objectives && Array.isArray(recommendations.objectives)) {
-        processedRecommendations = recommendations.objectives.map((rec: any) => ({
-          title: rec.title,
-          description: rec.description,
-          calories: Math.round(Number(rec.calories)),
-          proteins: Math.round(Number(rec.proteins)),
-          carbs: Math.round(Number(rec.carbs)),
-          fats: Math.round(Number(rec.fats))
-        }));
+    // Processiamo le tre raccomandazioni normalizzando i valori
+    let processedRecommendations = [
+      {
+        title: recommendation1.title || "Mediterranea Equilibrata",
+        description: recommendation1.description || "Approccio mediterraneo ricco di nutrienti essenziali, per mantenere energia e salute in modo bilanciato.",
+        calories: Math.round(Number(recommendation1.calories) || 2200),
+        proteins: Math.round(Number(recommendation1.proteins) || 110),
+        carbs: Math.round(Number(recommendation1.carbs) || 270),
+        fats: Math.round(Number(recommendation1.fats) || 70)
+      },
+      {
+        title: recommendation2.title || "Proteica Energetica",
+        description: recommendation2.description || "Strategia ad alto contenuto proteico per favorire la massa muscolare e fornire energia duratura durante l'attività fisica.",
+        calories: Math.round(Number(recommendation2.calories) || 2400),
+        proteins: Math.round(Number(recommendation2.proteins) || 150),
+        carbs: Math.round(Number(recommendation2.carbs) || 250),
+        fats: Math.round(Number(recommendation2.fats) || 80)
+      },
+      {
+        title: recommendation3.title || "Low-Carb Essenziale",
+        description: recommendation3.description || "Piano a basso contenuto di carboidrati che favorisce i grassi sani per fornire energia stabile e costante durante la giornata.",
+        calories: Math.round(Number(recommendation3.calories) || 2000),
+        proteins: Math.round(Number(recommendation3.proteins) || 130),
+        carbs: Math.round(Number(recommendation3.carbs) || 180),
+        fats: Math.round(Number(recommendation3.fats) || 110)
       }
-      // Check per la struttura italiana 'obiettiviNutrizionali'
-      else if (recommendations.obiettiviNutrizionali && Array.isArray(recommendations.obiettiviNutrizionali)) {
-        processedRecommendations = recommendations.obiettiviNutrizionali.map((rec: any) => ({
-          title: rec.title,
-          description: rec.description,
-          calories: Math.round(Number(rec.calories)),
-          proteins: Math.round(Number(rec.proteins)),
-          carbs: Math.round(Number(rec.carbs)),
-          fats: Math.round(Number(rec.fats))
-        }));
-      }
-      // Check per la struttura 'goals'
-      else if (recommendations.goals && Array.isArray(recommendations.goals)) {
-        processedRecommendations = recommendations.goals.map((rec: any) => ({
-          title: rec.title,
-          description: rec.description,
-          calories: Math.round(Number(rec.calories)),
-          proteins: Math.round(Number(rec.proteins)),
-          carbs: Math.round(Number(rec.carbs)),
-          fats: Math.round(Number(rec.fats))
-        }));
-      }
-      // Check per la struttura italiana 'obiettivi' (nuovo campo rilevato nei log)
-      else if (recommendations.obiettivi && Array.isArray(recommendations.obiettivi)) {
-        processedRecommendations = recommendations.obiettivi.map((rec: any) => ({
-          title: rec.title,
-          description: rec.description,
-          calories: Math.round(Number(rec.calories)),
-          proteins: Math.round(Number(rec.proteins)),
-          carbs: Math.round(Number(rec.carbs)),
-          fats: Math.round(Number(rec.fats))
-        }));
-      }
-      // Gestisci il caso in cui abbiamo una singola raccomandazione come oggetto
-      else if (recommendations.title && recommendations.calories) {
-        processedRecommendations = [{
-          title: recommendations.title,
-          description: recommendations.description || "",
-          calories: Math.round(Number(recommendations.calories)),
-          proteins: Math.round(Number(recommendations.proteins)),
-          carbs: Math.round(Number(recommendations.carbs)),
-          fats: Math.round(Number(recommendations.fats))
-        }];
-      }
-    }
+    ];
       
     return processedRecommendations;
   } catch (error: any) {
