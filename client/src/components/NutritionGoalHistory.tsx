@@ -8,7 +8,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogTrigger, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
-import { ArrowUpDown, History, Info, Loader2, Trash2, Edit } from "lucide-react";
+import { ArrowUpDown, History, Info, Loader2, Trash2, Edit, UserCircle2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import NutritionGoalForm from "./NutritionGoalForm";
 
@@ -23,6 +23,7 @@ export default function NutritionGoalHistory({ userId }: NutritionGoalHistoryPro
   const [goalToDelete, setGoalToDelete] = useState<NutritionGoal | null>(null);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [isUserAuthenticated, setIsUserAuthenticated] = useState(userId !== "0");
   const [sortConfig, setSortConfig] = useState<{
     key: keyof NutritionGoal | null;
     direction: 'ascending' | 'descending';
@@ -39,7 +40,7 @@ export default function NutritionGoalHistory({ userId }: NutritionGoalHistoryPro
       if (!res.ok) throw new Error('Impossibile recuperare gli obiettivi nutrizionali');
       return res.json();
     },
-    enabled: !!userId,
+    enabled: !!userId && isUserAuthenticated,
   });
 
   // Funzione per ordinare gli obiettivi
@@ -148,6 +149,39 @@ export default function NutritionGoalHistory({ userId }: NutritionGoalHistoryPro
           <div className="flex flex-col items-center gap-2">
             <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
             <p className="text-sm text-muted-foreground">Caricamento obiettivi...</p>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  // Mostra un messaggio di autenticazione richiesta
+  if (!isUserAuthenticated) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <History className="h-5 w-5" />
+            Cronologia Obiettivi
+          </CardTitle>
+          <CardDescription>La tua cronologia di obiettivi nutrizionali</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="text-center py-10 border rounded-lg">
+            <UserCircle2 className="h-12 w-12 text-primary mx-auto mb-4" />
+            <h3 className="text-xl font-medium mb-2">Accedi per Visualizzare gli Obiettivi</h3>
+            <p className="text-muted-foreground max-w-md mx-auto mb-6">
+              Accedi o registrati per visualizzare e gestire i tuoi obiettivi nutrizionali.
+            </p>
+            <Button onClick={() => {
+              toast({
+                title: "Autenticazione richiesta",
+                description: "Per visualizzare la cronologia degli obiettivi è necessario accedere o registrarsi.",
+                duration: 5000
+              });
+            }}>
+              Accedi per Continuare
+            </Button>
           </div>
         </CardContent>
       </Card>

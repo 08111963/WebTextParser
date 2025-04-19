@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
-import { BarChart, CalendarRange, Edit, Info, Loader2 } from "lucide-react";
+import { BarChart, CalendarRange, Edit, Info, Loader2, UserCircle2 } from "lucide-react";
 import NutritionGoalForm from "./NutritionGoalForm";
 import { useToast } from "@/hooks/use-toast";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -30,6 +30,7 @@ export default function ActiveNutritionGoal({
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const [isUserAuthenticated, setIsUserAuthenticated] = useState(userId !== "0");
   
   // Fetch active goal data
   const { data: activeGoal, isLoading, error } = useQuery<NutritionGoal | null>({
@@ -45,7 +46,7 @@ export default function ActiveNutritionGoal({
         return null;
       }
     },
-    enabled: !!userId,
+    enabled: !!userId && isUserAuthenticated,
   });
   
   if (isLoading) {
@@ -59,6 +60,36 @@ export default function ActiveNutritionGoal({
     );
   }
   
+  // Mostro messaggio di autenticazione richiesta
+  if (!isUserAuthenticated) {
+    return (
+      <Card className="w-full">
+        <CardHeader className="pb-2">
+          <CardTitle className="text-lg">Obiettivo Nutrizionale</CardTitle>
+          <CardDescription>Accedi per visualizzare i tuoi obiettivi</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="text-center py-6 border rounded-lg">
+            <UserCircle2 className="h-10 w-10 text-primary mx-auto mb-2" />
+            <h3 className="text-base font-medium mb-2">Accesso richiesto</h3>
+            <p className="text-sm text-muted-foreground max-w-md mx-auto mb-4">
+              Accedi o registrati per impostare e monitorare i tuoi obiettivi nutrizionali.
+            </p>
+            <Button size="sm" onClick={() => {
+              toast({
+                title: "Autenticazione richiesta",
+                description: "Per visualizzare e gestire gli obiettivi è necessario accedere o registrarsi.",
+                duration: 5000
+              });
+            }}>
+              Accedi per Continuare
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
   if (error || !activeGoal) {
     return (
       <Card className="w-full">
