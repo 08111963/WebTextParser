@@ -105,7 +105,7 @@ export default function AIRecommendations({ userId }: AIRecommendationsProps) {
     refetchOnWindowFocus: false,
   });
 
-  // Suggerimenti per pasti
+  // Suggestions for meals
   const {
     data: mealSuggestions,
     isLoading: isLoadingMeals,
@@ -119,20 +119,20 @@ export default function AIRecommendations({ userId }: AIRecommendationsProps) {
         if (selectedMealType && selectedMealType !== 'all') {
           url += `&mealType=${selectedMealType}`;
         }
-        // url += `&forceNew=true`; // Forza sempre nuove generazioni
+        // url += `&forceNew=true`; // Always force new generations
         console.log("Fetching meal suggestions from:", url);
         const res = await apiRequest("GET", url);
         const data = await res.json();
         console.log("Meal suggestions response:", data);
         
-        // Debug avanzato
+        // Advanced debugging
         if (data?.suggestions) {
-          console.log("Numero di suggerimenti ricevuti:", data.suggestions.length);
+          console.log("Number of suggestions received:", data.suggestions.length);
           data.suggestions.forEach((sugg: any, i: number) => {
-            console.log(`Suggerimento ${i+1}:`, sugg.name, sugg.mealType);
+            console.log(`Suggestion ${i+1}:`, sugg.name, sugg.mealType);
           });
         } else {
-          console.warn("Formato risposta non valido:", data);
+          console.warn("Invalid response format:", data);
         }
         
         return data;
@@ -146,7 +146,7 @@ export default function AIRecommendations({ userId }: AIRecommendationsProps) {
     refetchOnWindowFocus: false,
   });
 
-  // Gestione errori
+  // Error handling
   if (goalError) {
     console.error("Error fetching nutrition goal recommendations:", goalError);
   }
