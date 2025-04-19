@@ -49,31 +49,31 @@ import {
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { UserRound, Edit, Save, Loader2 } from "lucide-react";
 
-// Schema per la validazione del form
+// Form validation schema
 const profileFormSchema = z.object({
   name: z.string().min(2, {
-    message: "Il nome deve contenere almeno 2 caratteri",
+    message: "Name must contain at least 2 characters",
   }),
   age: z.coerce.number().min(1, {
-    message: "L'età deve essere almeno 1",
+    message: "Age must be at least 1",
   }).max(120, {
-    message: "L'età deve essere al massimo 120",
+    message: "Age must be at most 120",
   }),
   gender: z.enum(["maschio", "femmina", "altro"], {
-    required_error: "Seleziona il genere",
+    required_error: "Please select a gender",
   }),
   weight: z.coerce.number().min(20, {
-    message: "Il peso deve essere almeno 20 kg",
+    message: "Weight must be at least 20 kg",
   }).max(300, {
-    message: "Il peso deve essere al massimo 300 kg",
+    message: "Weight must be at most 300 kg",
   }),
   height: z.coerce.number().min(50, {
-    message: "L'altezza deve essere almeno 50 cm",
+    message: "Height must be at least 50 cm",
   }).max(250, {
-    message: "L'altezza deve essere al massimo 250 cm",
+    message: "Height must be at most 250 cm",
   }),
   activityLevel: z.enum(["sedentaria", "leggera", "moderata", "attiva", "molto attiva"], {
-    required_error: "Seleziona il livello di attività",
+    required_error: "Please select an activity level",
   }),
 });
 
@@ -426,9 +426,9 @@ export default function UserProfile() {
                         name="name"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>Nome</FormLabel>
+                            <FormLabel>Name</FormLabel>
                             <FormControl>
-                              <Input placeholder="Il tuo nome" {...field} />
+                              <Input placeholder="Your name" {...field} />
                             </FormControl>
                             <FormMessage />
                           </FormItem>
@@ -439,7 +439,7 @@ export default function UserProfile() {
                         name="age"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>Età</FormLabel>
+                            <FormLabel>Age</FormLabel>
                             <FormControl>
                               <Input type="number" {...field} />
                             </FormControl>
@@ -452,17 +452,17 @@ export default function UserProfile() {
                         name="gender"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>Genere</FormLabel>
+                            <FormLabel>Gender</FormLabel>
                             <Select onValueChange={field.onChange} defaultValue={field.value}>
                               <FormControl>
                                 <SelectTrigger>
-                                  <SelectValue placeholder="Seleziona un genere" />
+                                  <SelectValue placeholder="Select a gender" />
                                 </SelectTrigger>
                               </FormControl>
                               <SelectContent>
-                                <SelectItem value="maschio">Maschio</SelectItem>
-                                <SelectItem value="femmina">Femmina</SelectItem>
-                                <SelectItem value="altro">Altro</SelectItem>
+                                <SelectItem value="maschio">Male</SelectItem>
+                                <SelectItem value="femmina">Female</SelectItem>
+                                <SelectItem value="altro">Other</SelectItem>
                               </SelectContent>
                             </Select>
                             <FormMessage />
@@ -474,12 +474,12 @@ export default function UserProfile() {
                         name="weight"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>Peso (kg)</FormLabel>
+                            <FormLabel>Weight (kg)</FormLabel>
                             <FormControl>
                               <Input type="number" step="0.1" {...field} />
                             </FormControl>
                             <FormDescription>
-                              Inserisci il tuo peso in kilogrammi
+                              Enter your weight in kilograms
                             </FormDescription>
                             <FormMessage />
                           </FormItem>
@@ -490,12 +490,12 @@ export default function UserProfile() {
                         name="height"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>Altezza (cm)</FormLabel>
+                            <FormLabel>Height (cm)</FormLabel>
                             <FormControl>
                               <Input type="number" {...field} />
                             </FormControl>
                             <FormDescription>
-                              Inserisci la tua altezza in centimetri
+                              Enter your height in centimeters
                             </FormDescription>
                             <FormMessage />
                           </FormItem>
@@ -506,23 +506,23 @@ export default function UserProfile() {
                         name="activityLevel"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>Livello di attività</FormLabel>
+                            <FormLabel>Activity Level</FormLabel>
                             <Select onValueChange={field.onChange} defaultValue={field.value}>
                               <FormControl>
                                 <SelectTrigger>
-                                  <SelectValue placeholder="Seleziona un livello" />
+                                  <SelectValue placeholder="Select a level" />
                                 </SelectTrigger>
                               </FormControl>
                               <SelectContent>
-                                <SelectItem value="sedentaria">Sedentaria</SelectItem>
-                                <SelectItem value="leggera">Leggera</SelectItem>
-                                <SelectItem value="moderata">Moderata</SelectItem>
-                                <SelectItem value="attiva">Attiva</SelectItem>
-                                <SelectItem value="molto attiva">Molto attiva</SelectItem>
+                                <SelectItem value="sedentaria">Sedentary</SelectItem>
+                                <SelectItem value="leggera">Light</SelectItem>
+                                <SelectItem value="moderata">Moderate</SelectItem>
+                                <SelectItem value="attiva">Active</SelectItem>
+                                <SelectItem value="molto attiva">Very Active</SelectItem>
                               </SelectContent>
                             </Select>
                             <FormDescription>
-                              Quanto sei attivo durante la giornata
+                              How active you are during the day
                             </FormDescription>
                             <FormMessage />
                           </FormItem>
