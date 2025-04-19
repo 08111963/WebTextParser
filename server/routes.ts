@@ -535,7 +535,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           clearTimeout(timeoutHandle);
           
           // Usiamo un messaggio di errore generico indipendentemente dal tipo di errore
-          let errorMessage = "Si è verificato un problema di connessione nella generazione dei suggerimenti. Riprova più tardi.";
+          let errorMessage = "A connection issue occurred while generating recommendations. Please try again later.";
           
           console.log("AI error occurred, returning specific error message:", errorMessage);
           
@@ -636,7 +636,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           clearTimeout(timeoutHandle);
           
           // Usiamo un messaggio di errore generico indipendentemente dal tipo di errore
-          let errorMessage = "Si è verificato un problema di connessione nella generazione dei suggerimenti. Riprova più tardi.";
+          let errorMessage = "A connection issue occurred while generating recommendations. Please try again later.";
           
           console.log("AI error occurred, returning specific error message:", errorMessage);
           
