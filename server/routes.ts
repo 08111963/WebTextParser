@@ -6,8 +6,18 @@ import {
   insertMealPlanSchema, 
   insertNutritionGoalSchema, 
   insertProgressEntrySchema,
-  insertUserProfileSchema 
+  insertUserProfileSchema, 
+  User
 } from "@shared/schema";
+
+// Estendi il tipo Request per includere la proprietà user
+declare global {
+  namespace Express {
+    interface Request {
+      user?: User;
+    }
+  }
+}
 import { z } from "zod";
 import { setupAuth } from "./auth";
 import { generateNutritionGoalRecommendations, generateMealSuggestions, generateAIResponse } from "./ai-service";
@@ -25,6 +35,46 @@ function isAuthenticated(req: Request, res: Response, next: NextFunction) {
 export async function registerRoutes(app: Express): Promise<Server> {
   // Configure authentication
   setupAuth(app);
+  
+  // Endpoint per verificare la scadenza del periodo di prova dal database
+  app.get('/api/trial-status', isAuthenticated, async (req, res) => {
+    try {
+      // Una volta che il middleware isAuthenticated è passato, req.user è sempre definito
+      const userId = req.user!.id.toString();
+      const userProfile = await storage.getUserProfile(userId);
+      
+      if (!userProfile) {
+        return res.status(404).json({ message: "User profile not found" });
+      }
+      
+      const registrationDate = userProfile.createdAt ? new Date(userProfile.createdAt) : new Date();
+      const trialPeriodDays = 5; // Durata del periodo di prova in giorni
+      const trialEndDate = new Date(registrationDate);
+      trialEndDate.setDate(trialEndDate.getDate() + trialPeriodDays);
+      
+      const today = new Date();
+      const daysLeft = Math.max(0, Math.ceil((trialEndDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24)));
+      const isTrialActive = daysLeft > 0;
+      
+      // Notifica di scadenza del periodo di prova
+      const message = isTrialActive 
+        ? daysLeft <= 2 
+          ? `Il tuo periodo di prova scadrà tra ${daysLeft} giorni. Passa a premium per continuare a usare tutte le funzionalità.`
+          : null
+        : "Il tuo periodo di prova è scaduto. Passa a premium per continuare a usare tutte le funzionalità.";
+      
+      res.json({
+        trialActive: isTrialActive,
+        trialDaysLeft: daysLeft,
+        trialEndDate: trialEndDate.toISOString(),
+        trialStartDate: registrationDate.toISOString(),
+        message: message
+      });
+    } catch (error) {
+      console.error('Error checking trial status:', error);
+      res.status(500).json({ message: "Error checking trial status" });
+    }
+  });
   // Get meals for user (route protetta)
   app.get("/api/meals", isAuthenticated, async (req, res) => {
     try {

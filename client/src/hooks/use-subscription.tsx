@@ -90,52 +90,49 @@ export function SubscriptionProvider({ children }: { children: ReactNode }) {
   const [trialDaysLeft, setTrialDaysLeft] = useState(TRIAL_PERIOD_DAYS);
   const [trialActive, setTrialActive] = useState(true);
   
-  // In un'applicazione reale, questi dati proverrebbero dal database
-  // Per ora, simuliamo che ogni utente ha un periodo di prova di 5 giorni dalla data di registrazione
-  const { data: userProfile } = useQuery({
-    queryKey: ["/api/user-profile", user?.id],
+  // Otteniamo lo stato del periodo di prova direttamente dal server
+  const { data: trialStatus, isLoading: trialStatusLoading } = useQuery({
+    queryKey: ["/api/trial-status"],
     queryFn: async () => {
       if (!user) return null;
       try {
-        const res = await apiRequest("GET", `/api/user-profile?userId=${user.id}`);
+        const res = await apiRequest("GET", `/api/trial-status`);
         return await res.json();
       } catch (err) {
+        console.error("Error fetching trial status:", err);
         return null;
       }
     },
     enabled: !!user,
+    // Aggiorniamo lo stato del periodo di prova ogni minuto
+    refetchInterval: 60000,
   });
 
   useEffect(() => {
     if (!authLoading) {
       setIsLoading(false);
       
-      // In una versione reale, verificheremmo il piano dell'utente dal database
-      // Per ora, assumiamo che tutti gli utenti iniziano con un periodo di prova
-      
-      // Simuliamo la data di registrazione come la data di creazione del profilo o oggi
-      const registrationDate = userProfile?.createdAt 
-        ? new Date(userProfile.createdAt) 
-        : new Date();
-      
-      // Calcoliamo la data di fine prova (5 giorni dopo la registrazione)
-      const calculatedTrialEndDate = addDays(registrationDate, TRIAL_PERIOD_DAYS);
-      setTrialEndDate(calculatedTrialEndDate);
-      
-      // Calcoliamo i giorni rimanenti di prova
-      const today = new Date();
-      const daysLeft = differenceInDays(calculatedTrialEndDate, today);
-      setTrialDaysLeft(Math.max(0, daysLeft));
-      
-      // Determiniamo se la prova è ancora attiva
-      const isTrialActive = daysLeft > 0;
-      setTrialActive(isTrialActive);
-      
-      // Imposta il piano in base allo stato della prova
-      // In una versione reale, controlleremmo se l'utente ha acquistato un abbonamento
-      setPlan(isTrialActive ? "trial" : "trial"); // Manteniamo "trial" anche dopo la scadenza per la demo
+      // Utilizziamo i dati provenienti dal server per lo stato del trial
+      if (trialStatus) {
+        // Impostiamo lo stato della prova gratuita
+        setTrialActive(trialStatus.trialActive);
+        setTrialDaysLeft(trialStatus.trialDaysLeft);
+        setTrialEndDate(trialStatus.trialEndDate ? new Date(trialStatus.trialEndDate) : null);
+        
+        // Imposta il piano in base allo stato della prova
+        // In una versione reale, controlleremmo se l'utente ha acquistato un abbonamento
+        setPlan(trialStatus.trialActive ? "trial" : "trial"); // Manteniamo "trial" anche dopo la scadenza per la demo
+      } else {
+        // Fallback in caso di errore nella chiamata API
+        setTrialActive(true);
+        setTrialDaysLeft(TRIAL_PERIOD_DAYS);
+        const today = new Date();
+        const fallbackEndDate = addDays(today, TRIAL_PERIOD_DAYS);
+        setTrialEndDate(fallbackEndDate);
+        setPlan("trial");
+      }
     }
-  }, [user, authLoading, userProfile]);
+  }, [user, authLoading, trialStatus]);
 
   // Funzione per verificare se una feature è disponibile nel piano corrente
   const canAccess = (feature: string): boolean => {

@@ -72,7 +72,7 @@ export default function MealList({ meals, isLoading, userId }: MealListProps) {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   
   // Ottiene le informazioni sulla prova gratuita
-  const { trialActive, trialDaysLeft, trialEndDate, plan } = useSubscription();
+  const { trialActive, trialDaysLeft, plan } = useSubscription();
 
   // Mutation to delete a meal
   const deleteMealMutation = useMutation({
@@ -162,7 +162,7 @@ export default function MealList({ meals, isLoading, userId }: MealListProps) {
             <div className="flex-1">
               <h3 className="text-sm font-medium mb-1">Free Trial Active - {trialDaysLeft} {trialDaysLeft === 1 ? 'day' : 'days'} left</h3>
               <p className="text-sm text-muted-foreground mb-3">
-                You're enjoying all premium features until {trialEndDate ? new Date(trialEndDate).toLocaleDateString() : 'trial end'}. Subscribe to premium to keep access after your trial ends.
+                You're enjoying all premium features for {TRIAL_PERIOD_DAYS} days. Subscribe to premium to keep access after your trial ends.
               </p>
             </div>
             <Button
