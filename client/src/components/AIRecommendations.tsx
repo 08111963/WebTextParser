@@ -113,15 +113,24 @@ export default function AIRecommendations({ userId }: AIRecommendationsProps) {
   } = useQuery<{ suggestions: MealSuggestion[] }>({
     queryKey: ["/api/recommendations/meals", userId, selectedMealType],
     queryFn: async () => {
-      let url = `/api/recommendations/meals?userId=${userId}`;
-      if (selectedMealType && selectedMealType !== 'all') {
-        url += `&mealType=${selectedMealType}`;
+      try {
+        let url = `/api/recommendations/meals?userId=${userId}`;
+        if (selectedMealType && selectedMealType !== 'all') {
+          url += `&mealType=${selectedMealType}`;
+        }
+        url += `&forceNew=true`; // Forza sempre nuove generazioni
+        console.log("Fetching meal suggestions from:", url);
+        const res = await apiRequest("GET", url);
+        const data = await res.json();
+        console.log("Meal suggestions response:", data);
+        return data;
+      } catch (error) {
+        console.error("Error fetching meal suggestions:", error);
+        return { suggestions: [] };
       }
-      const res = await apiRequest("GET", url);
-      return await res.json();
     },
     enabled: !!userId,
-    retry: 1,
+    retry: 2,
     refetchOnWindowFocus: false,
   });
 

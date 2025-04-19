@@ -203,7 +203,7 @@ export async function generateNutritionGoalRecommendations(
         fats: Math.round(Number(rec.fats))
       }));
     } 
-    // Se abbiamo un oggetto con proprietà 'objectives', 'obiettiviNutrizionali', 'goals' o altra struttura
+    // Se abbiamo un oggetto con proprietà 'objectives', 'obiettiviNutrizionali', 'goals', 'obiettivi' o altra struttura
     else if (recommendations && typeof recommendations === 'object') {
       // Check per varie strutture che OpenAI potrebbe restituire
       if (recommendations.objectives && Array.isArray(recommendations.objectives)) {
@@ -230,6 +230,17 @@ export async function generateNutritionGoalRecommendations(
       // Check per la struttura 'goals'
       else if (recommendations.goals && Array.isArray(recommendations.goals)) {
         processedRecommendations = recommendations.goals.map((rec: any) => ({
+          title: rec.title,
+          description: rec.description,
+          calories: Math.round(Number(rec.calories)),
+          proteins: Math.round(Number(rec.proteins)),
+          carbs: Math.round(Number(rec.carbs)),
+          fats: Math.round(Number(rec.fats))
+        }));
+      }
+      // Check per la struttura italiana 'obiettivi' (nuovo campo rilevato nei log)
+      else if (recommendations.obiettivi && Array.isArray(recommendations.obiettivi)) {
+        processedRecommendations = recommendations.obiettivi.map((rec: any) => ({
           title: rec.title,
           description: rec.description,
           calories: Math.round(Number(rec.calories)),
@@ -369,7 +380,7 @@ export async function generateMealSuggestions(
         fats: Math.round(Number(sug.fats))
       }));
     } 
-    // Se abbiamo un oggetto con proprietà 'suggestions', 'mealIdeas', 'meals' o altra struttura
+    // Se abbiamo un oggetto con proprietà 'suggestions', 'mealIdeas', 'meals', 'pasti' o altra struttura
     else if (suggestions && typeof suggestions === 'object') {
       // Check per varie strutture che OpenAI potrebbe restituire
       if (suggestions.suggestions && Array.isArray(suggestions.suggestions)) {
@@ -407,16 +418,29 @@ export async function generateMealSuggestions(
           fats: Math.round(Number(sug.fats))
         }));
       }
+      // Check per la struttura italiana 'pasti'
+      else if (suggestions.pasti && Array.isArray(suggestions.pasti)) {
+        processedSuggestions = suggestions.pasti.map((sug: any) => ({
+          name: sug.name || sug.nome,
+          description: sug.description || sug.descrizione,
+          mealType: sug.mealType || sug.tipoPasto,
+          calories: Math.round(Number(sug.calories || sug.calorie)),
+          proteins: Math.round(Number(sug.proteins || sug.proteine)),
+          carbs: Math.round(Number(sug.carbs || sug.carboidrati)),
+          fats: Math.round(Number(sug.fats || sug.grassi))
+        }));
+      }
       // Gestisci il caso in cui abbiamo un singolo pasto come oggetto
-      else if (suggestions.name && (suggestions.calories !== undefined)) {
+      else if ((suggestions.name || suggestions.nome) && 
+              ((suggestions.calories !== undefined) || (suggestions.calorie !== undefined))) {
         processedSuggestions = [{
-          name: suggestions.name,
-          description: suggestions.description || "",
-          mealType: suggestions.mealType || "Pasto generico",
-          calories: Math.round(Number(suggestions.calories)),
-          proteins: Math.round(Number(suggestions.proteins)),
-          carbs: Math.round(Number(suggestions.carbs)),
-          fats: Math.round(Number(suggestions.fats))
+          name: suggestions.name || suggestions.nome,
+          description: suggestions.description || suggestions.descrizione || "",
+          mealType: suggestions.mealType || suggestions.tipoPasto || "Pasto generico",
+          calories: Math.round(Number(suggestions.calories || suggestions.calorie)),
+          proteins: Math.round(Number(suggestions.proteins || suggestions.proteine)),
+          carbs: Math.round(Number(suggestions.carbs || suggestions.carboidrati)),
+          fats: Math.round(Number(suggestions.fats || suggestions.grassi))
         }];
       }
     }
