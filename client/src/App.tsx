@@ -12,6 +12,7 @@ import Checkout from "@/pages/Checkout";
 import PaymentSuccess from "@/pages/PaymentSuccess";
 import AuthPage from "@/pages/auth-page";
 import { AuthProvider } from "@/hooks/use-auth";
+import { SubscriptionProvider } from "@/hooks/use-subscription";
 import { ProtectedRoute } from "./lib/protected-route";
 import { ViewOnlyRoute } from "./lib/view-only-route";
 import { ConditionalNavigationProvider } from "./lib/conditional-route";
@@ -39,10 +40,12 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
         <AuthProvider>
-          <ConditionalNavigationProvider>
-            <Toaster />
-            <Router />
-          </ConditionalNavigationProvider>
+          <SubscriptionProvider>
+            <ConditionalNavigationProvider>
+              <Toaster />
+              <Router />
+            </ConditionalNavigationProvider>
+          </SubscriptionProvider>
         </AuthProvider>
       </TooltipProvider>
     </QueryClientProvider>
