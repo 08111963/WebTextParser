@@ -22,7 +22,7 @@ const pricingData = [
     description: "Enhanced features for dedicated health enthusiasts",
     price: {
       monthly: 3.99,
-      yearly: 339.99,
+      yearly: 39.99,
     },
     highlighted: true,
     badge: "Most Popular",
