@@ -205,10 +205,10 @@ export default function UserProfile() {
       <CardHeader>
         <CardTitle className="flex items-center space-x-2">
           <UserRound className="h-5 w-5" />
-          <span>Profilo Utente</span>
+          <span>User Profile</span>
         </CardTitle>
         <CardDescription>
-          Visualizza e gestisci le tue informazioni personali
+          View and manage your personal information
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -218,34 +218,34 @@ export default function UserProfile() {
           </div>
         ) : profileError && profileError.message !== "User profile not found" ? (
           <div className="text-center py-4 text-destructive">
-            <p>Si è verificato un errore nel caricamento del profilo</p>
+            <p>An error occurred while loading the profile</p>
             <p className="text-sm">{profileError.message}</p>
           </div>
         ) : profile ? (
           <div className="space-y-6">
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <p className="text-sm font-medium text-muted-foreground">Nome</p>
+                <p className="text-sm font-medium text-muted-foreground">Name</p>
                 <p className="text-lg font-medium">{profile.name}</p>
               </div>
               <div>
-                <p className="text-sm font-medium text-muted-foreground">Età</p>
-                <p className="text-lg font-medium">{profile.age} anni</p>
+                <p className="text-sm font-medium text-muted-foreground">Age</p>
+                <p className="text-lg font-medium">{profile.age} years</p>
               </div>
               <div>
-                <p className="text-sm font-medium text-muted-foreground">Genere</p>
+                <p className="text-sm font-medium text-muted-foreground">Gender</p>
                 <p className="text-lg font-medium capitalize">{profile.gender}</p>
               </div>
               <div>
-                <p className="text-sm font-medium text-muted-foreground">Peso</p>
+                <p className="text-sm font-medium text-muted-foreground">Weight</p>
                 <p className="text-lg font-medium">{profile.weight} kg</p>
               </div>
               <div>
-                <p className="text-sm font-medium text-muted-foreground">Altezza</p>
+                <p className="text-sm font-medium text-muted-foreground">Height</p>
                 <p className="text-lg font-medium">{profile.height} cm</p>
               </div>
               <div>
-                <p className="text-sm font-medium text-muted-foreground">Livello di attività</p>
+                <p className="text-sm font-medium text-muted-foreground">Activity Level</p>
                 <p className="text-lg font-medium capitalize">{profile.activityLevel}</p>
               </div>
             </div>
@@ -406,12 +406,12 @@ export default function UserProfile() {
           </div>
         ) : (
           <div className="py-4">
-            <p className="text-muted-foreground mb-4">Non hai ancora creato un profilo. Crea un profilo per avere un'esperienza personalizzata.</p>
+            <p className="text-muted-foreground mb-4">You haven't created a profile yet. Create a profile for a personalized experience.</p>
             <Sheet open={isOpen} onOpenChange={setIsOpen}>
               <SheetTrigger asChild>
                 <Button>
                   <UserRound className="mr-2 h-4 w-4" />
-                  Crea profilo
+                  Create Profile
                 </Button>
               </SheetTrigger>
               <SheetContent side="right" className="w-[400px] sm:w-[540px]">
