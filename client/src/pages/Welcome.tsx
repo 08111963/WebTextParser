@@ -5,11 +5,11 @@ import { useConditionalNavigation } from '@/lib/conditional-route';
 
 export default function Welcome() {
   const [, navigate] = useLocation();
-  const { navigateTo, LoginPrompt } = useConditionalNavigation();
+  const { navigateTo, LoginDialog } = useConditionalNavigation();
 
   return (
     <div className="flex flex-col min-h-screen">
-      <LoginPrompt />
+      <LoginDialog />
       {/* Header Section */}
       <div className="flex-grow flex flex-col items-center justify-center p-8 text-center">
         <div className="mb-6">

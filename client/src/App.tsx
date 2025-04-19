@@ -11,6 +11,7 @@ import AuthPage from "@/pages/auth-page";
 import { AuthProvider } from "@/hooks/use-auth";
 import { ProtectedRoute } from "./lib/protected-route";
 import { ViewOnlyRoute } from "./lib/view-only-route";
+import { ConditionalNavigationProvider } from "./lib/conditional-route";
 
 function Router() {
   return (
@@ -32,8 +33,10 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
         <AuthProvider>
-          <Toaster />
-          <Router />
+          <ConditionalNavigationProvider>
+            <Toaster />
+            <Router />
+          </ConditionalNavigationProvider>
         </AuthProvider>
       </TooltipProvider>
     </QueryClientProvider>
