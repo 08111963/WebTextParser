@@ -212,7 +212,7 @@ export default function NutritionGoalHistory({ userId }: NutritionGoalHistoryPro
     );
   }
 
-  // Mostra un messaggio quando non ci sono obiettivi
+  // Show a message when there are no goals
   if (!goals || goals.length === 0) {
     return (
       <Card>
