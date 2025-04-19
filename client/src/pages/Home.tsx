@@ -425,16 +425,16 @@ export default function Home({
             </div>
           </TabsContent>
 
-          <TabsContent value="goals" className="max-h-[calc(100vh-13rem)] overflow-y-auto">
+          <TabsContent value="goals">
             {/* Start with an empty div to ensure the page starts at the top */}
             <div id="goals-tab-top" className="h-1"></div>
             
-            {/* Separate container for the form and active goals list */}
-            <div className="mb-12">
-              <h2 className="text-2xl font-bold mb-6">Set a New Goal</h2>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="space-y-4">
-                  {/* Form to add a new goal */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              {/* Left Column: Form and Active Goal */}
+              <div className="space-y-8">
+                {/* Form Section */}
+                <div>
+                  <h2 className="text-2xl font-bold mb-6">Set a New Goal</h2>
                   {isAuthenticated ? (
                     <NutritionGoalForm userId={user.id.toString()} />
                   ) : (
@@ -447,8 +447,8 @@ export default function Home({
                   )}
                 </div>
                 
-                {/* Display of active goal and history */}
-                <Card className="md:col-span-2">
+                {/* Active Goal Section */}
+                <Card>
                   <CardHeader>
                     <CardTitle>Active Goal</CardTitle>
                     <CardDescription>Your current nutritional goal</CardDescription>
@@ -459,68 +459,70 @@ export default function Home({
                         <Loader2 className="h-8 w-8 animate-spin text-primary" />
                       </div>
                     ) : (
-                      <div className="space-y-8">
+                      <div>
                         {/* Active goal */}
-                        <div>
-                          {activeGoal ? (
-                            <div className="border rounded-md p-4">
-                              <h3 className="text-xl font-semibold">{activeGoal.name}</h3>
-                              {activeGoal.description && (
-                                <p className="text-muted-foreground mt-1">{activeGoal.description}</p>
-                              )}
-                              
-                              <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mt-4">
-                                <div className="bg-background p-3 rounded border text-center flex flex-col h-20 justify-between">
-                                  <p className="text-xs text-gray-500 mt-1">Calories</p>
-                                  <p className="font-bold text-base">{activeGoal.calories}</p>
-                                  <p className="text-xs mb-1">kcal</p>
-                                </div>
-                                <div className="bg-background p-3 rounded border text-center flex flex-col h-20 justify-between">
-                                  <p className="text-xs text-gray-500 mt-1">Protein</p>
-                                  <p className="font-bold text-base">{activeGoal.proteins}</p>
-                                  <p className="text-xs mb-1">grams</p>
-                                </div>
-                                <div className="bg-background p-3 rounded border text-center flex flex-col h-20 justify-between">
-                                  <p className="text-xs text-gray-500 mt-1">Carbs</p>
-                                  <p className="font-bold text-base">{activeGoal.carbs}</p>
-                                  <p className="text-xs mb-1">grams</p>
-                                </div>
-                                <div className="bg-background p-3 rounded border text-center flex flex-col h-20 justify-between">
-                                  <p className="text-xs text-gray-500 mt-1">Fat</p>
-                                  <p className="font-bold text-base">{activeGoal.fats}</p>
-                                  <p className="text-xs mb-1">grams</p>
-                                </div>
+                        {activeGoal ? (
+                          <div className="border rounded-md p-4">
+                            <h3 className="text-xl font-semibold">{activeGoal.name}</h3>
+                            {activeGoal.description && (
+                              <p className="text-muted-foreground mt-1">{activeGoal.description}</p>
+                            )}
+                            
+                            <div className="grid grid-cols-2 gap-2 mt-4">
+                              <div className="bg-background p-3 rounded border text-center flex flex-col h-20 justify-between">
+                                <p className="text-xs text-gray-500 mt-1">Calories</p>
+                                <p className="font-bold text-base">{activeGoal.calories}</p>
+                                <p className="text-xs mb-1">kcal</p>
                               </div>
-                              <div className="mt-4 text-sm text-gray-500">
-                                Start date: {new Date(activeGoal.startDate).toLocaleDateString('en-US')}
+                              <div className="bg-background p-3 rounded border text-center flex flex-col h-20 justify-between">
+                                <p className="text-xs text-gray-500 mt-1">Protein</p>
+                                <p className="font-bold text-base">{activeGoal.proteins}</p>
+                                <p className="text-xs mb-1">grams</p>
+                              </div>
+                              <div className="bg-background p-3 rounded border text-center flex flex-col h-20 justify-between">
+                                <p className="text-xs text-gray-500 mt-1">Carbs</p>
+                                <p className="font-bold text-base">{activeGoal.carbs}</p>
+                                <p className="text-xs mb-1">grams</p>
+                              </div>
+                              <div className="bg-background p-3 rounded border text-center flex flex-col h-20 justify-between">
+                                <p className="text-xs text-gray-500 mt-1">Fat</p>
+                                <p className="font-bold text-base">{activeGoal.fats}</p>
+                                <p className="text-xs mb-1">grams</p>
                               </div>
                             </div>
-                          ) : (
-                            <div className="border rounded-md p-6 text-center text-muted-foreground">
-                              <p>No active goal</p>
-                              <p className="text-sm mt-1">Create a new goal using the form on the left</p>
+                            <div className="mt-4 text-sm text-gray-500">
+                              Start date: {new Date(activeGoal.startDate).toLocaleDateString('en-US')}
                             </div>
-                          )}
-                        </div>
-                        
-                        {/* List of all goals */}
-                        <div className="mt-8">
-                          <NutritionGoalHistory userId={user.id.toString()} />
-                        </div>
+                          </div>
+                        ) : (
+                          <div className="border rounded-md p-6 text-center text-muted-foreground">
+                            <p>No active goal</p>
+                            <p className="text-sm mt-1">Create a new goal using the form above</p>
+                          </div>
+                        )}
                       </div>
                     )}
                   </CardContent>
                 </Card>
               </div>
-            </div>
-            
-            {/* AI Goal Recommendations Section */}
-            <div className="mt-12">
-              <h2 className="text-2xl font-bold mb-6 flex items-center">
-                <Target className="h-5 w-5 mr-2 text-primary" />
-                AI Goal Recommendations
-              </h2>
-              <AIObjectives userId={user.id.toString()} />
+              
+              {/* Right Column: History and AI Recommendations */}
+              <div className="space-y-8">
+                {/* Goal History Section */}
+                <div>
+                  <h2 className="text-2xl font-bold mb-6">Goal History</h2>
+                  <NutritionGoalHistory userId={user.id.toString()} />
+                </div>
+                
+                {/* AI Goal Recommendations Section */}
+                <div>
+                  <h2 className="text-2xl font-bold mb-6 flex items-center">
+                    <Target className="h-5 w-5 mr-2 text-primary" />
+                    AI Goal Recommendations
+                  </h2>
+                  <AIObjectives userId={user.id.toString()} />
+                </div>
+              </div>
             </div>
           </TabsContent>
 
