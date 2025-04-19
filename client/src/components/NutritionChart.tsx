@@ -60,13 +60,13 @@ export default function NutritionChart({ userId }: NutritionChartProps) {
   const [chartType, setChartType] = useState<"line" | "bar" | "area" | "composed">("line");
   const [isUserAuthenticated, setIsUserAuthenticated] = useState(userId !== "0");
 
-  // Calcola la data di inizio in base al periodo selezionato
+  // Calculate start date based on selected period
   const calculateStartDate = () => {
     const today = new Date();
     return subDays(today, parseInt(period));
   };
 
-  // Fetch dei pasti per il periodo selezionato
+  // Fetch meals for the selected period
   const { data: meals, isLoading, error } = useQuery<MealData[]>({
     queryKey: ['/api/meals', userId, period],
     queryFn: async () => {
@@ -78,7 +78,7 @@ export default function NutritionChart({ userId }: NutritionChartProps) {
         `/api/meals?userId=${userId}&startDate=${startOfDay(startDate).toISOString()}&endDate=${endOfDay(endDate).toISOString()}`
       );
       
-      if (!res.ok) throw new Error('Impossibile recuperare i dati dei pasti');
+      if (!res.ok) throw new Error('Unable to retrieve meal data');
       return res.json();
     },
     enabled: !!userId && isUserAuthenticated,

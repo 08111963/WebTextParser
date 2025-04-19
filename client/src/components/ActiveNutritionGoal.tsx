@@ -173,7 +173,7 @@ export default function ActiveNutritionGoal({
         <div className="space-y-3">
           <div className="space-y-1">
             <div className="flex justify-between text-sm">
-              <span>Calorie</span>
+              <span>Calories</span>
               <span className="text-muted-foreground">{dailyCalories} / {activeGoal.calories} kcal</span>
             </div>
             <Progress value={caloriePercentage} className="h-2" 
@@ -182,7 +182,7 @@ export default function ActiveNutritionGoal({
           
           <div className="space-y-1">
             <div className="flex justify-between text-sm">
-              <span>Proteine</span>
+              <span>Proteins</span>
               <span className="text-muted-foreground">{dailyProteins} / {activeGoal.proteins} g</span>
             </div>
             <Progress value={proteinsPercentage} className="h-2 bg-muted" />
@@ -190,7 +190,7 @@ export default function ActiveNutritionGoal({
           
           <div className="space-y-1">
             <div className="flex justify-between text-sm">
-              <span>Carboidrati</span>
+              <span>Carbs</span>
               <span className="text-muted-foreground">{dailyCarbs} / {activeGoal.carbs} g</span>
             </div>
             <Progress value={carbsPercentage} className="h-2 bg-muted" />
@@ -198,7 +198,7 @@ export default function ActiveNutritionGoal({
           
           <div className="space-y-1">
             <div className="flex justify-between text-sm">
-              <span>Grassi</span>
+              <span>Fats</span>
               <span className="text-muted-foreground">{dailyFats} / {activeGoal.fats} g</span>
             </div>
             <Progress value={fatsPercentage} className="h-2 bg-muted" />
@@ -209,7 +209,7 @@ export default function ActiveNutritionGoal({
           <div className="mt-4 text-sm text-muted-foreground">
             <div className="flex items-center space-x-1 font-medium">
               <Info className="h-3.5 w-3.5" />
-              <span>Descrizione:</span>
+              <span>Description:</span>
             </div>
             <p className="mt-1">{activeGoal.description}</p>
           </div>
