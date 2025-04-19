@@ -59,7 +59,7 @@ const profileFormSchema = z.object({
   }).max(120, {
     message: "Age must be at most 120",
   }),
-  gender: z.enum(["maschio", "femmina", "altro"], {
+  gender: z.enum(["male", "female", "other"], {
     required_error: "Please select a gender",
   }),
   weight: z.coerce.number().min(20, {
@@ -72,7 +72,7 @@ const profileFormSchema = z.object({
   }).max(250, {
     message: "Height must be at most 250 cm",
   }),
-  activityLevel: z.enum(["sedentaria", "leggera", "moderata", "attiva", "molto attiva"], {
+  activityLevel: z.enum(["sedentary", "light", "moderate", "active", "very active"], {
     required_error: "Please select an activity level",
   }),
 });
@@ -115,12 +115,42 @@ export default function UserProfile() {
     defaultValues: {
       name: "",
       age: 30,
-      gender: "maschio",
+      gender: "male",
       weight: 70,
       height: 170,
-      activityLevel: "moderata",
+      activityLevel: "moderate",
     },
   });
+
+  // Function to map old Italian gender values to new English values
+  const mapGender = (gender: string): "male" | "female" | "other" => {
+    const genderMap: Record<string, "male" | "female" | "other"> = {
+      "maschio": "male",
+      "femmina": "female",
+      "altro": "other",
+      "male": "male",
+      "female": "female",
+      "other": "other"
+    };
+    return genderMap[gender] || "male";
+  };
+
+  // Function to map old Italian activity level values to new English values
+  const mapActivityLevel = (level: string): "sedentary" | "light" | "moderate" | "active" | "very active" => {
+    const levelMap: Record<string, "sedentary" | "light" | "moderate" | "active" | "very active"> = {
+      "sedentaria": "sedentary",
+      "leggera": "light",
+      "moderata": "moderate",
+      "attiva": "active",
+      "molto attiva": "very active",
+      "sedentary": "sedentary",
+      "light": "light",
+      "moderate": "moderate",
+      "active": "active",
+      "very active": "very active"
+    };
+    return levelMap[level] || "moderate";
+  };
 
   // When profile is loaded, populate the form
   useEffect(() => {
@@ -128,10 +158,10 @@ export default function UserProfile() {
       form.reset({
         name: profile.name,
         age: profile.age,
-        gender: profile.gender as "maschio" | "femmina" | "altro",
+        gender: mapGender(profile.gender),
         weight: profile.weight,
         height: profile.height,
-        activityLevel: profile.activityLevel as "sedentaria" | "leggera" | "moderata" | "attiva" | "molto attiva",
+        activityLevel: mapActivityLevel(profile.activityLevel),
       });
     }
   }, [profile, form]);
@@ -234,7 +264,7 @@ export default function UserProfile() {
               </div>
               <div>
                 <p className="text-sm font-medium text-muted-foreground">Gender</p>
-                <p className="text-lg font-medium capitalize">{profile.gender}</p>
+                <p className="text-lg font-medium capitalize">{mapGender(profile.gender)}</p>
               </div>
               <div>
                 <p className="text-sm font-medium text-muted-foreground">Weight</p>
@@ -246,7 +276,7 @@ export default function UserProfile() {
               </div>
               <div>
                 <p className="text-sm font-medium text-muted-foreground">Activity Level</p>
-                <p className="text-lg font-medium capitalize">{profile.activityLevel}</p>
+                <p className="text-lg font-medium capitalize">{mapActivityLevel(profile.activityLevel)}</p>
               </div>
             </div>
             
@@ -315,9 +345,9 @@ export default function UserProfile() {
                                   </SelectTrigger>
                                 </FormControl>
                                 <SelectContent>
-                                  <SelectItem value="maschio">Male</SelectItem>
-                                  <SelectItem value="femmina">Female</SelectItem>
-                                  <SelectItem value="altro">Other</SelectItem>
+                                  <SelectItem value="male">Male</SelectItem>
+                                  <SelectItem value="female">Female</SelectItem>
+                                  <SelectItem value="other">Other</SelectItem>
                                 </SelectContent>
                               </Select>
                               <FormMessage />
@@ -369,11 +399,11 @@ export default function UserProfile() {
                                   </SelectTrigger>
                                 </FormControl>
                                 <SelectContent>
-                                  <SelectItem value="sedentaria">Sedentary</SelectItem>
-                                  <SelectItem value="leggera">Light</SelectItem>
-                                  <SelectItem value="moderata">Moderate</SelectItem>
-                                  <SelectItem value="attiva">Active</SelectItem>
-                                  <SelectItem value="molto attiva">Very Active</SelectItem>
+                                  <SelectItem value="sedentary">Sedentary</SelectItem>
+                                  <SelectItem value="light">Light</SelectItem>
+                                  <SelectItem value="moderate">Moderate</SelectItem>
+                                  <SelectItem value="active">Active</SelectItem>
+                                  <SelectItem value="very active">Very Active</SelectItem>
                                 </SelectContent>
                               </Select>
                               <FormDescription>
@@ -460,9 +490,9 @@ export default function UserProfile() {
                                 </SelectTrigger>
                               </FormControl>
                               <SelectContent>
-                                <SelectItem value="maschio">Male</SelectItem>
-                                <SelectItem value="femmina">Female</SelectItem>
-                                <SelectItem value="altro">Other</SelectItem>
+                                <SelectItem value="male">Male</SelectItem>
+                                <SelectItem value="female">Female</SelectItem>
+                                <SelectItem value="other">Other</SelectItem>
                               </SelectContent>
                             </Select>
                             <FormMessage />
@@ -514,11 +544,11 @@ export default function UserProfile() {
                                 </SelectTrigger>
                               </FormControl>
                               <SelectContent>
-                                <SelectItem value="sedentaria">Sedentary</SelectItem>
-                                <SelectItem value="leggera">Light</SelectItem>
-                                <SelectItem value="moderata">Moderate</SelectItem>
-                                <SelectItem value="attiva">Active</SelectItem>
-                                <SelectItem value="molto attiva">Very Active</SelectItem>
+                                <SelectItem value="sedentary">Sedentary</SelectItem>
+                                <SelectItem value="light">Light</SelectItem>
+                                <SelectItem value="moderate">Moderate</SelectItem>
+                                <SelectItem value="active">Active</SelectItem>
+                                <SelectItem value="very active">Very Active</SelectItem>
                               </SelectContent>
                             </Select>
                             <FormDescription>
