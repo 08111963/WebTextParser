@@ -112,7 +112,7 @@ export async function generateNutritionGoalRecommendations(
   recentMeals?: Meal[]
 ) {
   try {
-    // Calcola BMI per analisi preliminare
+    // Calculate BMI for preliminary analysis
     const bmi = profile.weight && profile.height 
       ? Math.round((profile.weight / ((profile.height / 100) * (profile.height / 100))) * 10) / 10
       : null;
@@ -551,7 +551,7 @@ export async function generateMealSuggestions(
           fats: Math.round(Number(sug.fats))
         }));
       }
-      // Check for the Italian 'pasti' structure
+      // Check for the Italian 'pasti' (meals) structure - keeping for backward compatibility
       else if (suggestions.pasti && Array.isArray(suggestions.pasti)) {
         processedSuggestions = suggestions.pasti.map((sug: any) => ({
           name: sug.name || sug.nome,
@@ -563,7 +563,7 @@ export async function generateMealSuggestions(
           fats: Math.round(Number(sug.fats || sug.grassi))
         }));
       }
-      // Handle the case where we have a single meal as an object
+      // Handle the case where we have a single meal as an object (supporting both English and Italian field names)
       else if ((suggestions.name || suggestions.nome) && 
               ((suggestions.calories !== undefined) || (suggestions.calorie !== undefined))) {
         processedSuggestions = [{

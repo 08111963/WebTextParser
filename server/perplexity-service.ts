@@ -1,11 +1,11 @@
 import { NutritionGoal, UserProfile } from "@shared/schema";
 
-// Verifica che la chiave API sia disponibile
+// Verify that the API key is available
 if (!process.env.PERPLEXITY_API_KEY) {
-  console.warn("La variabile d'ambiente PERPLEXITY_API_KEY non è impostata. Le funzionalità di Perplexity AI non funzioneranno correttamente.");
+  console.warn("The PERPLEXITY_API_KEY environment variable is not set. Perplexity AI features will not work correctly.");
 }
 
-// Funzione helper per le chiamate a Perplexity API
+// Helper function for Perplexity API calls
 async function callPerplexityAPI(messages: any[]) {
   try {
     const response = await fetch("https://api.perplexity.ai/chat/completions", {
@@ -33,13 +33,13 @@ async function callPerplexityAPI(messages: any[]) {
 
     return await response.json();
   } catch (error) {
-    console.error("Errore nella chiamata a Perplexity API:", error);
+    console.error("Error calling Perplexity API:", error);
     throw error;
   }
 }
 
 /**
- * Genera suggerimenti personalizzati per pasti usando Perplexity API
+ * Generates personalized meal suggestions using Perplexity API
  */
 export async function generateMealSuggestionsWithPerplexity(
   profile: UserProfile,
@@ -47,17 +47,17 @@ export async function generateMealSuggestionsWithPerplexity(
   mealType?: string,
   dietaryPreferences?: string[]
 ) {
-  console.log("Generazione suggerimenti pasti con Perplexity per l'utente:", profile.userId);
+  console.log("Generating meal suggestions with Perplexity for user:", profile.userId);
 
-  // Crea una rappresentazione stringente delle preferenze dietetiche
+  // Create a string representation of dietary preferences
   const dietaryPrefsString = dietaryPreferences && dietaryPreferences.length > 0
-    ? `Preferenze dietetiche: ${dietaryPreferences.join(', ')}.`
+    ? `Dietary preferences: ${dietaryPreferences.join(', ')}.`
     : "";
 
-  // Determina il tipo di pasto
-  const mealTypeDesc = mealType || "un pasto generico";
+  // Determine the meal type
+  const mealTypeDesc = mealType || "a generic meal";
 
-  // Costruisci il prompt per Perplexity
+  // Build the prompt for Perplexity
   const systemPrompt = `Sei un nutrizionista esperto specializzato in piani alimentari personalizzati.
     Restituisci 3 suggerimenti dettagliati per ${mealTypeDesc} in formato JSON.
     Il tuo output deve essere ESCLUSIVAMENTE in formato JSON parsabile, senza testo introduttivo o conclusivo.
