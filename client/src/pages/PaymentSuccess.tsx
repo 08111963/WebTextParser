@@ -8,6 +8,17 @@ import { RouteComponentProps } from "wouter";
 export default function PaymentSuccess(props: RouteComponentProps) {
   const [_, navigate] = useLocation();
   
+  // Extract session ID from the URL
+  const queryParams = new URLSearchParams(window.location.search);
+  const sessionId = queryParams.get('session_id');
+  
+  useEffect(() => {
+    // Log session ID for debugging
+    if (sessionId) {
+      console.log("Payment successful with session ID:", sessionId);
+    }
+  }, [sessionId]);
+  
   return (
     <div className="container max-w-md mx-auto py-10">
       <Card>
@@ -27,18 +38,18 @@ export default function PaymentSuccess(props: RouteComponentProps) {
           
           <div className="flex flex-col gap-2 items-center">
             <Button 
-              onClick={() => navigate("/")}
+              onClick={() => navigate("/home")}
               className="w-full"
             >
               Go to Dashboard
             </Button>
             
             <Button 
-              onClick={() => navigate("/profile")}
+              onClick={() => navigate("/")}
               variant="outline"
               className="w-full"
             >
-              View Subscription Details
+              Return to Homepage
             </Button>
           </div>
         </CardContent>

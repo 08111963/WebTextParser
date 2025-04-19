@@ -1002,6 +1002,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
       });
       
+      console.log("Created Stripe session with success URL:", `${origin}/payment-success?session_id={CHECKOUT_SESSION_ID}`);
+      
       res.status(200).json({
         url: session.url,
       });
