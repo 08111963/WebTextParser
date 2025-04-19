@@ -534,7 +534,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           isResponseSent = true;
           clearTimeout(timeoutHandle);
           
-          // Usiamo un messaggio di errore generico indipendentemente dal tipo di errore
+          // We use a generic error message regardless of the error type
           let errorMessage = "A connection issue occurred while generating recommendations. Please try again later.";
           
           console.log("AI error occurred, returning specific error message:", errorMessage);
@@ -635,7 +635,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           isResponseSent = true;
           clearTimeout(timeoutHandle);
           
-          // Usiamo un messaggio di errore generico indipendentemente dal tipo di errore
+          // We use a generic error message regardless of the error type
           let errorMessage = "A connection issue occurred while generating recommendations. Please try again later.";
           
           console.log("AI error occurred, returning specific error message:", errorMessage);
@@ -682,29 +682,29 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.log("User query:", query);
       console.log("Chat type:", chatType || "general");
       
-      // Adatta il prompt in base al tipo di chatbot
+      // Adapt the prompt based on the chatbot type
       let systemPrompt = "";
       
       if (chatType === "goals") {
-        systemPrompt = `Sei un nutrizionista specializzato in obiettivi nutrizionali e metabolismo. 
-          Rispondi solo a domande riguardanti obiettivi di salute, obiettivi di peso, 
-          macronutrienti, calorie, metabolismo, e strategie per il raggiungimento di obiettivi nutrizionali.
-          Se l'utente chiede informazioni su altri argomenti, gentilmente reindirizza la conversazione 
-          verso gli obiettivi nutrizionali. Rispondi in italiano in modo dettagliato ma conciso.`;
+        systemPrompt = `You are a nutritionist specializing in nutritional goals and metabolism. 
+          Answer only questions about health goals, weight goals, 
+          macronutrients, calories, metabolism, and strategies for achieving nutritional goals.
+          If the user asks for information on other topics, gently redirect the conversation 
+          towards nutritional goals. Respond in English in a detailed but concise way.`;
       } else if (chatType === "meals") {
-        systemPrompt = `Sei un esperto di alimentazione e cucina specializzato in pasti, alimenti e ricette.
-          Rispondi solo a domande riguardanti alimenti, pasti, ricette, valori nutrizionali dei cibi,
-          preparazione di cibo, alternative alimentari, e consigli per pasti specifici.
-          Se l'utente chiede informazioni su altri argomenti, gentilmente reindirizza la conversazione 
-          verso argomenti di alimentazione e pasti. Rispondi in italiano in modo dettagliato ma conciso.`;
+        systemPrompt = `You are a food and cooking expert specializing in meals, food items, and recipes.
+          Answer only questions about food, meals, recipes, nutritional values of foods,
+          food preparation, dietary alternatives, and advice for specific meals.
+          If the user asks for information on other topics, gently redirect the conversation 
+          towards food and meal topics. Respond in English in a detailed but concise way.`;
       } else {
-        systemPrompt = `Sei un nutrizionista esperto che risponde a domande in italiano sulla nutrizione, alimentazione e salute.
-          Hai accesso al profilo dell'utente e ai suoi dati nutrizionali, che dovresti utilizzare per personalizzare le tue risposte.
-          Rispondi in modo colloquiale ma professionale, fornendo informazioni accurate ed esaurienti.
-          Basa le tue risposte su informazioni scientifiche aggiornate.`;
+        systemPrompt = `You are an expert nutritionist who answers questions in English about nutrition, diet, and health.
+          You have access to the user's profile and nutritional data, which you should use to personalize your responses.
+          Respond in a conversational but professional manner, providing accurate and comprehensive information.
+          Base your answers on up-to-date scientific information.`;
       }
       
-      // Genera risposta personalizzata con il prompt specializzato
+      // Generate personalized response with the specialized prompt
       const answer = await generateAIResponse(query, profile, currentGoal, recentMeals, systemPrompt);
       
       res.json({ 
@@ -714,7 +714,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error: any) {
       console.error("Error generating AI chat response:", error);
       
-      // Usiamo un messaggio di errore generico indipendentemente dal tipo di errore
+      // We use a generic error message regardless of the error type
       let errorMessage = "A connection issue occurred while generating recommendations. Please try again later.";
       
       res.status(500).json({ 
@@ -725,7 +725,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Create user profile (route protetta)
+  // Create user profile (protected route)
   app.post("/api/user-profile", isAuthenticated, async (req, res) => {
     try {
       // Pre-processing dei dati per garantire formati corretti
