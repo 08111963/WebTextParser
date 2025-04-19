@@ -98,8 +98,18 @@ export default function AIObjectives({ userId }: AIObjectivesProps) {
       const data = await res.json();
       console.log("Raccomandazioni generate dall'API:", data);
       
+      // Assicuriamoci che ci siano raccomandazioni valide
+      if (!data.recommendations || data.recommendations.length === 0) {
+        throw new Error("Nessuna raccomandazione ricevuta dall'API");
+      }
+      
       // Aggiorniamo la cache di React Query con i risultati reali dall'API
       queryClient.setQueryData(["/api/recommendations/nutrition-goals", userId], data);
+      
+      // Proviamo anche con una invalidazione esplicita della query per forzare un refresh
+      await queryClient.invalidateQueries({
+        queryKey: ["/api/recommendations/nutrition-goals", userId]
+      });
       
       toast({
         title: "Completato",
@@ -111,6 +121,11 @@ export default function AIObjectives({ userId }: AIObjectivesProps) {
         title: "Errore",
         description: "Si è verificato un errore durante la generazione. Riprova più tardi.",
         variant: "destructive",
+      });
+      
+      // In caso di errore, forziamo un refresh della UI
+      queryClient.invalidateQueries({
+        queryKey: ["/api/recommendations/nutrition-goals", userId]
       });
     }
   };

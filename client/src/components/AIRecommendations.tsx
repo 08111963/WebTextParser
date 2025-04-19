@@ -197,9 +197,19 @@ export default function AIRecommendations({ userId }: AIRecommendationsProps) {
       const data = await res.json();
       console.log("Nuovi pasti generati:", data);
       
+      // Assicuriamoci che ci siano suggerimenti validi
+      if (!data.suggestions || data.suggestions.length === 0) {
+        throw new Error("Nessun suggerimento ricevuto dall'API");
+      }
+      
       // Forza l'aggiornamento dei dati con il risultato appena ottenuto
       // Questo usa TanStack Query per aggiornare la cache
       queryClient.setQueryData(["/api/recommendations/meals", userId, selectedMealType], data);
+      
+      // Invalida esplicitamente la query per forzare un refresh completo
+      await queryClient.invalidateQueries({
+        queryKey: ["/api/recommendations/meals", userId, selectedMealType]
+      });
       
       // Mostra il toast di completamento
       toast({
