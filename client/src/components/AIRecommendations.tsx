@@ -271,7 +271,7 @@ export default function AIRecommendations({ userId }: AIRecommendationsProps) {
                         </Badge>
                       </div>
                       
-                      <p className="text-sm text-muted-foreground mt-2 mb-3 leading-relaxed max-h-24 overflow-y-auto">{meal.description}</p>
+                      <p className="text-sm text-muted-foreground mt-2 mb-3 leading-relaxed min-h-[4.5rem] max-h-none">{meal.description}</p>
                       
                       <div className="flex flex-wrap gap-2 mt-2">
                         <Badge variant="secondary">{meal.calories} kcal</Badge>

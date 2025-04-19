@@ -305,21 +305,26 @@ export async function generateMealSuggestions(
     Analizza queste informazioni sull'utente:
     ${JSON.stringify(userInfo, null, 2)}
     
-    Genera 3 idee originali per pasti che:
-    ${mealType ? `- Siano adatti per ${mealType}` : '- Siano adatti per qualsiasi pasto'}
+    Genera 3 idee COMPLETAMENTE ORIGINALI per pasti che:
+    ${mealType ? `- Siano adatti per ${mealType}` : '- Includano diverse tipologie (colazione, pranzo, cena, spuntino)'}
     - Rispettino i limiti calorici e i macronutrienti dell'obiettivo nutrizionale (se presente)
     - Tengano conto dell'età, peso, altezza e livello di attività dell'utente
     ${preferences && preferences.length > 0 ? `- Considerino le preferenze: ${preferences.join(', ')}` : ''}
     
+    QUERY ID UNICO: ${new Date().getTime().toString()} (ignora questo ID, serve solo a garantire che la tua risposta sia sempre diversa)
+    
     Per ciascun pasto, fornisci:
-    1. Un nome breve, creativo e appetitoso (sii originale e proponi piatti diversi ogni volta)
-    2. Una breve descrizione che includa ingredienti principali e benefici nutrizionali
+    1. Un nome breve, creativo e appetitoso (DEVE ESSERE UNICO e MAI utilizzato prima)
+    2. Una breve descrizione chiara e concisa che includa ingredienti principali e benefici nutrizionali (massimo 2-3 frasi)
     3. Il tipo di pasto (colazione, pranzo, cena, spuntino)
     4. Il contenuto calorico e i macronutrienti (proteine, carboidrati, grassi)
     
-    Importante: Ad ogni chiamata, fornisci idee di pasti completamente diverse. 
-    Evita piatti standard o ripetitivi. Sii creativo con gli ingredienti e le preparazioni.
-    Proponi combinazioni di ingredienti originali e diverse culture culinarie.
+    IMPORTANTE! REGOLE DA SEGUIRE:
+    - Ad ogni chiamata, DEVI fornire idee di pasti COMPLETAMENTE DIVERSE da qualsiasi altra generata in precedenza.
+    - NON ripetere MAI piatti precedenti o loro varianti, anche se distanti nel tempo.
+    - Sii ESTREMAMENTE creativo con gli ingredienti e le preparazioni.
+    - Proponi combinazioni di ingredienti ORIGINALI e diverse culture culinarie.
+    - NON suggerire MAI "Tacos di Quinoa" o qualsiasi tipo di tacos.
     
     Rispondi con un JSON nel seguente formato:
     [
