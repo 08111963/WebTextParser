@@ -41,11 +41,20 @@ export function ViewOnlyRoute({
     );
   }
 
+  // Se l'utente non è autenticato, creiamo un utente demo per la visualizzazione
+  // Questo è solo per la visualizzazione, non verrà usato per le chiamate API
+  const demoUser = {
+    id: 0, // ID demo
+    username: "Visitatore",
+    email: "",
+    password: ""
+  };
+
   // Props speciali da passare al componente per gestire autenticazione e interazioni
   const authProps = {
     requireAuth,
     isAuthenticated: !!user,
-    user,
+    user: user || demoUser, // Usa l'utente reale se autenticato, altrimenti l'utente demo
   };
 
   return (

@@ -87,29 +87,45 @@ export default function Home({
     }, 10);
   }, [activeTab]);
   
-  // Se l'utente non è autenticato, mostriamo un caricamento
-  if (!user) {
-    return (
-      <div className="flex items-center justify-center h-screen">
-        <Loader2 className="h-10 w-10 animate-spin text-primary" />
-      </div>
-    );
-  }
+  // Preparazione per le interazioni che richiedono autenticazione
+  const handleInteractionRequiringAuth = (action: string, callback: () => void) => {
+    // Se c'è la funzione requireAuth (fornita da ViewOnlyRoute) e non siamo autenticati
+    if (requireAuth && !isAuthenticated) {
+      // requireAuth mostrerà il dialog di login se necessario
+      if (!requireAuth(action)) {
+        return; // Ferma l'esecuzione se l'utente non è autenticato
+      }
+    }
+    // Se siamo autenticati o non abbiamo requireAuth, procedi
+    callback();
+  };
   
-  // Fetch dei pasti dell'utente
+  // Fetch dei pasti dell'utente (solo se autenticato)
   const { data: meals, isLoading: mealsLoading, error: mealsError } = useQuery({
     queryKey: ['/api/meals', user.id],
     queryFn: async () => {
+      // Se l'utente non è autenticato (user.id === 0), restituisci array vuoto 
+      if (!isAuthenticated || user.id === 0) {
+        return [];
+      }
+      
       const res = await apiRequest('GET', `/api/meals?userId=${user.id}`);
       if (!res.ok) throw new Error('Failed to fetch meals');
       return res.json();
     },
+    // Disabilita la query se non siamo autenticati
+    enabled: isAuthenticated && user.id !== 0
   });
 
-  // Fetch dell'obiettivo nutrizionale attivo
+  // Fetch dell'obiettivo nutrizionale attivo (solo se autenticato)
   const { data: activeGoal, isLoading: goalLoading, error: goalError } = useQuery({
     queryKey: ['/api/nutrition-goals/active', user.id],
     queryFn: async () => {
+      // Se l'utente non è autenticato (user.id === 0), restituisci null 
+      if (!isAuthenticated || user.id === 0) {
+        return null;
+      }
+      
       try {
         const res = await apiRequest('GET', `/api/nutrition-goals/active?userId=${user.id}`);
         if (res.status === 404) return null;
@@ -120,6 +136,8 @@ export default function Home({
         return null;
       }
     },
+    // Disabilita la query se non siamo autenticati
+    enabled: isAuthenticated && user.id !== 0
   });
 
   // Gestione degli errori
@@ -292,7 +310,7 @@ export default function Home({
                       <Button 
                         variant="outline" 
                         className="w-full" 
-                        onClick={() => setActiveTab('meals')}
+                        onClick={() => handleInteractionRequiringAuth('meals', () => setActiveTab('meals'))}
                       >
                         <Plus className="h-4 w-4 mr-2" />
                         Aggiungi Pasto
@@ -339,7 +357,7 @@ export default function Home({
                       <Button 
                         variant="outline" 
                         className="w-full" 
-                        onClick={() => setActiveTab('goals')}
+                        onClick={() => handleInteractionRequiringAuth('goals', () => setActiveTab('goals'))}
                       >
                         <BarChart className="h-4 w-4 mr-2" />
                         {activeGoal ? 'Gestisci Obiettivi' : 'Crea Obiettivo'}
@@ -366,7 +384,16 @@ export default function Home({
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div className="space-y-4">
                   {/* Form per aggiungere un nuovo pasto */}
-                  <MealForm userId={user.id.toString()} />
+                  {isAuthenticated ? (
+                    <MealForm userId={user.id.toString()} />
+                  ) : (
+                    <div className="border rounded-lg p-6 text-center">
+                      <p className="text-muted-foreground mb-4">Per aggiungere pasti, accedi o registrati</p>
+                      <Button onClick={() => requireAuth && requireAuth('meals')}>
+                        Accedi per Aggiungere Pasti
+                      </Button>
+                    </div>
+                  )}
                 </div>
                 
                 {/* Lista dei pasti */}
@@ -406,7 +433,16 @@ export default function Home({
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div className="space-y-4">
                   {/* Form per aggiungere un nuovo obiettivo */}
-                  <NutritionGoalForm userId={user.id.toString()} />
+                  {isAuthenticated ? (
+                    <NutritionGoalForm userId={user.id.toString()} />
+                  ) : (
+                    <div className="border rounded-lg p-6 text-center">
+                      <p className="text-muted-foreground mb-4">Per impostare obiettivi, accedi o registrati</p>
+                      <Button onClick={() => requireAuth && requireAuth('goals')}>
+                        Accedi per Impostare Obiettivi
+                      </Button>
+                    </div>
+                  )}
                 </div>
                 
                 {/* Visualizzazione dell'obiettivo attivo e cronologia */}
