@@ -32,12 +32,12 @@ export default function NutritionGoalHistory({ userId }: NutritionGoalHistoryPro
     direction: 'descending'
   });
 
-  // Recupera tutti gli obiettivi nutrizionali
+  // Retrieve all nutrition goals
   const { data: goals, isLoading, error, refetch } = useQuery<NutritionGoal[]>({
     queryKey: ['/api/nutrition-goals', userId],
     queryFn: async () => {
       const res = await apiRequest('GET', `/api/nutrition-goals?userId=${userId}`);
-      if (!res.ok) throw new Error('Impossibile recuperare gli obiettivi nutrizionali');
+      if (!res.ok) throw new Error('Unable to retrieve nutrition goals');
       return res.json();
     },
     enabled: !!userId && isUserAuthenticated,
@@ -141,14 +141,14 @@ export default function NutritionGoalHistory({ userId }: NutritionGoalHistoryPro
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <History className="h-5 w-5" />
-            Cronologia Obiettivi
+            Goal History
           </CardTitle>
-          <CardDescription>La tua cronologia di obiettivi nutrizionali</CardDescription>
+          <CardDescription>Your nutrition goal history</CardDescription>
         </CardHeader>
         <CardContent className="flex justify-center p-6">
           <div className="flex flex-col items-center gap-2">
             <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-            <p className="text-sm text-muted-foreground">Caricamento obiettivi...</p>
+            <p className="text-sm text-muted-foreground">Loading goals...</p>
           </div>
         </CardContent>
       </Card>
@@ -162,25 +162,25 @@ export default function NutritionGoalHistory({ userId }: NutritionGoalHistoryPro
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <History className="h-5 w-5" />
-            Cronologia Obiettivi
+            Goal History
           </CardTitle>
-          <CardDescription>La tua cronologia di obiettivi nutrizionali</CardDescription>
+          <CardDescription>Your nutrition goal history</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="text-center py-10 border rounded-lg">
             <UserCircle2 className="h-12 w-12 text-primary mx-auto mb-4" />
-            <h3 className="text-xl font-medium mb-2">Accedi per Visualizzare gli Obiettivi</h3>
+            <h3 className="text-xl font-medium mb-2">Sign in to View Goals</h3>
             <p className="text-muted-foreground max-w-md mx-auto mb-6">
-              Accedi o registrati per visualizzare e gestire i tuoi obiettivi nutrizionali.
+              Sign in or register to view and manage your nutrition goals.
             </p>
             <Button onClick={() => {
               toast({
-                title: "Autenticazione richiesta",
-                description: "Per visualizzare la cronologia degli obiettivi è necessario accedere o registrarsi.",
+                title: "Authentication required",
+                description: "To view goal history, you need to sign in or register.",
                 duration: 5000
               });
             }}>
-              Accedi per Continuare
+              Sign in to Continue
             </Button>
           </div>
         </CardContent>
@@ -195,16 +195,16 @@ export default function NutritionGoalHistory({ userId }: NutritionGoalHistoryPro
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <History className="h-5 w-5" />
-            Cronologia Obiettivi
+            Goal History
           </CardTitle>
-          <CardDescription>La tua cronologia di obiettivi nutrizionali</CardDescription>
+          <CardDescription>Your nutrition goal history</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="rounded-md bg-destructive/15 p-4 text-center">
             <p className="text-sm text-destructive">
-              Si è verificato un errore durante il caricamento degli obiettivi.
+              An error occurred while loading goals.
               <br />
-              {error instanceof Error ? error.message : "Errore sconosciuto"}
+              {error instanceof Error ? error.message : "Unknown error"}
             </p>
           </div>
         </CardContent>
@@ -219,14 +219,14 @@ export default function NutritionGoalHistory({ userId }: NutritionGoalHistoryPro
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <History className="h-5 w-5" />
-            Cronologia Obiettivi
+            Goal History
           </CardTitle>
-          <CardDescription>La tua cronologia di obiettivi nutrizionali</CardDescription>
+          <CardDescription>Your nutrition goal history</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="rounded-md bg-muted p-6 text-center">
             <p className="text-muted-foreground">
-              Non hai ancora creato obiettivi nutrizionali.
+              You haven't created any nutrition goals yet.
             </p>
           </div>
         </CardContent>
@@ -239,9 +239,9 @@ export default function NutritionGoalHistory({ userId }: NutritionGoalHistoryPro
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <History className="h-5 w-5" />
-          Cronologia Obiettivi
+          Goal History
         </CardTitle>
-        <CardDescription>La tua cronologia di obiettivi nutrizionali</CardDescription>
+        <CardDescription>Your nutrition goal history</CardDescription>
       </CardHeader>
       <CardContent>
         <div className="overflow-x-auto">
@@ -255,7 +255,7 @@ export default function NutritionGoalHistory({ userId }: NutritionGoalHistoryPro
                     className="flex items-center gap-1 hover:bg-transparent p-0"
                     onClick={() => requestSort('name')}
                   >
-                    Nome 
+                    Name 
                     <ArrowUpDown className="h-3 w-3" />
                   </Button>
                 </TableHead>
@@ -266,7 +266,7 @@ export default function NutritionGoalHistory({ userId }: NutritionGoalHistoryPro
                     className="flex items-center gap-1 hover:bg-transparent p-0"
                     onClick={() => requestSort('calories')}
                   >
-                    Calorie 
+                    Calories 
                     <ArrowUpDown className="h-3 w-3" />
                   </Button>
                 </TableHead>
@@ -277,7 +277,7 @@ export default function NutritionGoalHistory({ userId }: NutritionGoalHistoryPro
                     className="flex items-center gap-1 hover:bg-transparent p-0"
                     onClick={() => requestSort('startDate')}
                   >
-                    Data Inizio 
+                    Start Date 
                     <ArrowUpDown className="h-3 w-3" />
                   </Button>
                 </TableHead>
