@@ -27,7 +27,7 @@ type MealsChatbotProps = {
 export default function MealsChatbotSpecialized({ userId }: MealsChatbotProps) {
   const { toast } = useToast();
   
-  const initialMessage = "Ciao! Sono l'assistente specializzato in alimentazione. Posso aiutarti con ricette personalizzate, valori nutrizionali degli alimenti, suggerimenti per pasti equilibrati e rispondere a domande specifiche sui cibi. Come posso aiutarti oggi?";
+  const initialMessage = "Hello! I'm the specialized nutrition assistant. I can help you with personalized recipes, nutritional values of foods, suggestions for balanced meals, and answer specific questions about food. How can I help you today?";
   
   const [messages, setMessages] = useState<Message[]>([
     { type: "bot", content: initialMessage, timestamp: new Date() }
@@ -36,11 +36,11 @@ export default function MealsChatbotSpecialized({ userId }: MealsChatbotProps) {
   const [query, setQuery] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
   
-  // Esempi di domande specifiche per pasti e alimentazione
+  // Examples of specific questions for meals and nutrition
   const suggestedQueries = [
-    "Suggeriscimi un'alternativa al riso bianco",
-    "Quali sono i valori nutrizionali dell'avocado?",
-    "Come posso preparare un pranzo veloce e proteico?"
+    "Suggest an alternative to white rice",
+    "What are the nutritional values of avocado?",
+    "How can I prepare a quick protein-rich lunch?"
   ];
   
   // Query AI mutation
@@ -49,7 +49,7 @@ export default function MealsChatbotSpecialized({ userId }: MealsChatbotProps) {
       const res = await apiRequest("POST", "/api/ai-chat", {
         userId,
         query,
-        chatType: "meals" // Specifichiamo che è una richiesta per pasti
+        chatType: "meals" // Specify that this is a request for meals
       });
       return await res.json();
     },
@@ -63,14 +63,14 @@ export default function MealsChatbotSpecialized({ userId }: MealsChatbotProps) {
     onError: (error: Error) => {
       console.error("Failed to get AI response:", error);
       toast({
-        title: "Errore",
-        description: "Non è stato possibile generare una risposta. Riprova più tardi.",
+        title: "Error",
+        description: "Unable to generate a response. Please try again later.",
         variant: "destructive",
       });
       
       setMessages(prev => [...prev, {
         type: "bot",
-        content: "Mi dispiace, si è verificato un errore durante la generazione della risposta. Riprova più tardi.",
+        content: "I'm sorry, an error occurred while generating the response. Please try again later.",
         timestamp: new Date()
       }]);
     }
@@ -123,7 +123,7 @@ export default function MealsChatbotSpecialized({ userId }: MealsChatbotProps) {
       <CardHeader className="py-3 border-b bg-primary/5">
         <CardTitle className="text-base font-medium flex items-center gap-2">
           <Utensils className="h-5 w-5 text-primary" />
-          <span>Consulente Alimentare</span>
+          <span>Nutrition Consultant</span>
         </CardTitle>
       </CardHeader>
       
@@ -152,7 +152,7 @@ export default function MealsChatbotSpecialized({ userId }: MealsChatbotProps) {
               <div className="chat-bubble chat-bubble-bot">
                 <div className="flex items-center gap-2">
                   <Loader2 className="h-4 w-4 animate-spin" />
-                  <span>Sto elaborando la risposta sugli alimenti...</span>
+                  <span>Processing response about food...</span>
                 </div>
               </div>
             </div>

@@ -201,7 +201,7 @@ export default function NewChatbot({ userId, type }: ChatbotProps) {
                 <div className="rounded-2xl px-3.5 py-2.5 bg-muted rounded-tl-none mr-4">
                   <div className="flex items-center gap-2">
                     <Loader2 className="h-3.5 w-3.5 animate-spin text-primary" />
-                    <p className="text-sm">Sto elaborando la risposta...</p>
+                    <p className="text-sm">Processing response...</p>
                   </div>
                 </div>
               </div>
@@ -213,7 +213,7 @@ export default function NewChatbot({ userId, type }: ChatbotProps) {
         
         {messages.length === 1 && (
           <div className="px-4 py-3 border-t border-b border-border/40 bg-muted/30">
-            <p className="text-xs font-medium mb-2 text-muted-foreground">Prova a chiedere:</p>
+            <p className="text-xs font-medium mb-2 text-muted-foreground">Try asking:</p>
             <div className="flex flex-wrap gap-2">
               {suggestedQueries.map((q, i) => (
                 <Button
@@ -234,7 +234,7 @@ export default function NewChatbot({ userId, type }: ChatbotProps) {
       <CardFooter className="border-t p-3">
         <form onSubmit={handleSubmit} className="flex w-full gap-2">
           <Input
-            placeholder={`Chiedi al ${chatTitle.toLowerCase()}...`}
+            placeholder={`Ask the ${chatTitle.toLowerCase()}...`}
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             disabled={aiChatMutation.isPending}
