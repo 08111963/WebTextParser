@@ -322,21 +322,25 @@ export default function Home() {
                             )}
                             
                             <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mt-4">
-                              <div className="bg-background p-2 rounded border text-center">
-                                <p className="text-xs text-gray-500">Calorie</p>
-                                <p className="font-bold">{activeGoal.calories} kcal</p>
+                              <div className="bg-background p-3 rounded border text-center flex flex-col h-20 justify-between">
+                                <p className="text-xs text-gray-500 mt-1">Calorie</p>
+                                <p className="font-bold text-base">{activeGoal.calories}</p>
+                                <p className="text-xs mb-1">kcal</p>
                               </div>
-                              <div className="bg-background p-2 rounded border text-center">
-                                <p className="text-xs text-gray-500">Proteine</p>
-                                <p className="font-bold">{activeGoal.proteins}g</p>
+                              <div className="bg-background p-3 rounded border text-center flex flex-col h-20 justify-between">
+                                <p className="text-xs text-gray-500 mt-1">Proteine</p>
+                                <p className="font-bold text-base">{activeGoal.proteins}</p>
+                                <p className="text-xs mb-1">grammi</p>
                               </div>
-                              <div className="bg-background p-2 rounded border text-center">
-                                <p className="text-xs text-gray-500">Carboidrati</p>
-                                <p className="font-bold">{activeGoal.carbs}g</p>
+                              <div className="bg-background p-3 rounded border text-center flex flex-col h-20 justify-between">
+                                <p className="text-xs text-gray-500 mt-1">Carboidrati</p>
+                                <p className="font-bold text-base">{activeGoal.carbs}</p>
+                                <p className="text-xs mb-1">grammi</p>
                               </div>
-                              <div className="bg-background p-2 rounded border text-center">
-                                <p className="text-xs text-gray-500">Grassi</p>
-                                <p className="font-bold">{activeGoal.fats}g</p>
+                              <div className="bg-background p-3 rounded border text-center flex flex-col h-20 justify-between">
+                                <p className="text-xs text-gray-500 mt-1">Grassi</p>
+                                <p className="font-bold text-base">{activeGoal.fats}</p>
+                                <p className="text-xs mb-1">grammi</p>
                               </div>
                             </div>
                             <div className="mt-4 text-sm text-gray-500">
