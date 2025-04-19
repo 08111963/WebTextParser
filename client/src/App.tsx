@@ -10,6 +10,7 @@ import Info from "@/pages/Info";
 import AuthPage from "@/pages/auth-page";
 import { AuthProvider } from "@/hooks/use-auth";
 import { ProtectedRoute } from "./lib/protected-route";
+import { ViewOnlyRoute } from "./lib/view-only-route";
 
 function Router() {
   return (
@@ -18,7 +19,7 @@ function Router() {
       <Route path="/info" component={Info} />
       <Route path="/auth" component={AuthPage} />
       <Route path="/home">
-        {() => <ProtectedRoute component={Home} />}
+        {() => <ViewOnlyRoute component={Home} />}
       </Route>
       {/* Fallback to 404 */}
       <Route component={NotFound} />
