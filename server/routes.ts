@@ -526,18 +526,34 @@ export async function registerRoutes(app: Express): Promise<Server> {
             });
           }
         }
-      } catch (generationError) {
+      } catch (generationError: any) {
         console.error("Error in AI generation:", generationError);
         
         if (!isResponseSent) {
           isResponseSent = true;
           clearTimeout(timeoutHandle);
           
-          // Informiamo l'utente dell'errore e non forniamo dati predefiniti
-          console.log("AI error occurred, returning error message");
+          // Gestiamo diversi tipi di errori con messaggi specifici
+          let errorMessage = "Si è verificato un errore durante la generazione delle raccomandazioni. Riprova più tardi.";
+          
+          // Verifichiamo se si tratta di un errore specifico di OpenAI
+          if (generationError.message) {
+            if (generationError.message.includes("limite di richieste")) {
+              errorMessage = "Il servizio AI ha raggiunto il limite di richieste. Riprova più tardi.";
+            } else if (generationError.message.includes("autenticazione")) {
+              errorMessage = "Problema di autenticazione con il servizio AI. Contatta l'amministratore.";
+            } else if (generationError.message.includes("connessione")) {
+              errorMessage = "Problema di connessione al servizio AI. Verifica la tua connessione internet e riprova.";
+            } else {
+              // Usiamo il messaggio di errore originale se disponibile
+              errorMessage = generationError.message;
+            }
+          }
+          
+          console.log("AI error occurred, returning specific error message:", errorMessage);
           
           res.status(500).json({
-            error: "Si è verificato un errore durante la generazione delle raccomandazioni. Riprova più tardi.",
+            error: errorMessage,
             timestamp: new Date().toISOString()
           });
         }
@@ -625,16 +641,34 @@ export async function registerRoutes(app: Express): Promise<Server> {
             source: "ai"
           });
         }
-      } catch (generationError) {
+      } catch (generationError: any) {
         console.error("Error in AI meal generation:", generationError);
         
         if (!isResponseSent) {
           isResponseSent = true;
           clearTimeout(timeoutHandle);
           
-          // Informiamo l'utente dell'errore e non forniamo dati predefiniti
+          // Gestiamo diversi tipi di errori con messaggi specifici
+          let errorMessage = "Si è verificato un errore durante la generazione dei suggerimenti pasti. Riprova più tardi.";
+          
+          // Verifichiamo se si tratta di un errore specifico di OpenAI
+          if (generationError.message) {
+            if (generationError.message.includes("limite di richieste")) {
+              errorMessage = "Il servizio AI ha raggiunto il limite di richieste per i suggerimenti pasti. Riprova più tardi.";
+            } else if (generationError.message.includes("autenticazione")) {
+              errorMessage = "Problema di autenticazione con il servizio AI. Contatta l'amministratore.";
+            } else if (generationError.message.includes("connessione")) {
+              errorMessage = "Problema di connessione al servizio AI. Verifica la tua connessione internet e riprova.";
+            } else {
+              // Usiamo il messaggio di errore originale se disponibile
+              errorMessage = generationError.message;
+            }
+          }
+          
+          console.log("AI error occurred, returning specific error message:", errorMessage);
+          
           res.status(500).json({
-            error: "Si è verificato un errore durante la generazione dei suggerimenti. Riprova più tardi.",
+            error: errorMessage,
             timestamp: new Date().toISOString()
           });
         }
@@ -704,12 +738,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
         answer,
         timestamp: new Date().toISOString()
       });
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error generating AI chat response:", error);
+      
+      // Gestiamo diversi tipi di errori con messaggi specifici
+      let errorMessage = "Mi dispiace, si è verificato un errore durante la generazione della risposta. Riprova più tardi.";
+      
+      // Verifichiamo se si tratta di un errore specifico di OpenAI
+      if (error.message) {
+        if (error.message.includes("limite di richieste")) {
+          errorMessage = "Il servizio AI ha raggiunto il limite di richieste per le risposte del chatbot. Riprova più tardi.";
+        } else if (error.message.includes("autenticazione")) {
+          errorMessage = "Problema di autenticazione con il servizio AI. Contatta l'amministratore.";
+        } else if (error.message.includes("connessione")) {
+          errorMessage = "Problema di connessione al servizio AI. Verifica la tua connessione internet e riprova.";
+        }
+      }
+      
       res.status(500).json({ 
         message: "Failed to generate AI response", 
         error: error instanceof Error ? error.message : String(error),
-        answer: "Mi dispiace, si è verificato un errore durante la generazione della risposta. Riprova più tardi."
+        answer: errorMessage
       });
     }
   });

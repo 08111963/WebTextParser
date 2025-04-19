@@ -88,7 +88,17 @@ export async function generateAIResponse(
     return answer || "Mi dispiace, non sono riuscito a elaborare una risposta. Prova a riformulare la tua domanda.";
   } catch (error: any) {
     console.error("Error generating AI response:", error);
-    throw new Error(`Failed to generate AI response: ${error?.message || 'Unknown error'}`);
+    
+    // Gestione dettagliata degli errori OpenAI
+    if (error.status === 429) {
+      throw new Error("Il servizio AI ha raggiunto il limite di richieste. Riprova più tardi.");
+    } else if (error.status === 401 || error.status === 403) {
+      throw new Error("Errore di autenticazione con il servizio AI. Verifica che la chiave API sia valida.");
+    } else if (error.code === 'ECONNRESET' || error.code === 'ETIMEDOUT' || error.code === 'ESOCKETTIMEDOUT') {
+      throw new Error("Connessione al servizio AI interrotta. Verifica la tua connessione internet e riprova.");
+    } else {
+      throw new Error(`Errore durante la generazione della risposta AI: ${error?.message || 'Errore sconosciuto'}`);
+    }
   }
 }
 
@@ -370,7 +380,17 @@ export async function generateNutritionGoalRecommendations(
     return processedRecommendations;
   } catch (error: any) {
     console.error("Error generating nutrition goal recommendations:", error);
-    throw new Error(`Failed to generate nutrition goal recommendations: ${error?.message || 'Unknown error'}`);
+    
+    // Gestione dettagliata degli errori OpenAI
+    if (error.status === 429) {
+      throw new Error("Il servizio AI ha raggiunto il limite di richieste per gli obiettivi nutrizionali. Riprova più tardi.");
+    } else if (error.status === 401 || error.status === 403) {
+      throw new Error("Errore di autenticazione con il servizio AI per gli obiettivi nutrizionali. Verifica che la chiave API sia valida.");
+    } else if (error.code === 'ECONNRESET' || error.code === 'ETIMEDOUT' || error.code === 'ESOCKETTIMEDOUT') {
+      throw new Error("Connessione al servizio AI interrotta. Verifica la tua connessione internet e riprova.");
+    } else {
+      throw new Error(`Errore durante la generazione delle raccomandazioni: ${error?.message || 'Errore sconosciuto'}`);
+    }
   }
 }
 
@@ -559,6 +579,16 @@ export async function generateMealSuggestions(
     return processedSuggestions;
   } catch (error: any) {
     console.error("Error generating meal suggestions:", error);
-    throw new Error(`Failed to generate meal suggestions: ${error?.message || 'Unknown error'}`);
+    
+    // Gestione dettagliata degli errori OpenAI
+    if (error.status === 429) {
+      throw new Error("Il servizio AI ha raggiunto il limite di richieste per i suggerimenti pasti. Riprova più tardi.");
+    } else if (error.status === 401 || error.status === 403) {
+      throw new Error("Errore di autenticazione con il servizio AI per i suggerimenti pasti. Verifica che la chiave API sia valida.");
+    } else if (error.code === 'ECONNRESET' || error.code === 'ETIMEDOUT' || error.code === 'ESOCKETTIMEDOUT') {
+      throw new Error("Connessione al servizio AI interrotta. Verifica la tua connessione internet e riprova.");
+    } else {
+      throw new Error(`Errore durante la generazione dei suggerimenti pasti: ${error?.message || 'Errore sconosciuto'}`);
+    }
   }
 }
