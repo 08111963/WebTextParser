@@ -171,7 +171,7 @@ export async function generateNutritionGoalRecommendations(
         { role: "user", content: userPrompt }
       ],
       response_format: { type: "json_object" },
-      temperature: 0.9, // Aumento della temperatura per maggiore variabilità
+      temperature: 0.7, // Temperatura più bilanciata per stabilità
     });
 
     console.log("OpenAI response received:", response.choices[0].message.content);
@@ -337,7 +337,7 @@ export async function generateMealSuggestions(
         { role: "user", content: userPrompt }
       ],
       response_format: { type: "json_object" },
-      temperature: 0.95, // Aumento della temperatura per maggiore variabilità nei pasti
+      temperature: 0.7, // Temperatura più bilanciata per stabilità
     });
 
     console.log("OpenAI meal suggestions response received:", response.choices[0].message.content);

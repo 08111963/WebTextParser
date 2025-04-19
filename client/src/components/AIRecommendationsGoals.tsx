@@ -137,31 +137,31 @@ export default function AIRecommendationsGoals({ userId }: AIRecommendationsGoal
                   {nutritionGoalRecommendations.recommendations.map((rec, index) => (
                     <div key={index} className="border rounded-lg p-4 bg-card shadow-sm">
                       <h4 className="font-medium flex items-center gap-2 text-base">
-                        <span className="break-words">{rec.title}</span>
+                        <span className="break-words truncate">{rec.title}</span>
                       </h4>
                       
-                      <p className="text-sm text-muted-foreground mt-2 mb-3 leading-relaxed">{rec.description}</p>
+                      <p className="text-sm text-muted-foreground mt-2 mb-3 leading-relaxed max-h-24 overflow-y-auto">{rec.description}</p>
                       
                       <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mt-3">
                         <div className="bg-muted/40 p-2 rounded text-center">
-                          <div className="text-xs text-muted-foreground">Calorie</div>
+                          <div className="text-xs text-muted-foreground">Cal</div>
                           <div className="text-lg font-semibold">{rec.calories}</div>
                           <div className="text-xs">kcal</div>
                         </div>
                         <div className="bg-muted/40 p-2 rounded text-center">
-                          <div className="text-xs text-muted-foreground">Proteine</div>
+                          <div className="text-xs text-muted-foreground">Pro</div>
                           <div className="text-lg font-semibold">{rec.proteins}</div>
-                          <div className="text-xs">grammi</div>
+                          <div className="text-xs">g</div>
                         </div>
                         <div className="bg-muted/40 p-2 rounded text-center">
-                          <div className="text-xs text-muted-foreground">Carboidrati</div>
+                          <div className="text-xs text-muted-foreground">Carb</div>
                           <div className="text-lg font-semibold">{rec.carbs}</div>
-                          <div className="text-xs">grammi</div>
+                          <div className="text-xs">g</div>
                         </div>
                         <div className="bg-muted/40 p-2 rounded text-center">
-                          <div className="text-xs text-muted-foreground">Grassi</div>
+                          <div className="text-xs text-muted-foreground">Gras</div>
                           <div className="text-lg font-semibold">{rec.fats}</div>
-                          <div className="text-xs">grammi</div>
+                          <div className="text-xs">g</div>
                         </div>
                       </div>
                       
