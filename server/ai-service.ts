@@ -1,24 +1,24 @@
 import OpenAI from "openai";
 import { Meal, NutritionGoal, UserProfile } from "@shared/schema";
 
-// Inizializza OpenAI SDK client per obiettivi nutrizionali
+// Initialize OpenAI SDK client for nutritional goals
 const openaiGoals = new OpenAI({ apiKey: process.env.OPENAI_API_KEY_GOALS });
 
-// Inizializza OpenAI SDK client per suggerimenti pasti
+// Initialize OpenAI SDK client for meal suggestions
 const openaiMeals = new OpenAI({ apiKey: process.env.OPENAI_API_KEY_MEALS });
 
-// Inizializza OpenAI SDK client per uso generale (per compatibilità con codice esistente)
+// Initialize OpenAI SDK client for general use (for compatibility with existing code)
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY_GOALS });
 
 // the newest OpenAI model is "gpt-4o" which was released May 13, 2024. do not change this unless explicitly requested by the user
 const MODEL = "gpt-4o";
 
-// Debug log per verificare se le API key sono presenti
+// Debug log to verify if API keys are present
 console.log("OpenAI API key for goals exists:", !!process.env.OPENAI_API_KEY_GOALS);
 console.log("OpenAI API key for meals exists:", !!process.env.OPENAI_API_KEY_MEALS);
 
 /**
- * Genera una risposta tramite AI basata su una domanda diretta dell'utente
+ * Generates an AI response based on a direct user question
  */
 export async function generateAIResponse(
   query: string,
@@ -325,52 +325,52 @@ export async function generateNutritionGoalRecommendations(
       return Math.round(value * (1 + offsetPercentage));
     };
     
-    // Applicare l'offset ai valori del primo suggerimento
+    // Apply offset to the values of the first suggestion
     recommendation1.calories = applyRandomOffset(recommendation1.calories || 2200);
     recommendation1.proteins = applyRandomOffset(recommendation1.proteins || 110);
     recommendation1.carbs = applyRandomOffset(recommendation1.carbs || 270);
     recommendation1.fats = applyRandomOffset(recommendation1.fats || 70);
     
-    // Applicare l'offset ai valori del secondo suggerimento
+    // Apply offset to the values of the second suggestion
     recommendation2.calories = applyRandomOffset(recommendation2.calories || 2400);
     recommendation2.proteins = applyRandomOffset(recommendation2.proteins || 150);
     recommendation2.carbs = applyRandomOffset(recommendation2.carbs || 250);
     recommendation2.fats = applyRandomOffset(recommendation2.fats || 80);
     
-    // Applicare l'offset ai valori del terzo suggerimento
+    // Apply offset to the values of the third suggestion
     recommendation3.calories = applyRandomOffset(recommendation3.calories || 2000);
     recommendation3.proteins = applyRandomOffset(recommendation3.proteins || 125);
     recommendation3.carbs = applyRandomOffset(recommendation3.carbs || 180);
     recommendation3.fats = applyRandomOffset(recommendation3.fats || 100);
     
-    // Combiniamo le tre risposte in un array
+    // Combine the three responses in an array
     const recommendations = [
       recommendation1,
       recommendation2,
       recommendation3
     ];
     
-    // Processiamo le tre raccomandazioni normalizzando i valori
+    // Process the three recommendations normalizing the values
     let processedRecommendations = [
       {
         title: recommendation1.title || "Balanced Mediterranean",
-        description: recommendation1.description || "Approccio mediterraneo ricco di nutrienti essenziali, per mantenere energia e salute in modo bilanciato.",
+        description: recommendation1.description || "Mediterranean approach rich in essential nutrients, to maintain energy and health in a balanced way.",
         calories: Math.round(Number(recommendation1.calories) || 2200),
         proteins: Math.round(Number(recommendation1.proteins) || 110),
         carbs: Math.round(Number(recommendation1.carbs) || 270),
         fats: Math.round(Number(recommendation1.fats) || 70)
       },
       {
-        title: recommendation2.title || "Proteica Energetica",
-        description: recommendation2.description || "Strategia ad alto contenuto proteico per favorire la massa muscolare e fornire energia duratura durante l'attività fisica.",
+        title: recommendation2.title || "High-Protein Energy",
+        description: recommendation2.description || "High protein strategy to promote muscle mass and provide lasting energy during physical activity.",
         calories: Math.round(Number(recommendation2.calories) || 2400),
         proteins: Math.round(Number(recommendation2.proteins) || 150),
         carbs: Math.round(Number(recommendation2.carbs) || 250),
         fats: Math.round(Number(recommendation2.fats) || 80)
       },
       {
-        title: recommendation3.title || "Low-Carb Essenziale",
-        description: recommendation3.description || "Piano a basso contenuto di carboidrati che favorisce i grassi sani per fornire energia stabile e costante durante la giornata.",
+        title: recommendation3.title || "Essential Low-Carb",
+        description: recommendation3.description || "Low-carbohydrate plan that favors healthy fats to provide stable and constant energy throughout the day.",
         calories: Math.round(Number(recommendation3.calories) || 2000),
         proteins: Math.round(Number(recommendation3.proteins) || 130),
         carbs: Math.round(Number(recommendation3.carbs) || 180),
@@ -382,7 +382,7 @@ export async function generateNutritionGoalRecommendations(
   } catch (error: any) {
     console.error("Error generating nutrition goal recommendations:", error);
     
-    // Registriamo l'errore specifico per debug ma lanciamo un messaggio generico all'utente
+    // Log the specific error for debugging but throw a generic message to the user
     if (error.status === 429) {
       console.log("API rate limit exceeded for nutrition goal recommendations");
     } else if (error.status === 401 || error.status === 403) {
@@ -391,7 +391,7 @@ export async function generateNutritionGoalRecommendations(
       console.log("Connection issue with OpenAI API", error.code);
     }
     
-    // Messaggio generico per l'utente
+    // Generic message for the user
     throw new Error("A connection issue occurred while generating recommendations. Please try again later.");
   }
 }
