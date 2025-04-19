@@ -8,6 +8,8 @@ import Home from "@/pages/Home";
 import Welcome from "@/pages/Welcome";
 import Info from "@/pages/Info";
 import Pricing from "@/pages/Pricing";
+import Checkout from "@/pages/Checkout";
+import PaymentSuccess from "@/pages/PaymentSuccess";
 import AuthPage from "@/pages/auth-page";
 import { AuthProvider } from "@/hooks/use-auth";
 import { ProtectedRoute } from "./lib/protected-route";
@@ -20,6 +22,8 @@ function Router() {
       <Route path="/" component={Welcome} />
       <Route path="/info" component={Info} />
       <Route path="/pricing" component={Pricing} />
+      <Route path="/checkout" component={Checkout} />
+      <Route path="/payment-success" component={PaymentSuccess} />
       <Route path="/auth" component={AuthPage} />
       <Route path="/home">
         {() => <ViewOnlyRoute component={Home} />}

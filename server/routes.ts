@@ -12,6 +12,7 @@ import { z } from "zod";
 import { setupAuth } from "./auth";
 import { generateNutritionGoalRecommendations, generateMealSuggestions, generateAIResponse } from "./ai-service";
 import { generateMealSuggestionsWithPerplexity, generateNutritionalAdviceWithPerplexity } from "./perplexity-service";
+import Stripe from "stripe";
 
 // Middleware to protect routes that require authentication
 function isAuthenticated(req: Request, res: Response, next: NextFunction) {
