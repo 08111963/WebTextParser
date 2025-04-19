@@ -56,17 +56,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       console.log("Meal data received:", JSON.stringify(req.body));
       
-      // Pre-processing dei dati per garantire formati corretti
+      // Pre-processing data to ensure correct formats
       const processedData = {
         ...req.body,
-        // Assicura che tutti i valori numerici siano numeri e arrotondati a interi
+        // Ensure all numeric values are numbers and rounded to integers
         calories: Math.round(Number(req.body.calories) || 0),
         proteins: Math.round(Number(req.body.proteins) || 0),
         carbs: Math.round(Number(req.body.carbs) || 0),
         fats: Math.round(Number(req.body.fats) || 0),
-        // Assicura che userId sia una stringa
+        // Ensure userId is a string
         userId: String(req.body.userId),
-        // Converte il timestamp in Date se c'è, altrimenti usa la data attuale
+        // Convert timestamp to Date if it exists, otherwise use current date
         timestamp: req.body.timestamp ? new Date(req.body.timestamp) : new Date()
       };
       
@@ -205,21 +205,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Create nutritional goal (route protetta)
   app.post("/api/nutrition-goals", isAuthenticated, async (req, res) => {
     try {
-      // Pre-processing dei dati per garantire formati corretti
+      // Pre-processing data to ensure correct formats
       const processedData = {
         ...req.body,
-        // Assicura che tutti i valori numerici siano numeri e arrotondati a interi
+        // Ensure all numeric values are numbers and rounded to integers
         calories: Math.round(Number(req.body.calories) || 0),
         proteins: Math.round(Number(req.body.proteins) || 0),
         carbs: Math.round(Number(req.body.carbs) || 0),
         fats: Math.round(Number(req.body.fats) || 0),
-        // Assicura che userId sia una stringa
+        // Ensure userId is a string
         userId: String(req.body.userId)
       };
       
       const goalData = insertNutritionGoalSchema.parse(processedData);
       
-      // Se l'utente non ha specificato un valore per isActive, impostiamo come true di default
+      // If the user has not specified a value for isActive, set it to true by default
       if (goalData.isActive === undefined) {
         goalData.isActive = true;
       }
@@ -241,7 +241,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Update nutritional goal (route protetta)
+  // Update nutritional goal (protected route)
   app.patch("/api/nutrition-goals/:id", isAuthenticated, async (req, res) => {
     try {
       const id = parseInt(req.params.id);
@@ -250,7 +250,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "Invalid ID format" });
       }
       
-      // Validazione parziale dei dati
+      // Partial data validation
       const updateData = req.body;
       
       const updatedGoal = await storage.updateNutritionGoal(id, updateData);
@@ -342,7 +342,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Update progress entry (route protetta)
+  // Update progress entry (protected route)
   app.patch("/api/progress/:id", isAuthenticated, async (req, res) => {
     try {
       const id = parseInt(req.params.id);
@@ -351,7 +351,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "Invalid ID format" });
       }
       
-      // Validazione parziale dei dati
+      // Partial data validation
       const updateData = req.body;
       
       const updatedEntry = await storage.updateProgressEntry(id, updateData);
@@ -421,7 +421,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // === AI RECOMMENDATIONS ROUTES ===
   
-  // Genera raccomandazioni per obiettivi nutrizionali personalizzati (route protetta)
+  // Generate recommendations for personalized nutrition goals (protected route)
   app.get("/api/recommendations/nutrition-goals", isAuthenticated, async (req, res) => {
     try {
       const userId = req.query.userId as string;
@@ -555,7 +555,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
-  // Genera suggerimenti per pasti personalizzati (route protetta)
+  // Generate personalized meal suggestions (protected route)
   app.get("/api/recommendations/meals", isAuthenticated, async (req, res) => {
     try {
       const userId = req.query.userId as string;
