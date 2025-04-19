@@ -84,18 +84,18 @@ export default function NutritionChart({ userId }: NutritionChartProps) {
     enabled: !!userId && isUserAuthenticated,
   });
 
-  // Prepara i dati per il grafico ogni volta che cambiano i pasti o il periodo
+  // Prepare chart data whenever meals or period changes
   useEffect(() => {
     if (!meals) return;
 
-    // Crea un map per raggruppare i pasti per data
+    // Create a map to group meals by date
     const mealsByDate = new Map<string, ChartData>();
     
-    // Inizializza le date per il periodo selezionato
+    // Initialize dates for the selected period
     const startDate = calculateStartDate();
     const today = new Date();
     
-    // Crea voci vuote per tutte le date nel periodo
+    // Create empty entries for all dates in the period
     for (let i = 0; i <= parseInt(period); i++) {
       const date = subDays(today, i);
       const dateKey = format(date, "yyyy-MM-dd");
@@ -108,7 +108,7 @@ export default function NutritionChart({ userId }: NutritionChartProps) {
       });
     }
     
-    // Aggrega i dati per ogni pasto
+    // Aggregate data for each meal
     meals.forEach(meal => {
       const mealDate = new Date(meal.timestamp);
       const dateKey = format(mealDate, "yyyy-MM-dd");
@@ -125,7 +125,7 @@ export default function NutritionChart({ userId }: NutritionChartProps) {
       }
     });
     
-    // Converti la mappa in un array ordinato per data
+    // Convert the map to a date-sorted array
     const sortedData = Array.from(mealsByDate.values())
       .sort((a, b) => {
         const dateA = new Date(a.date.split('/').reverse().join('-'));
@@ -136,27 +136,27 @@ export default function NutritionChart({ userId }: NutritionChartProps) {
     setChartData(sortedData);
   }, [meals, period]);
 
-  // Gestisce il cambio di periodo
+  // Handle period change
   const handlePeriodChange = (value: string) => {
     setPeriod(value as "7" | "14" | "30");
   };
   
-  // Gestisce il cambio di tipo di grafico
+  // Handle chart type change
   const handleChartTypeChange = (value: string) => {
     setChartType(value as "line" | "bar" | "area" | "composed");
   };
 
-  // Personalizzazione del tooltip per il grafico
+  // Custom tooltip for the chart
   const CustomTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
       return (
         <div className="bg-white p-3 border rounded-md shadow-md">
           <p className="font-bold mb-1">{`${label}`}</p>
           <div className="space-y-1">
-            <p style={{ color: "#8884d8" }}>{`Calorie: ${payload[0].value} kcal`}</p>
-            <p style={{ color: "#82ca9d" }}>{`Proteine: ${payload[1].value} g`}</p>
-            <p style={{ color: "#ffc658" }}>{`Carboidrati: ${payload[2].value} g`}</p>
-            <p style={{ color: "#ff8042" }}>{`Grassi: ${payload[3].value} g`}</p>
+            <p style={{ color: "#8884d8" }}>{`Calories: ${payload[0].value} kcal`}</p>
+            <p style={{ color: "#82ca9d" }}>{`Proteins: ${payload[1].value} g`}</p>
+            <p style={{ color: "#ffc658" }}>{`Carbs: ${payload[2].value} g`}</p>
+            <p style={{ color: "#ff8042" }}>{`Fats: ${payload[3].value} g`}</p>
           </div>
         </div>
       );

@@ -38,7 +38,7 @@ type AIRecommendationsGoalsProps = {
 export default function AIRecommendationsGoals({ userId }: AIRecommendationsGoalsProps) {
   const { toast } = useToast();
   
-  // Raccomandazioni per obiettivi nutrizionali
+  // Recommendations for nutritional goals
   const {
     data: nutritionGoalRecommendations,
     isLoading: isLoadingGoals,
@@ -55,29 +55,29 @@ export default function AIRecommendationsGoals({ userId }: AIRecommendationsGoal
     refetchOnWindowFocus: false,
   });
 
-  // Gestione errori
+  // Error handling
   if (goalError) {
     console.error("Error fetching nutrition goal recommendations:", goalError);
   }
 
-  // Funzione per aggiornare le raccomandazioni
+  // Function to update recommendations
   const handleRefresh = async () => {
     try {
       toast({
-        title: "Aggiornamento",
-        description: "Generazione di nuove raccomandazioni in corso...",
+        title: "Updating",
+        description: "Generating new recommendations...",
       });
       const result = await refetchGoals();
-      console.log("Raccomandazioni aggiornate:", result.data);
+      console.log("Updated recommendations:", result.data);
       toast({
-        title: "Completato",
-        description: "Nuove raccomandazioni generate con successo",
+        title: "Completed",
+        description: "New recommendations successfully generated",
       });
     } catch (error) {
-      console.error("Errore durante l'aggiornamento:", error);
+      console.error("Error during update:", error);
       toast({
-        title: "Errore",
-        description: "Si è verificato un errore durante la generazione. Riprova più tardi.",
+        title: "Error",
+        description: "An error occurred during generation. Please try again later.",
         variant: "destructive",
       });
     }
