@@ -180,8 +180,8 @@ export default function Home({
       
       <main className="container mx-auto px-4 py-6 pb-16 flex-1">
         <div className="mb-6">
-          <h1 className="text-3xl font-bold">Benvenuto, {user.username}!</h1>
-          <p className="text-gray-600">Monitora la tua nutrizione e raggiungi i tuoi obiettivi.</p>
+          <h1 className="text-3xl font-bold">Welcome, {user.username}!</h1>
+          <p className="text-gray-600">Track your nutrition and reach your goals.</p>
         </div>
 
         <Tabs 
@@ -221,9 +221,9 @@ export default function Home({
         >
           <TabsList className="grid w-full md:w-auto grid-cols-4 mb-6">
             <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
-            <TabsTrigger value="meals">Pasti</TabsTrigger>
-            <TabsTrigger value="goals">Obiettivi</TabsTrigger>
-            <TabsTrigger value="profile">Profilo</TabsTrigger>
+            <TabsTrigger value="meals">Meals</TabsTrigger>
+            <TabsTrigger value="goals">Goals</TabsTrigger>
+            <TabsTrigger value="profile">Profile</TabsTrigger>
           </TabsList>
 
           <TabsContent value="dashboard" className="space-y-4">
@@ -236,45 +236,45 @@ export default function Home({
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                   <Card>
                     <CardHeader className="pb-2">
-                      <CardTitle className="text-sm font-medium">Calorie</CardTitle>
+                      <CardTitle className="text-sm font-medium">Calories</CardTitle>
                     </CardHeader>
                     <CardContent>
                       <div className="text-2xl font-bold">{totalCalories} kcal</div>
                       <p className="text-xs text-muted-foreground">
-                        {activeGoal ? `${Math.round((totalCalories / activeGoal.calories) * 100)}% dell'obiettivo` : 'Nessun obiettivo impostato'}
+                        {activeGoal ? `${Math.round((totalCalories / activeGoal.calories) * 100)}% of goal` : 'No goal set'}
                       </p>
                     </CardContent>
                   </Card>
                   <Card>
                     <CardHeader className="pb-2">
-                      <CardTitle className="text-sm font-medium">Proteine</CardTitle>
+                      <CardTitle className="text-sm font-medium">Protein</CardTitle>
                     </CardHeader>
                     <CardContent>
                       <div className="text-2xl font-bold">{totalProteins}g</div>
                       <p className="text-xs text-muted-foreground">
-                        {activeGoal ? `${Math.round((totalProteins / activeGoal.proteins) * 100)}% dell'obiettivo` : 'Nessun obiettivo impostato'}
+                        {activeGoal ? `${Math.round((totalProteins / activeGoal.proteins) * 100)}% of goal` : 'No goal set'}
                       </p>
                     </CardContent>
                   </Card>
                   <Card>
                     <CardHeader className="pb-2">
-                      <CardTitle className="text-sm font-medium">Carboidrati</CardTitle>
+                      <CardTitle className="text-sm font-medium">Carbs</CardTitle>
                     </CardHeader>
                     <CardContent>
                       <div className="text-2xl font-bold">{totalCarbs}g</div>
                       <p className="text-xs text-muted-foreground">
-                        {activeGoal ? `${Math.round((totalCarbs / activeGoal.carbs) * 100)}% dell'obiettivo` : 'Nessun obiettivo impostato'}
+                        {activeGoal ? `${Math.round((totalCarbs / activeGoal.carbs) * 100)}% of goal` : 'No goal set'}
                       </p>
                     </CardContent>
                   </Card>
                   <Card>
                     <CardHeader className="pb-2">
-                      <CardTitle className="text-sm font-medium">Grassi</CardTitle>
+                      <CardTitle className="text-sm font-medium">Fat</CardTitle>
                     </CardHeader>
                     <CardContent>
                       <div className="text-2xl font-bold">{totalFats}g</div>
                       <p className="text-xs text-muted-foreground">
-                        {activeGoal ? `${Math.round((totalFats / activeGoal.fats) * 100)}% dell'obiettivo` : 'Nessun obiettivo impostato'}
+                        {activeGoal ? `${Math.round((totalFats / activeGoal.fats) * 100)}% of goal` : 'No goal set'}
                       </p>
                     </CardContent>
                   </Card>
@@ -283,8 +283,8 @@ export default function Home({
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <Card className="col-span-1">
                     <CardHeader>
-                      <CardTitle>Pasti Recenti</CardTitle>
-                      <CardDescription>Gli ultimi pasti registrati</CardDescription>
+                      <CardTitle>Recent Meals</CardTitle>
+                      <CardDescription>Your latest recorded meals</CardDescription>
                     </CardHeader>
                     <CardContent>
                       {todayMeals.length > 0 ? (
@@ -298,14 +298,14 @@ export default function Home({
                               <div className="text-right">
                                 <p className="font-medium">{meal.calories} kcal</p>
                                 <p className="text-xs text-muted-foreground">
-                                  P: {meal.proteins}g C: {meal.carbs}g G: {meal.fats}g
+                                  P: {meal.proteins}g C: {meal.carbs}g F: {meal.fats}g
                                 </p>
                               </div>
                             </div>
                           ))}
                         </div>
                       ) : (
-                        <p className="text-center text-muted-foreground py-4">Nessun pasto registrato oggi</p>
+                        <p className="text-center text-muted-foreground py-4">No meals recorded today</p>
                       )}
                     </CardContent>
                     <CardFooter>
@@ -315,15 +315,15 @@ export default function Home({
                         onClick={() => handleInteractionRequiringAuth('meals', () => setActiveTab('meals'))}
                       >
                         <Plus className="h-4 w-4 mr-2" />
-                        Aggiungi Pasto
+                        Add Meal
                       </Button>
                     </CardFooter>
                   </Card>
 
                   <Card className="col-span-1">
                     <CardHeader>
-                      <CardTitle>Obiettivo Nutrizionale</CardTitle>
-                      <CardDescription>Il tuo obiettivo attuale</CardDescription>
+                      <CardTitle>Nutritional Goal</CardTitle>
+                      <CardDescription>Your current goal</CardDescription>
                     </CardHeader>
                     <CardContent>
                       {activeGoal ? (
@@ -334,25 +334,25 @@ export default function Home({
                           )}
                           <div className="grid grid-cols-2 gap-2 mt-4">
                             <div className="bg-primary/10 p-2 rounded">
-                              <p className="text-xs">Calorie</p>
+                              <p className="text-xs">Calories</p>
                               <p className="font-bold">{activeGoal.calories} kcal</p>
                             </div>
                             <div className="bg-primary/10 p-2 rounded">
-                              <p className="text-xs">Proteine</p>
+                              <p className="text-xs">Protein</p>
                               <p className="font-bold">{activeGoal.proteins}g</p>
                             </div>
                             <div className="bg-primary/10 p-2 rounded">
-                              <p className="text-xs">Carboidrati</p>
+                              <p className="text-xs">Carbs</p>
                               <p className="font-bold">{activeGoal.carbs}g</p>
                             </div>
                             <div className="bg-primary/10 p-2 rounded">
-                              <p className="text-xs">Grassi</p>
+                              <p className="text-xs">Fat</p>
                               <p className="font-bold">{activeGoal.fats}g</p>
                             </div>
                           </div>
                         </div>
                       ) : (
-                        <p className="text-center text-muted-foreground py-8">Nessun obiettivo nutrizionale attivo</p>
+                        <p className="text-center text-muted-foreground py-8">No active nutritional goal</p>
                       )}
                     </CardContent>
                     <CardFooter>
@@ -362,7 +362,7 @@ export default function Home({
                         onClick={() => handleInteractionRequiringAuth('goals', () => setActiveTab('goals'))}
                       >
                         <BarChart className="h-4 w-4 mr-2" />
-                        {activeGoal ? 'Gestisci Obiettivi' : 'Crea Obiettivo'}
+                        {activeGoal ? 'Manage Goals' : 'Create Goal'}
                       </Button>
                     </CardFooter>
                   </Card>
