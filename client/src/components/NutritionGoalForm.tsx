@@ -19,11 +19,11 @@ import { apiRequest } from "@/lib/queryClient";
 import { useQueryClient } from "@tanstack/react-query";
 
 const nutritionGoalSchema = z.object({
-  name: z.string().min(1, "Il nome è richiesto"),
-  calories: z.coerce.number().min(1, "Le calorie devono essere maggiori di 0"),
-  proteins: z.coerce.number().min(0, "Le proteine non possono essere negative"),
-  carbs: z.coerce.number().min(0, "I carboidrati non possono essere negativi"),
-  fats: z.coerce.number().min(0, "I grassi non possono essere negativi"),
+  name: z.string().min(1, "Name is required"),
+  calories: z.coerce.number().min(1, "Calories must be greater than 0"),
+  proteins: z.coerce.number().min(0, "Proteins cannot be negative"),
+  carbs: z.coerce.number().min(0, "Carbs cannot be negative"),
+  fats: z.coerce.number().min(0, "Fats cannot be negative"),
   startDate: z.date(),
   endDate: z.date().optional(),
   description: z.string().optional(),
@@ -53,28 +53,28 @@ type NutritionProfile = {
 // Profili nutrizionali predefiniti
 const nutritionProfiles: Record<string, NutritionProfile> = {
   maintenance: { 
-    name: "Mantenimento", 
+    name: "Maintenance", 
     calories: 2000, 
     proteins: 150, 
     carbs: 250, 
     fats: 65,
-    description: "Dieta bilanciata per mantenere il peso corporeo attuale."
+    description: "Balanced diet to maintain current body weight."
   },
   weightloss: { 
-    name: "Perdita di peso", 
+    name: "Weight loss", 
     calories: 1600, 
     proteins: 140, 
     carbs: 170, 
     fats: 50,
-    description: "Dieta con deficit calorico per perdere peso in modo sano."
+    description: "Caloric deficit diet for healthy weight loss."
   },
   muscle_gain: { 
-    name: "Aumento massa muscolare", 
+    name: "Muscle gain", 
     calories: 2500, 
     proteins: 190, 
     carbs: 300, 
     fats: 70,
-    description: "Dieta ipercalorica per favorire l'aumento della massa muscolare."
+    description: "High-calorie diet to promote muscle growth."
   },
   low_carb: { 
     name: "Low carb", 
@@ -82,18 +82,18 @@ const nutritionProfiles: Record<string, NutritionProfile> = {
     proteins: 150, 
     carbs: 50, 
     fats: 120,
-    description: "Dieta a basso contenuto di carboidrati."
+    description: "Diet with reduced carbohydrate intake."
   },
   keto: { 
-    name: "Chetogenica", 
+    name: "Ketogenic", 
     calories: 1900, 
     proteins: 120, 
     carbs: 30, 
     fats: 140,
-    description: "Dieta chetogenica con alte quantità di grassi e pochissimi carboidrati."
+    description: "Ketogenic diet with high fat and very low carbohydrates."
   },
   mediterranean: { 
-    name: "Mediterranea", 
+    name: "Mediterranean", 
     calories: 2100, 
     proteins: 110, 
     carbs: 270, 
@@ -101,7 +101,7 @@ const nutritionProfiles: Record<string, NutritionProfile> = {
     description: "Traditional Mediterranean diet based on unprocessed foods."
   },
   custom: { 
-    name: "Personalizzato", 
+    name: "Custom", 
     calories: 2000, 
     proteins: 150, 
     carbs: 200, 
@@ -170,24 +170,24 @@ export default function NutritionGoalForm({
         
         if (!response.ok) {
           const errorData = await response.json();
-          throw new Error(errorData.message || 'Errore durante l\'aggiornamento dell\'obiettivo');
+          throw new Error(errorData.message || 'Error updating the goal');
         }
         
         toast({
-          title: "Obiettivo aggiornato",
-          description: "L'obiettivo nutrizionale è stato aggiornato con successo.",
+          title: "Goal updated",
+          description: "Nutrition goal has been updated successfully.",
         });
       } else {
         const response = await apiRequest('POST', '/api/nutrition-goals', goalData);
         
         if (!response.ok) {
           const errorData = await response.json();
-          throw new Error(errorData.message || 'Errore durante la creazione dell\'obiettivo');
+          throw new Error(errorData.message || 'Error creating the goal');
         }
         
         toast({
-          title: "Obiettivo creato",
-          description: "Nuovo obiettivo nutrizionale creato con successo.",
+          title: "Goal created",
+          description: "New nutrition goal created successfully.",
         });
       }
       
@@ -329,7 +329,7 @@ export default function NutritionGoalForm({
                 name="startDate"
                 render={({ field }) => (
                   <FormItem className="flex flex-col">
-                    <FormLabel>Data di inizio</FormLabel>
+                    <FormLabel>Start date</FormLabel>
                     <Popover>
                       <PopoverTrigger asChild>
                         <FormControl>
@@ -343,7 +343,7 @@ export default function NutritionGoalForm({
                             {field.value ? (
                               format(field.value, "dd/MM/yyyy")
                             ) : (
-                              <span>Seleziona una data</span>
+                              <span>Select a date</span>
                             )}
                             <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                           </Button>
@@ -368,7 +368,7 @@ export default function NutritionGoalForm({
                 name="endDate"
                 render={({ field }) => (
                   <FormItem className="flex flex-col">
-                    <FormLabel>Data di fine (opzionale)</FormLabel>
+                    <FormLabel>End date (optional)</FormLabel>
                     <Popover>
                       <PopoverTrigger asChild>
                         <FormControl>
@@ -382,7 +382,7 @@ export default function NutritionGoalForm({
                             {field.value ? (
                               format(field.value, "dd/MM/yyyy")
                             ) : (
-                              <span>Seleziona una data</span>
+                              <span>Select a date</span>
                             )}
                             <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                           </Button>
@@ -411,10 +411,10 @@ export default function NutritionGoalForm({
               name="description"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Descrizione (opzionale)</FormLabel>
+                  <FormLabel>Description (optional)</FormLabel>
                   <FormControl>
                     <Textarea 
-                      placeholder="Descrivi il tuo obiettivo..." 
+                      placeholder="Describe your goal..." 
                       className="min-h-[100px]" 
                       {...field} 
                     />
@@ -430,9 +430,9 @@ export default function NutritionGoalForm({
               render={({ field }) => (
                 <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3">
                   <div className="space-y-0.5">
-                    <FormLabel>Obiettivo attivo</FormLabel>
+                    <FormLabel>Active goal</FormLabel>
                     <CardDescription>
-                      Imposta questo obiettivo come il tuo obiettivo nutrizionale attuale.
+                      Set this as your current nutritional goal.
                     </CardDescription>
                   </div>
                   <FormControl>
@@ -446,7 +446,7 @@ export default function NutritionGoalForm({
             />
             
             <Button type="submit" className="w-full" disabled={isSubmitting}>
-              {isSubmitting ? "Salvataggio..." : isEditing ? "Aggiorna" : "Crea Obiettivo"}
+              {isSubmitting ? "Saving..." : isEditing ? "Update" : "Create Goal"}
             </Button>
           </form>
         </Form>
