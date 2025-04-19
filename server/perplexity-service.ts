@@ -58,47 +58,47 @@ export async function generateMealSuggestionsWithPerplexity(
   const mealTypeDesc = mealType || "a generic meal";
 
   // Build the prompt for Perplexity
-  const systemPrompt = `Sei un nutrizionista esperto specializzato in piani alimentari personalizzati.
-    Restituisci 3 suggerimenti dettagliati per ${mealTypeDesc} in formato JSON.
-    Il tuo output deve essere ESCLUSIVAMENTE in formato JSON parsabile, senza testo introduttivo o conclusivo.
-    Schema del JSON: { "meals": [ { "name": "Nome del pasto", "description": "Descrizione", "calories": numero, "proteins": numero, "carbs": numero, "fats": numero, "ingredients": ["ingrediente1", "ingrediente2"] } ] }
-    Tutti i numeri devono essere interi (senza decimali).
-    Ogni pasto deve avere tra 5 e 8 ingredienti principali.
-    Scrivi l'output in italiano.`;
+  const systemPrompt = `You are a nutrition expert specializing in personalized meal plans.
+    Return 3 detailed suggestions for ${mealTypeDesc} in JSON format.
+    Your output must be EXCLUSIVELY in parsable JSON format, without introductory or concluding text.
+    JSON schema: { "meals": [ { "name": "Meal name", "description": "Description", "calories": number, "proteins": number, "carbs": number, "fats": number, "ingredients": ["ingredient1", "ingredient2"] } ] }
+    All numbers must be integers (no decimals).
+    Each meal must have between 5 and 8 main ingredients.
+    Write the output in English.`;
 
-  // Informazioni sull'utente per personalizzare i suggerimenti
-  let userProfileInfo = `Profilo Utente:
-    - Età: ${profile.age || 'Non specificata'}
-    - Genere: ${profile.gender || 'Non specificato'}
-    - Peso: ${profile.weight ? `${profile.weight} kg` : 'Non specificato'}
-    - Altezza: ${profile.height ? `${profile.height} cm` : 'Non specificata'}
-    - Livello di attività: ${profile.activityLevel || 'Non specificato'}
+  // User information to personalize suggestions
+  let userProfileInfo = `User Profile:
+    - Age: ${profile.age || 'Not specified'}
+    - Gender: ${profile.gender || 'Not specified'}
+    - Weight: ${profile.weight ? `${profile.weight} kg` : 'Not specified'}
+    - Height: ${profile.height ? `${profile.height} cm` : 'Not specified'}
+    - Activity level: ${profile.activityLevel || 'Not specified'}
     ${dietaryPrefsString}`;
 
-  // Aggiungi informazioni sugli obiettivi nutrizionali se disponibili
+  // Add nutritional goals information if available
   if (nutritionGoal) {
-    userProfileInfo += `\nObiettivo Nutrizionale Attuale:
-    - Calorie: ${nutritionGoal.calories} kcal
-    - Proteine: ${nutritionGoal.proteins} g
-    - Carboidrati: ${nutritionGoal.carbs} g
-    - Grassi: ${nutritionGoal.fats} g
-    - Obiettivo: ${nutritionGoal.name}
-    - Descrizione: ${nutritionGoal.description || 'Non specificata'}`;
+    userProfileInfo += `\nCurrent Nutritional Goal:
+    - Calories: ${nutritionGoal.calories} kcal
+    - Proteins: ${nutritionGoal.proteins} g
+    - Carbs: ${nutritionGoal.carbs} g
+    - Fats: ${nutritionGoal.fats} g
+    - Goal: ${nutritionGoal.name}
+    - Description: ${nutritionGoal.description || 'Not specified'}`;
   }
 
-  // Prompt finale per l'utente
-  const userPrompt = `Genera 3 suggerimenti per ${mealTypeDesc} adatti a questo profilo:
+  // Final prompt for the user
+  const userPrompt = `Generate 3 suggestions for ${mealTypeDesc} suitable for this profile:
     ${userProfileInfo}
     
-    Voglio ricette creative ma pratiche, con variazioni ispirate alla cucina mediterranea e internazionale.
-    Includi valori nutrizionali e ingredienti principali.
-    Ogni pasto deve essere equilibrato e fornire adeguate proteine, carboidrati e grassi.
-    Utilizza ingredienti stagionali e facilmente reperibili.
-    ${nutritionGoal ? `I pasti devono rispettare i target nutrizionali indicati nell'obiettivo.` : ''}
-    ${dietaryPrefsString ? `Rispetta assolutamente le preferenze dietetiche indicate.` : ''}`;
+    I want creative but practical recipes, with variations inspired by Mediterranean and international cuisine.
+    Include nutritional values and main ingredients.
+    Each meal should be balanced and provide adequate proteins, carbs, and fats.
+    Use seasonal and easily available ingredients.
+    ${nutritionGoal ? `Meals must respect the nutritional targets indicated in the goal.` : ''}
+    ${dietaryPrefsString ? `Absolutely respect the dietary preferences indicated.` : ''}`;
 
   try {
-    // Chiamata a Perplexity API
+    // Call to Perplexity API
     const messages = [
       { role: "system", content: systemPrompt },
       { role: "user", content: userPrompt }
@@ -107,44 +107,44 @@ export async function generateMealSuggestionsWithPerplexity(
     const response = await callPerplexityAPI(messages);
     console.log("Perplexity API response:", JSON.stringify(response.choices[0].message));
 
-    // Estrai e parsa il JSON dalla risposta
+    // Extract and parse JSON from the response
     const content = response.choices[0].message.content;
     try {
       const parsedContent = JSON.parse(content);
       return parsedContent;
     } catch (parseError) {
-      console.error("Errore nel parsing della risposta JSON:", parseError);
-      console.log("Risposta non valida:", content);
+      console.error("Error parsing JSON response:", parseError);
+      console.log("Invalid response:", content);
       
-      // Tentativo di estrarre il JSON usando regex se il parsing fallisce
+      // Attempt to extract JSON using regex if parsing fails
       const jsonMatch = content.match(/{[\s\S]*}/);
       if (jsonMatch) {
         try {
           const extractedJson = jsonMatch[0];
           return JSON.parse(extractedJson);
         } catch (extractError) {
-          console.error("Impossibile estrarre JSON valido dalla risposta:", extractError);
-          throw new Error("Formato di risposta non valido dall'API");
+          console.error("Unable to extract valid JSON from response:", extractError);
+          throw new Error("Invalid response format from API");
         }
       }
       
-      throw new Error("Formato di risposta non valido dall'API");
+      throw new Error("Invalid response format from API");
     }
   } catch (error) {
-    console.error("Errore nella generazione dei suggerimenti pasti:", error);
+    console.error("Error generating meal suggestions:", error);
     throw error;
   }
 }
 
 /**
- * Genera consigli nutrizionali personalizzati usando Perplexity API
+ * Generates personalized nutritional advice using Perplexity API
  */
 export async function generateNutritionalAdviceWithPerplexity(
   profile: UserProfile,
   userQuery: string
 ) {
-  console.log("Generazione consigli nutrizionali con Perplexity per l'utente:", profile.userId);
-  console.log("Query dell'utente:", userQuery);
+  console.log("Generating nutritional advice with Perplexity for user:", profile.userId);
+  console.log("User query:", userQuery);
 
   // Costruisci il prompt per Perplexity
   const systemPrompt = `Sei un nutrizionista esperto che risponde a domande sulla nutrizione, alimentazione e salute.
