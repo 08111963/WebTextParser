@@ -118,11 +118,22 @@ export default function AIRecommendations({ userId }: AIRecommendationsProps) {
         if (selectedMealType && selectedMealType !== 'all') {
           url += `&mealType=${selectedMealType}`;
         }
-        url += `&forceNew=true`; // Forza sempre nuove generazioni
+        // url += `&forceNew=true`; // Forza sempre nuove generazioni
         console.log("Fetching meal suggestions from:", url);
         const res = await apiRequest("GET", url);
         const data = await res.json();
         console.log("Meal suggestions response:", data);
+        
+        // Debug avanzato
+        if (data?.suggestions) {
+          console.log("Numero di suggerimenti ricevuti:", data.suggestions.length);
+          data.suggestions.forEach((sugg: any, i: number) => {
+            console.log(`Suggerimento ${i+1}:`, sugg.name, sugg.mealType);
+          });
+        } else {
+          console.warn("Formato risposta non valido:", data);
+        }
+        
         return data;
       } catch (error) {
         console.error("Error fetching meal suggestions:", error);
@@ -146,29 +157,29 @@ export default function AIRecommendations({ userId }: AIRecommendationsProps) {
   // Funzione per aggiornare le raccomandazioni
   const handleRefresh = async () => {
     try {
-      if (activeTab === "goals") {
-        toast({
-          title: "Aggiornamento",
-          description: "Generazione di nuove raccomandazioni in corso...",
-        });
-        const result = await refetchGoals();
-        console.log("Raccomandazioni aggiornate:", result.data);
-        toast({
-          title: "Completato",
-          description: "Nuove raccomandazioni generate con successo",
-        });
-      } else if (activeTab === "meals") {
-        toast({
-          title: "Aggiornamento",
-          description: "Generazione di nuovi suggerimenti in corso...",
-        });
-        const result = await refetchMeals();
-        console.log("Suggerimenti pasti aggiornati:", result.data);
-        toast({
-          title: "Completato",
-          description: "Nuovi suggerimenti generati con successo",
-        });
+      toast({
+        title: "Aggiornamento",
+        description: "Generazione di nuovi suggerimenti pasti in corso...",
+      });
+      
+      // Aggiungiamo forzaNew=true direttamente nella chiamata API
+      let url = `/api/recommendations/meals?userId=${userId}&forceNew=true`;
+      if (selectedMealType && selectedMealType !== 'all') {
+        url += `&mealType=${selectedMealType}`;
       }
+      
+      console.log("Richiesta generazione nuovo pasto:", url);
+      const res = await apiRequest("GET", url);
+      const data = await res.json();
+      console.log("Nuovi pasti generati:", data);
+      
+      // Forza il refetch per aggiornare l'UI con i nuovi dati
+      await refetchMeals();
+      
+      toast({
+        title: "Completato",
+        description: "Nuovi suggerimenti generati con successo",
+      });
     } catch (error) {
       console.error("Errore durante l'aggiornamento:", error);
       toast({
