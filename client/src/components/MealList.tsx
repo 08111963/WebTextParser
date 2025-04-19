@@ -50,12 +50,12 @@ type MealListProps = {
   userId: string;
 };
 
-// Mappa italiana per i tipi di pasto
+// Map for meal types
 const mealTypeMap: Record<string, string> = {
-  breakfast: "Colazione",
-  lunch: "Pranzo",
-  dinner: "Cena",
-  snack: "Spuntino"
+  breakfast: "Breakfast",
+  lunch: "Lunch",
+  dinner: "Dinner",
+  snack: "Snack"
 };
 
 export default function MealList({ meals, isLoading, userId }: MealListProps) {
@@ -118,12 +118,12 @@ export default function MealList({ meals, isLoading, userId }: MealListProps) {
   if (!meals || meals.length === 0) {
     return (
       <div className="text-center py-8 text-muted-foreground">
-        <p>Nessun pasto registrato</p>
+        <p>No meals recorded</p>
       </div>
     );
   }
 
-  // Raggruppa i pasti per data
+  // Group meals by date
   const mealsByDate = meals.reduce((acc: Record<string, Meal[]>, meal) => {
     const date = format(new Date(meal.timestamp), "yyyy-MM-dd");
     if (!acc[date]) {
@@ -133,7 +133,7 @@ export default function MealList({ meals, isLoading, userId }: MealListProps) {
     return acc;
   }, {});
 
-  // Ordina le date dalla più recente alla più vecchia
+  // Sort dates from most recent to oldest
   const sortedDates = Object.keys(mealsByDate).sort((a, b) => {
     return new Date(b).getTime() - new Date(a).getTime();
   });
@@ -149,11 +149,11 @@ export default function MealList({ meals, isLoading, userId }: MealListProps) {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Tipo</TableHead>
-                  <TableHead>Alimento</TableHead>
-                  <TableHead className="text-right">Calorie</TableHead>
-                  <TableHead className="text-right">P/C/G</TableHead>
-                  <TableHead className="text-right">Azioni</TableHead>
+                  <TableHead>Type</TableHead>
+                  <TableHead>Food</TableHead>
+                  <TableHead className="text-right">Calories</TableHead>
+                  <TableHead className="text-right">P/C/F</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -177,14 +177,14 @@ export default function MealList({ meals, isLoading, userId }: MealListProps) {
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
-                          <DropdownMenuLabel>Azioni</DropdownMenuLabel>
+                          <DropdownMenuLabel>Actions</DropdownMenuLabel>
                           <DropdownMenuSeparator />
                           <DropdownMenuItem 
                             className="text-destructive cursor-pointer"
                             onClick={() => openDeleteDialog(meal)}
                           >
                             <Trash2 className="h-4 w-4 mr-2" />
-                            Elimina
+                            Delete
                           </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
@@ -197,14 +197,14 @@ export default function MealList({ meals, isLoading, userId }: MealListProps) {
         </div>
       ))}
 
-      {/* Dialog per confermare l'eliminazione */}
+      {/* Dialog to confirm deletion */}
       <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Conferma eliminazione</DialogTitle>
+            <DialogTitle>Confirm deletion</DialogTitle>
             <DialogDescription>
-              Sei sicuro di voler eliminare il pasto "{mealToDelete?.food}"?
-              Questa azione non può essere annullata.
+              Are you sure you want to delete the meal "{mealToDelete?.food}"?
+              This action cannot be undone.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
@@ -213,7 +213,7 @@ export default function MealList({ meals, isLoading, userId }: MealListProps) {
               onClick={() => setDeleteDialogOpen(false)}
               disabled={deleteMealMutation.isPending}
             >
-              Annulla
+              Cancel
             </Button>
             <Button 
               variant="destructive" 
@@ -223,10 +223,10 @@ export default function MealList({ meals, isLoading, userId }: MealListProps) {
               {deleteMealMutation.isPending ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Eliminazione...
+                  Deleting...
                 </>
               ) : (
-                "Elimina"
+                "Delete"
               )}
             </Button>
           </DialogFooter>
