@@ -872,6 +872,63 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // === PAYMENT ROUTES WITH STRIPE ===
+  
+  // Check for Stripe secret key
+  if (!process.env.STRIPE_SECRET_KEY) {
+    console.warn("Warning: STRIPE_SECRET_KEY is not set. Payment functionality will not work.");
+  }
+  
+  // Initialize Stripe with secret key if available
+  const stripe = process.env.STRIPE_SECRET_KEY ? 
+    new Stripe(process.env.STRIPE_SECRET_KEY) : 
+    null;
+  
+  // Create payment intent route
+  app.post("/api/create-payment-intent", async (req, res) => {
+    try {
+      if (!stripe) {
+        return res.status(500).json({ 
+          message: "Stripe is not configured. Please set STRIPE_SECRET_KEY environment variable." 
+        });
+      }
+      
+      const { planId } = req.body;
+      
+      // Price mapping for different plans in cents (USD)
+      const planPrices = {
+        free: 0,
+        premium: 999, // $9.99
+        unlimited: 1999 // $19.99
+      };
+      
+      // Get price based on plan
+      const amount = planPrices[planId as keyof typeof planPrices] || planPrices.premium;
+      
+      // Create a PaymentIntent with the order amount and currency
+      const paymentIntent = await stripe.paymentIntents.create({
+        amount,
+        currency: "usd",
+        automatic_payment_methods: {
+          enabled: true,
+        },
+        metadata: {
+          planId
+        }
+      });
+      
+      res.status(200).json({
+        clientSecret: paymentIntent.client_secret,
+      });
+    } catch (error) {
+      console.error("Error creating payment intent:", error);
+      res.status(500).json({ 
+        message: "Failed to create payment intent", 
+        error: error instanceof Error ? error.message : String(error)
+      });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

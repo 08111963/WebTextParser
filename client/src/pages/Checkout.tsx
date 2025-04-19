@@ -25,11 +25,16 @@ try {
   // We'll handle this error in the component
 }
 
-type CheckoutProps = {
+import { RouteComponentProps } from "wouter";
+
+type CheckoutProps = RouteComponentProps & {
   planId?: string;
 };
 
-export default function Checkout({ planId = "premium" }: CheckoutProps) {
+export default function Checkout(props: RouteComponentProps) {
+  // Extract planId from URL query or use default
+  const queryParams = new URLSearchParams(window.location.search);
+  const planId = queryParams.get('planId') || "premium";
   const [clientSecret, setClientSecret] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);

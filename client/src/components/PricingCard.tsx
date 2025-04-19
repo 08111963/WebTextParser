@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
+import { useLocation } from "wouter";
 
 type PricingTier = {
   id: string;
@@ -28,9 +29,14 @@ type PricingCardProps = {
 
 export default function PricingCard({ pricingData }: PricingCardProps) {
   const [billingCycle, setBillingCycle] = useState<"monthly" | "yearly">("monthly");
+  const [_, navigate] = useLocation();
 
   const toggleBillingCycle = () => {
     setBillingCycle(billingCycle === "monthly" ? "yearly" : "monthly");
+  };
+
+  const handleGetStarted = (planId: string) => {
+    navigate(`/checkout?planId=${planId}`);
   };
 
   const getYearlySavings = (monthly: number, yearly: number) => {
@@ -122,8 +128,9 @@ export default function PricingCard({ pricingData }: PricingCardProps) {
               <Button
                 className={`w-full ${tier.highlighted ? 'bg-primary hover:bg-primary/90' : 'bg-card hover:bg-muted'}`}
                 variant={tier.highlighted ? "default" : "outline"}
+                onClick={() => handleGetStarted(tier.id)}
               >
-                Get Started
+                {tier.id === 'free' ? 'Start Free' : 'Subscribe Now'}
               </Button>
             </CardFooter>
           </Card>

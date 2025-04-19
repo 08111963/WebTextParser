@@ -3,9 +3,9 @@ import { useStripe } from "@stripe/react-stripe-js";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { CheckCircle2, Loader2 } from "lucide-react";
-import { Link } from "wouter";
+import { Link, RouteComponentProps } from "wouter";
 
-export default function PaymentSuccess() {
+export default function PaymentSuccess(props: RouteComponentProps) {
   const [status, setStatus] = useState<"processing" | "succeeded" | "failed">("processing");
   const [message, setMessage] = useState<string>("");
   const stripe = useStripe();
