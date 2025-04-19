@@ -443,24 +443,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
           // Rispondiamo con un set predefinito di raccomandazioni di fallback
           const fallbackRecommendations = [
             {
-              title: "Mediterranea Equilibrata",
-              description: "Approccio mediterraneo con equilibrio tra tutti i macronutrienti, ideale per sostenere energia e salute in modo bilanciato.",
+              title: "Balanced Mediterranean",
+              description: "Mediterranean approach with balance between all macronutrients, ideal for supporting energy and health in a balanced way.",
               calories: 2200,
               proteins: 120,
               carbs: 270,
               fats: 70
             },
             {
-              title: "Proteica Potenziata",
-              description: "Un approccio ad alto contenuto proteico per supportare la massa muscolare e migliorare la sazietà durante la giornata.",
+              title: "Enhanced Protein",
+              description: "A high-protein approach to support muscle mass and improve satiety throughout the day.",
               calories: 2300,
               proteins: 150,
               carbs: 250,
               fats: 75
             },
             {
-              title: "Low-Carb Naturale",
-              description: "Una strategia con carboidrati ridotti e grassi sani aumentati, ideale per stabilizzare i livelli di energia e migliorare il metabolismo.",
+              title: "Natural Low-Carb",
+              description: "A strategy with reduced carbohydrates and increased healthy fats, ideal for stabilizing energy levels and improving metabolism.",
               calories: 2000,
               proteins: 125,
               carbs: 180,
@@ -522,7 +522,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
             // Se non abbiamo ricevuto raccomandazioni valide, restituiamo un errore
             console.log("Empty recommendations from API");
             res.status(500).json({
-              error: "Non è stato possibile generare raccomandazioni. Riprova più tardi.",
+              error: "Unable to generate recommendations. Please try again later.",
               timestamp: new Date().toISOString()
             });
           }
