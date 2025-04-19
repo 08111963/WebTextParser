@@ -166,7 +166,7 @@ export default function AIRecommendations({ userId }: AIRecommendationsProps) {
       // Mostra un toast con caricamento in corso
       toast({
         title: "Generazione in corso",
-        description: "Stiamo creando nuovi suggerimenti personalizzati in base al tuo profilo (richiede 30-60 secondi)",
+        description: "Stiamo creando nuovi suggerimenti personalizzati in base al tuo profilo",
         duration: 60000, // Lungo a sufficienza per il caricamento completo
       });
       
@@ -288,9 +288,7 @@ export default function AIRecommendations({ userId }: AIRecommendationsProps) {
                 <div className="flex flex-col items-center justify-center py-12">
                   <Loader2 className="h-12 w-12 animate-spin text-primary mb-4" />
                   <p className="text-muted-foreground text-center max-w-md">
-                    Generazione di nuovi suggerimenti in corso...
-                    <br />
-                    <span className="text-sm">Questo processo può richiedere fino a un minuto</span>
+                    Creazione di nuovi suggerimenti intelligenti in corso...
                   </p>
                 </div>
               ) : mealSuggestions?.suggestions && mealSuggestions.suggestions.length > 0 ? (
