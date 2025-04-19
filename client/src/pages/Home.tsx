@@ -524,7 +524,19 @@ export default function Home({
 
           <TabsContent value="profile">
             <div className="max-w-4xl mx-auto">
-              <UserProfile />
+              {isAuthenticated ? (
+                <UserProfile />
+              ) : (
+                <div className="border rounded-lg p-8 text-center">
+                  <p className="text-xl font-semibold mb-2">Profilo Utente</p>
+                  <p className="text-muted-foreground mb-6">
+                    Accedi per visualizzare e modificare il tuo profilo, impostare i tuoi dati fisici e gestire le tue preferenze.
+                  </p>
+                  <Button onClick={() => requireAuth && requireAuth('profile')}>
+                    Accedi al Tuo Profilo
+                  </Button>
+                </div>
+              )}
             </div>
           </TabsContent>
         </Tabs>
