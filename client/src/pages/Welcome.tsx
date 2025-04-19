@@ -35,7 +35,7 @@ export default function Welcome() {
             <p className="text-gray-600 mb-4">Registra facilmente ciò che mangi e monitora le calorie e i nutrienti.</p>
             <Button 
               onClick={() => navigateTo('meals')} 
-              className="bg-primary hover:bg-primary-dark text-white font-medium py-2 px-4 rounded-md transition-colors"
+              className="bg-primary hover:bg-primary/80 text-white font-medium py-2 px-6 rounded-md transition-colors"
             >
               Esplora Pasti
             </Button>
@@ -46,7 +46,7 @@ export default function Welcome() {
             <p className="text-gray-600 mb-4">Imposta obiettivi personalizzati e monitora i tuoi progressi nel tempo.</p>
             <Button 
               onClick={() => navigateTo('goals')} 
-              className="bg-primary hover:bg-primary-dark text-white font-medium py-2 px-4 rounded-md transition-colors"
+              className="bg-primary hover:bg-primary/80 text-white font-medium py-2 px-6 rounded-md transition-colors"
             >
               Esplora Obiettivi
             </Button>
@@ -218,8 +218,7 @@ export default function Welcome() {
             <Button 
               onClick={() => navigateTo('dashboard')} 
               size="lg"
-              variant="outline"
-              className="border-white text-white hover:bg-white/10 font-bold py-3 px-8 rounded-md text-lg"
+              className="bg-white/20 border-2 border-white text-white hover:bg-white/30 font-bold py-3 px-8 rounded-md text-lg"
             >
               Esplora Demo
             </Button>
