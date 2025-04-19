@@ -45,6 +45,7 @@ export default function AIObjectives({ userId }: AIObjectivesProps) {
   const { toast } = useToast();
   const queryClient = useQueryClient(); 
   const [activeTab, setActiveTab] = useState("goals");
+  const [isUserAuthenticated, setIsUserAuthenticated] = useState(userId !== "0");
   
   // Raccomandazioni per obiettivi nutrizionali
   const {
@@ -68,7 +69,7 @@ export default function AIObjectives({ userId }: AIObjectivesProps) {
         throw error;
       }
     },
-    enabled: !!userId,
+    enabled: !!userId && isUserAuthenticated,
     retry: 1,
     refetchOnWindowFocus: false,
   });
@@ -80,6 +81,16 @@ export default function AIObjectives({ userId }: AIObjectivesProps) {
 
   // Funzione per aggiornare le raccomandazioni
   const handleRefresh = async () => {
+    // Se l'utente non è autenticato, mostra messaggio di login
+    if (!isUserAuthenticated) {
+      toast({
+        title: "Autenticazione richiesta",
+        description: "Per utilizzare le raccomandazioni AI personalizzate è necessario accedere o registrarsi.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     try {
       toast({
         title: "Aggiornamento",
@@ -142,125 +153,144 @@ export default function AIObjectives({ userId }: AIObjectivesProps) {
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <Tabs defaultValue="goals" value={activeTab} onValueChange={setActiveTab}>
-          <div className="flex justify-between items-center mb-4">
-            <TabsList>
-              <TabsTrigger value="goals" className="flex items-center gap-1">
-                <Target className="h-4 w-4" />
-                <span>Obiettivi Nutrizionali</span>
-              </TabsTrigger>
-            </TabsList>
-            
-            <Button 
-              variant="outline" 
-              size="sm" 
-              onClick={handleRefresh} 
-              disabled={isLoadingGoals}
-            >
-              {isLoadingGoals ? (
-                <Loader2 className="h-4 w-4 mr-1 animate-spin" />
-              ) : (
-                <Sparkles className="h-4 w-4 mr-1" />
-              )}
-              Genera Nuovi
+        {!isUserAuthenticated ? (
+          <div className="text-center py-10 border rounded-lg">
+            <Sparkles className="h-12 w-12 text-primary mx-auto mb-4" />
+            <h3 className="text-xl font-medium mb-2">Attiva Raccomandazioni Personalizzate</h3>
+            <p className="text-muted-foreground max-w-md mx-auto mb-6">
+              Accedi o registrati per sbloccare raccomandazioni personalizzate basate sul tuo profilo e sui tuoi obiettivi nutrizionali.
+            </p>
+            <Button onClick={() => {
+              toast({
+                title: "Autenticazione richiesta",
+                description: "Per utilizzare le raccomandazioni AI personalizzate è necessario accedere o registrarsi.",
+                duration: 5000
+              });
+            }}>
+              Accedi per Sbloccare
             </Button>
           </div>
-          
-          <TabsContent value="goals" className="mt-0">
-            <div className="space-y-6">
-              <div className="mb-2">
-                <GoalsChatbotSpecialized userId={userId} />
-              </div>
+        ) : (
+          <Tabs defaultValue="goals" value={activeTab} onValueChange={setActiveTab}>
+            <div className="flex justify-between items-center mb-4">
+              <TabsList>
+                <TabsTrigger value="goals" className="flex items-center gap-1">
+                  <Target className="h-4 w-4" />
+                  <span>Obiettivi Nutrizionali</span>
+                </TabsTrigger>
+              </TabsList>
               
-              <div className="border-t pt-6 mt-4">
-                <h3 className="text-lg font-medium mb-4 flex items-center gap-2">
-                  <Star className="h-5 w-5 text-yellow-500" />
-                  <span>Obiettivi Nutrizionali Consigliati</span>
-                </h3>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={handleRefresh} 
+                disabled={isLoadingGoals}
+              >
+                {isLoadingGoals ? (
+                  <Loader2 className="h-4 w-4 mr-1 animate-spin" />
+                ) : (
+                  <Sparkles className="h-4 w-4 mr-1" />
+                )}
+                Genera Nuovi
+              </Button>
+            </div>
+            
+            <TabsContent value="goals" className="mt-0">
+              <div className="space-y-6">
+                <div className="mb-2">
+                  <GoalsChatbotSpecialized userId={userId} />
+                </div>
                 
-                <div className="space-y-4">
-                  {isLoadingGoals ? (
-                    <div className="flex justify-center py-8">
-                      <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-                    </div>
-                  ) : nutritionGoalRecommendations?.recommendations && nutritionGoalRecommendations.recommendations.length > 0 ? (
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      {nutritionGoalRecommendations.recommendations.map((rec, index) => (
-                        <div key={index} className="border rounded-lg p-4 bg-card shadow-sm">
-                          <h4 className="font-medium flex items-center gap-2 text-base">
-                            <span className="break-words">{rec.title}</span>
-                          </h4>
-                          
-                          <p className="text-sm text-muted-foreground mt-2 mb-3 leading-relaxed overflow-auto max-h-[8rem] border border-gray-200 bg-slate-50 dark:bg-slate-800/50 p-3 rounded-md">{rec.description}</p>
-                          
-                          <div className="grid grid-cols-2 gap-4 mt-3">
-                            <div className="bg-muted/40 p-4 rounded text-center flex flex-col h-28 justify-between">
-                              <div className="text-xs text-muted-foreground mb-1">Calorie</div>
-                              <div className="text-2xl font-semibold">{rec.calories}</div>
-                              <div className="text-xs mt-1">kcal</div>
+                <div className="border-t pt-6 mt-4">
+                  <h3 className="text-lg font-medium mb-4 flex items-center gap-2">
+                    <Star className="h-5 w-5 text-yellow-500" />
+                    <span>Obiettivi Nutrizionali Consigliati</span>
+                  </h3>
+                  
+                  <div className="space-y-4">
+                    {isLoadingGoals ? (
+                      <div className="flex justify-center py-8">
+                        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+                      </div>
+                    ) : nutritionGoalRecommendations?.recommendations && nutritionGoalRecommendations.recommendations.length > 0 ? (
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {nutritionGoalRecommendations.recommendations.map((rec, index) => (
+                          <div key={index} className="border rounded-lg p-4 bg-card shadow-sm">
+                            <h4 className="font-medium flex items-center gap-2 text-base">
+                              <span className="break-words">{rec.title}</span>
+                            </h4>
+                            
+                            <p className="text-sm text-muted-foreground mt-2 mb-3 leading-relaxed overflow-auto max-h-[8rem] border border-gray-200 bg-slate-50 dark:bg-slate-800/50 p-3 rounded-md">{rec.description}</p>
+                            
+                            <div className="grid grid-cols-2 gap-4 mt-3">
+                              <div className="bg-muted/40 p-4 rounded text-center flex flex-col h-28 justify-between">
+                                <div className="text-xs text-muted-foreground mb-1">Calorie</div>
+                                <div className="text-2xl font-semibold">{rec.calories}</div>
+                                <div className="text-xs mt-1">kcal</div>
+                              </div>
+                              <div className="bg-muted/40 p-4 rounded text-center flex flex-col h-28 justify-between">
+                                <div className="text-xs text-muted-foreground mb-1">Proteine</div>
+                                <div className="text-2xl font-semibold">{rec.proteins}</div>
+                                <div className="text-xs mt-1">grammi</div>
+                              </div>
+                              <div className="bg-muted/40 p-4 rounded text-center flex flex-col h-28 justify-between">
+                                <div className="text-xs text-muted-foreground mb-1">Carboidrati</div>
+                                <div className="text-2xl font-semibold">{rec.carbs}</div>
+                                <div className="text-xs mt-1">grammi</div>
+                              </div>
+                              <div className="bg-muted/40 p-4 rounded text-center flex flex-col h-28 justify-between">
+                                <div className="text-xs text-muted-foreground mb-1">Grassi</div>
+                                <div className="text-2xl font-semibold">{rec.fats}</div>
+                                <div className="text-xs mt-1">grammi</div>
+                              </div>
                             </div>
-                            <div className="bg-muted/40 p-4 rounded text-center flex flex-col h-28 justify-between">
-                              <div className="text-xs text-muted-foreground mb-1">Proteine</div>
-                              <div className="text-2xl font-semibold">{rec.proteins}</div>
-                              <div className="text-xs mt-1">grammi</div>
-                            </div>
-                            <div className="bg-muted/40 p-4 rounded text-center flex flex-col h-28 justify-between">
-                              <div className="text-xs text-muted-foreground mb-1">Carboidrati</div>
-                              <div className="text-2xl font-semibold">{rec.carbs}</div>
-                              <div className="text-xs mt-1">grammi</div>
-                            </div>
-                            <div className="bg-muted/40 p-4 rounded text-center flex flex-col h-28 justify-between">
-                              <div className="text-xs text-muted-foreground mb-1">Grassi</div>
-                              <div className="text-2xl font-semibold">{rec.fats}</div>
-                              <div className="text-xs mt-1">grammi</div>
+                            
+                            <div className="mt-3 flex justify-end">
+                              <Button variant="outline" size="sm" className="text-xs" onClick={() => {
+                                toast({
+                                  title: "Funzionalità in arrivo",
+                                  description: "La creazione automatica di obiettivi sarà disponibile presto!",
+                                });
+                              }}>
+                                <CircleCheck className="h-3.5 w-3.5 mr-1" />
+                                Usa questo obiettivo
+                              </Button>
                             </div>
                           </div>
-                          
-                          <div className="mt-3 flex justify-end">
-                            <Button variant="outline" size="sm" className="text-xs" onClick={() => {
-                              toast({
-                                title: "Funzionalità in arrivo",
-                                description: "La creazione automatica di obiettivi sarà disponibile presto!",
-                              });
-                            }}>
-                              <CircleCheck className="h-3.5 w-3.5 mr-1" />
-                              Usa questo obiettivo
-                            </Button>
-                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="text-center py-8 space-y-4 mt-4">
+                        <div className="rounded-full w-16 h-16 mx-auto bg-muted flex items-center justify-center">
+                          <Sparkles className="h-6 w-6 text-muted-foreground" />
                         </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="text-center py-8 space-y-4 mt-4">
-                      <div className="rounded-full w-16 h-16 mx-auto bg-muted flex items-center justify-center">
-                        <Sparkles className="h-6 w-6 text-muted-foreground" />
+                        <div>
+                          <h3 className="text-lg font-medium mb-1">Nessuna raccomandazione disponibile</h3>
+                          <p className="text-muted-foreground">
+                            Clicca "Genera Nuovi" per ricevere raccomandazioni personalizzate per i tuoi obiettivi nutrizionali.
+                          </p>
+                        </div>
+                        <Button 
+                          variant="outline" 
+                          className="mt-2" 
+                          onClick={handleRefresh} 
+                          disabled={isLoadingGoals}
+                        >
+                          {isLoadingGoals ? (
+                            <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                          ) : (
+                            <Sparkles className="h-4 w-4 mr-2" />
+                          )}
+                          Genera Raccomandazioni
+                        </Button>
                       </div>
-                      <div>
-                        <h3 className="text-lg font-medium mb-1">Nessuna raccomandazione disponibile</h3>
-                        <p className="text-muted-foreground">
-                          Clicca "Genera Nuovi" per ricevere raccomandazioni personalizzate per i tuoi obiettivi nutrizionali.
-                        </p>
-                      </div>
-                      <Button 
-                        variant="outline" 
-                        className="mt-2" 
-                        onClick={handleRefresh} 
-                        disabled={isLoadingGoals}
-                      >
-                        {isLoadingGoals ? (
-                          <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                        ) : (
-                          <Sparkles className="h-4 w-4 mr-2" />
-                        )}
-                        Genera Raccomandazioni
-                      </Button>
-                    </div>
-                  )}
+                    )}
+                  </div>
                 </div>
               </div>
-            </div>
-          </TabsContent>
-        </Tabs>
+            </TabsContent>
+          </Tabs>
+        )}
       </CardContent>
     </Card>
   );
