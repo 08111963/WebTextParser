@@ -8,7 +8,7 @@ import { Link } from "wouter";
 const TRIAL_PERIOD_DAYS = 5;
 
 export default function Pricing() {
-  const { trialActive, trialDaysLeft } = useSubscription();
+  const { trialActive, trialDaysLeft, trialEndDate } = useSubscription();
   
   const pricingData = [
     {
@@ -93,6 +93,17 @@ export default function Pricing() {
             Return to Home
           </Button>
         </Link>
+        
+        {trialActive && (
+          <div className="mb-6 p-4 border border-primary/30 rounded-lg bg-primary/5">
+            <h3 className="text-lg font-medium mb-1">
+              Your free trial is active until {trialEndDate ? new Date(trialEndDate).toLocaleDateString() : ''}
+            </h3>
+            <p className="text-muted-foreground">
+              You have {trialDaysLeft} {trialDaysLeft === 1 ? 'day' : 'days'} remaining with full access to all premium features.
+            </p>
+          </div>
+        )}
       </div>
       <PricingCard pricingData={pricingData} />
     </div>
