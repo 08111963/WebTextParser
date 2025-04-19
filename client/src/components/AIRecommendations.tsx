@@ -332,38 +332,50 @@ export default function AIRecommendations({ userId }: AIRecommendationsProps) {
                       </p>
                     </div>
                   ) : mealSuggestions?.suggestions && mealSuggestions.suggestions.length > 0 ? (
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 gap-6">
                       {mealSuggestions.suggestions.map((meal, index) => (
-                        <div key={index} className="border rounded-lg p-4 bg-card shadow-sm">
-                          <div className="flex justify-between items-start gap-2">
-                            <h4 className="font-medium text-base">{meal.name}</h4>
-                            <Badge className="flex items-center gap-1 flex-shrink-0 whitespace-nowrap" variant="outline">
-                              {mealTypeIcons[meal.mealType.toLowerCase()] || <Utensils className="h-3 w-3" />}
+                        <div key={index} className="border rounded-lg p-6 bg-card shadow-sm">
+                          <div className="flex justify-between items-start gap-4 mb-4">
+                            <h4 className="font-medium text-xl">{meal.name}</h4>
+                            <Badge className="flex items-center gap-1 flex-shrink-0 whitespace-nowrap text-base py-1.5 px-3" variant="outline">
+                              {mealTypeIcons[meal.mealType.toLowerCase()] || <Utensils className="h-4 w-4" />}
                               {mealTypeMap[meal.mealType.toLowerCase()] || meal.mealType}
                             </Badge>
                           </div>
                           
-                          <div className="mt-2 mb-3">
-                            <p className="text-sm text-muted-foreground leading-relaxed min-h-[5rem] overflow-auto max-h-[8rem] border border-gray-200 bg-slate-50 dark:bg-slate-800/50 p-3 rounded-md">
+                          <div className="mt-2 mb-4">
+                            <p className="text-base text-muted-foreground leading-relaxed border border-gray-200 bg-slate-50 dark:bg-slate-800/50 p-4 rounded-md">
                               {meal.description}
                             </p>
                           </div>
                           
-                          <div className="flex flex-wrap gap-2 mt-2">
-                            <Badge variant="secondary">{meal.calories} kcal</Badge>
-                            <Badge variant="outline" className="bg-red-100/10">P: {meal.proteins}g</Badge>
-                            <Badge variant="outline" className="bg-green-100/10">C: {meal.carbs}g</Badge>
-                            <Badge variant="outline" className="bg-yellow-100/10">G: {meal.fats}g</Badge>
+                          <div className="grid grid-cols-4 gap-4 mt-4">
+                            <div className="border rounded-lg p-4 text-center">
+                              <div className="text-2xl font-medium">{meal.calories}</div>
+                              <div className="text-sm text-muted-foreground">kcal</div>
+                            </div>
+                            <div className="border rounded-lg p-4 text-center bg-red-50 dark:bg-red-900/10">
+                              <div className="text-2xl font-medium">{meal.proteins}</div>
+                              <div className="text-sm text-muted-foreground">Proteine (g)</div>
+                            </div>
+                            <div className="border rounded-lg p-4 text-center bg-green-50 dark:bg-green-900/10">
+                              <div className="text-2xl font-medium">{meal.carbs}</div>
+                              <div className="text-sm text-muted-foreground">Carboidrati (g)</div>
+                            </div>
+                            <div className="border rounded-lg p-4 text-center bg-yellow-50 dark:bg-yellow-900/10">
+                              <div className="text-2xl font-medium">{meal.fats}</div>
+                              <div className="text-sm text-muted-foreground">Grassi (g)</div>
+                            </div>
                           </div>
                           
-                          <div className="mt-3 flex justify-end">
-                            <Button variant="outline" size="sm" className="text-xs" onClick={() => {
+                          <div className="mt-4 flex justify-end">
+                            <Button variant="outline" className="text-sm" onClick={() => {
                               toast({
                                 title: "Funzionalità in arrivo",
                                 description: "L'aggiunta automatica di pasti sarà disponibile presto!",
                               });
                             }}>
-                              <ArrowRight className="h-3.5 w-3.5 mr-1" />
+                              <ArrowRight className="h-4 w-4 mr-2" />
                               Aggiungi pasto
                             </Button>
                           </div>
