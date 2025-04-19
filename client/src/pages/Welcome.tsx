@@ -218,7 +218,7 @@ export default function Welcome() {
             <Button 
               onClick={() => navigateTo('dashboard')} 
               size="lg"
-              className="bg-primary/10 border-2 border-white text-white hover:bg-primary/20 font-bold py-3 px-8 rounded-md text-lg"
+              className="bg-white border-2 border-white text-primary hover:bg-gray-100 font-bold py-3 px-8 rounded-md text-lg"
             >
               Esplora Demo
             </Button>
