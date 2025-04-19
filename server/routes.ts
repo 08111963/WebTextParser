@@ -11,6 +11,7 @@ import {
 import { z } from "zod";
 import { setupAuth } from "./auth";
 import { generateNutritionGoalRecommendations, generateMealSuggestions, generateAIResponse } from "./ai-service";
+import { generateMealSuggestionsWithPerplexity, generateNutritionalAdviceWithPerplexity } from "./perplexity-service";
 
 // Middleware per proteggere le route che richiedono autenticazione
 function isAuthenticated(req: Request, res: Response, next: NextFunction) {
@@ -791,6 +792,80 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       res.status(500).json({ 
         message: "Failed to update user profile", 
+        error: error instanceof Error ? error.message : String(error)
+      });
+    }
+  });
+
+  // === PERPLEXITY AI ROUTES ===
+
+  // Nuova route per i suggerimenti pasti con Perplexity AI
+  app.get("/api/perplexity/meal-suggestions", isAuthenticated, async (req, res) => {
+    try {
+      const { userId, mealType } = req.query;
+      const dietaryPreferences = req.query.dietaryPreferences 
+        ? Array.isArray(req.query.dietaryPreferences) 
+          ? req.query.dietaryPreferences as string[] 
+          : [req.query.dietaryPreferences as string]
+        : undefined;
+      
+      if (!userId) {
+        return res.status(400).json({ message: "userId è obbligatorio" });
+      }
+
+      // Recupera il profilo utente
+      const userProfile = await storage.getUserProfile(userId as string);
+      if (!userProfile) {
+        return res.status(404).json({ message: "Profilo utente non trovato" });
+      }
+
+      // Recupera l'obiettivo attivo dell'utente (se esiste)
+      const activeGoal = await storage.getActiveNutritionGoal(userId as string);
+
+      // Genera suggerimenti con Perplexity
+      const suggestions = await generateMealSuggestionsWithPerplexity(
+        userProfile,
+        activeGoal,
+        mealType as string | undefined,
+        dietaryPreferences
+      );
+
+      res.json(suggestions);
+    } catch (error) {
+      console.error("Errore nella generazione dei suggerimenti pasti con Perplexity:", error);
+      res.status(500).json({ 
+        message: "Si è verificato un problema di connessione nella generazione dei suggerimenti. Riprova più tardi.",
+        error: error instanceof Error ? error.message : String(error)
+      });
+    }
+  });
+
+  // Nuova route per consigli nutrizionali con Perplexity AI
+  app.post("/api/perplexity/nutritional-advice", isAuthenticated, async (req, res) => {
+    try {
+      const { userId, query } = req.body;
+      
+      if (!userId || !query) {
+        return res.status(400).json({ message: "userId e query sono obbligatori" });
+      }
+
+      // Recupera il profilo utente
+      const userProfile = await storage.getUserProfile(userId);
+      if (!userProfile) {
+        return res.status(404).json({ message: "Profilo utente non trovato" });
+      }
+
+      // Genera consigli nutrizionali con Perplexity
+      const advice = await generateNutritionalAdviceWithPerplexity(
+        userProfile,
+        query
+      );
+
+      res.json(advice);
+    } catch (error) {
+      console.error("Errore nella generazione dei consigli nutrizionali con Perplexity:", error);
+      res.status(500).json({ 
+        message: "Si è verificato un problema di connessione nella generazione dei consigli. Riprova più tardi.",
         error: error instanceof Error ? error.message : String(error)
       });
     }
