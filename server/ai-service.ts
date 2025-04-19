@@ -275,7 +275,7 @@ export async function generateNutritionGoalRecommendations(
     } catch (parseError) {
       console.error("Failed to parse OpenAI response 1:", parseError);
       recommendation1 = {
-        title: "Mediterranea Equilibrata",
+        title: "Balanced Mediterranean",
         description: "Approccio mediterraneo con equilibrio tra tutti i macronutrienti, ideale per sostenere energia e salute in modo bilanciato.",
         calories: 2200,
         proteins: 120,
@@ -353,7 +353,7 @@ export async function generateNutritionGoalRecommendations(
     // Processiamo le tre raccomandazioni normalizzando i valori
     let processedRecommendations = [
       {
-        title: recommendation1.title || "Mediterranea Equilibrata",
+        title: recommendation1.title || "Balanced Mediterranean",
         description: recommendation1.description || "Approccio mediterraneo ricco di nutrienti essenziali, per mantenere energia e salute in modo bilanciato.",
         calories: Math.round(Number(recommendation1.calories) || 2200),
         proteins: Math.round(Number(recommendation1.proteins) || 110),
