@@ -96,6 +96,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         title: "Logout effettuato",
         description: "Hai effettuato il logout con successo.",
       });
+      // Redirect alla pagina di benvenuto invece che alla pagina di login
+      window.location.href = "/";
     },
     onError: (error: Error) => {
       toast({
