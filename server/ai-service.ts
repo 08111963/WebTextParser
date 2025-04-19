@@ -1,13 +1,21 @@
 import OpenAI from "openai";
 import { Meal, NutritionGoal, UserProfile } from "@shared/schema";
 
-// Inizializza OpenAI SDK client
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+// Inizializza OpenAI SDK client per obiettivi nutrizionali
+const openaiGoals = new OpenAI({ apiKey: process.env.OPENAI_API_KEY_GOALS });
+
+// Inizializza OpenAI SDK client per suggerimenti pasti
+const openaiMeals = new OpenAI({ apiKey: process.env.OPENAI_API_KEY_MEALS });
+
+// Inizializza OpenAI SDK client per uso generale (per compatibilità con codice esistente)
+const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY_GOALS });
+
 // the newest OpenAI model is "gpt-4o" which was released May 13, 2024. do not change this unless explicitly requested by the user
 const MODEL = "gpt-4o";
 
-// Debug log per verificare se l'API key è presente
-console.log("OpenAI API key exists:", !!process.env.OPENAI_API_KEY);
+// Debug log per verificare se le API key sono presenti
+console.log("OpenAI API key for goals exists:", !!process.env.OPENAI_API_KEY_GOALS);
+console.log("OpenAI API key for meals exists:", !!process.env.OPENAI_API_KEY_MEALS);
 
 /**
  * Genera una risposta tramite AI basata su una domanda diretta dell'utente
