@@ -256,6 +256,21 @@ export default function AIObjectives({ userId }: AIObjectivesProps) {
                             </div>
                           </div>
                         ))}
+                        
+                        <div className="flex justify-center mt-6">
+                          <Button 
+                            className="px-6 py-6 text-md" 
+                            onClick={handleRefresh} 
+                            disabled={isLoadingGoals}
+                          >
+                            {isLoadingGoals ? (
+                              <Loader2 className="h-5 w-5 mr-2 animate-spin" />
+                            ) : (
+                              <Sparkles className="h-5 w-5 mr-2" />
+                            )}
+                            Genera Nuovi Obiettivi
+                          </Button>
+                        </div>
                       </div>
                     ) : (
                       <div className="text-center py-8 space-y-4 mt-4">
