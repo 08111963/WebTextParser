@@ -199,7 +199,7 @@ export async function generateNutritionGoalRecommendations(
         fats: Math.round(Number(rec.fats))
       }));
     } 
-    // Se abbiamo un oggetto con proprietà 'objectives', 'obiettiviNutrizionali' o altra struttura
+    // Se abbiamo un oggetto con proprietà 'objectives', 'obiettiviNutrizionali', 'goals' o altra struttura
     else if (recommendations && typeof recommendations === 'object') {
       // Check per varie strutture che OpenAI potrebbe restituire
       if (recommendations.objectives && Array.isArray(recommendations.objectives)) {
@@ -215,6 +215,17 @@ export async function generateNutritionGoalRecommendations(
       // Check per la struttura italiana 'obiettiviNutrizionali'
       else if (recommendations.obiettiviNutrizionali && Array.isArray(recommendations.obiettiviNutrizionali)) {
         processedRecommendations = recommendations.obiettiviNutrizionali.map((rec: any) => ({
+          title: rec.title,
+          description: rec.description,
+          calories: Math.round(Number(rec.calories)),
+          proteins: Math.round(Number(rec.proteins)),
+          carbs: Math.round(Number(rec.carbs)),
+          fats: Math.round(Number(rec.fats))
+        }));
+      }
+      // Check per la struttura 'goals'
+      else if (recommendations.goals && Array.isArray(recommendations.goals)) {
+        processedRecommendations = recommendations.goals.map((rec: any) => ({
           title: rec.title,
           description: rec.description,
           calories: Math.round(Number(rec.calories)),
