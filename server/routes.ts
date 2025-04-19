@@ -13,7 +13,7 @@ import { setupAuth } from "./auth";
 import { generateNutritionGoalRecommendations, generateMealSuggestions, generateAIResponse } from "./ai-service";
 import { generateMealSuggestionsWithPerplexity, generateNutritionalAdviceWithPerplexity } from "./perplexity-service";
 
-// Middleware per proteggere le route che richiedono autenticazione
+// Middleware to protect routes that require authentication
 function isAuthenticated(req: Request, res: Response, next: NextFunction) {
   if (req.isAuthenticated()) {
     return next();
@@ -22,7 +22,7 @@ function isAuthenticated(req: Request, res: Response, next: NextFunction) {
 }
 
 export async function registerRoutes(app: Express): Promise<Server> {
-  // Configura l'autenticazione
+  // Configure authentication
   setupAuth(app);
   // Get meals for user (route protetta)
   app.get("/api/meals", isAuthenticated, async (req, res) => {
@@ -597,7 +597,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "User profile not found" });
       }
       
-      // Recupera obiettivo nutrizionale attuale se presente
+      // Retrieve current nutritional goal if present
       const nutritionGoal = await storage.getActiveNutritionGoal(userId);
       
       console.log("Generating meal suggestions for user:", userId);
@@ -607,7 +607,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.log("Preferences:", preferences || "None");
       
       try {
-        // Genera suggerimenti personalizzati per i pasti
+        // Generate personalized meal suggestions
         const suggestions = await generateMealSuggestions(
           profile, 
           nutritionGoal,
@@ -621,7 +621,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           isResponseSent = true;
           clearTimeout(timeoutHandle);
           
-          // Se non ci sono suggerimenti, restituisci un array vuoto invece di null
+          // If there are no suggestions, return an empty array instead of null
           res.json({ 
             suggestions: suggestions || [],
             timestamp: new Date().toISOString(),
@@ -651,12 +651,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ 
         message: "Failed to generate meal suggestions", 
         error: error instanceof Error ? error.message : String(error),
-        suggestions: [] // Restituisci un array vuoto anche in caso di errore
+        suggestions: [] // Return an empty array even in case of error
       });
     }
   });
   
-  // Endpoint per richiedere una risposta al chatbot AI (route protetta)
+  // Endpoint to request an AI chatbot response (protected route)
   app.post("/api/ai-chat", isAuthenticated, async (req, res) => {
     try {
       const { userId, query, chatType } = req.body;
@@ -665,17 +665,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "User ID and query are required" });
       }
       
-      // Recupera il profilo utente
+      // Retrieve user profile
       const profile = await storage.getUserProfile(userId);
       
       if (!profile) {
         return res.status(404).json({ message: "User profile not found" });
       }
       
-      // Recupera obiettivo nutrizionale attuale se presente
+      // Retrieve current nutritional goal if present
       const currentGoal = await storage.getActiveNutritionGoal(userId);
       
-      // Recupera pasti recenti se disponibili
+      // Retrieve recent meals if available
       const recentMeals = await storage.getMealsByUserId(userId);
       
       console.log("Processing AI chat request for user:", userId);
