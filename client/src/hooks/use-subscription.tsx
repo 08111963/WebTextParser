@@ -18,8 +18,7 @@ const planFeatures: Record<SubscriptionPlan, string[]> = {
   "free": [
     "basic-meal-tracking",
     "bmi-calculator",
-    "metabolism-calculator",
-    "limited-meal-history"
+    "metabolism-calculator"
   ],
   "premium-monthly": [
     "basic-meal-tracking",
