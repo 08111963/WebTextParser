@@ -21,10 +21,16 @@ export default function PremiumFeature({
   title,
   description 
 }: PremiumFeatureProps) {
-  const { canAccess, trialActive, trialDaysLeft } = useSubscription();
+  const { canAccess, trialActive, trialDaysLeft, isPremium } = useSubscription();
   const [_, navigate] = useLocation();
 
-  if (canAccess(feature)) {
+  // Per il test, forziamo il blocco delle funzionalità a prescindere
+  // Nella versione reale utilizzeremmo: if (canAccess(feature))
+  
+  // Stiamo testando la struttura di accesso, quindi disattiviamo temporaneamente tutte le funzionalità
+  const blockAllFeatures = true;
+  
+  if (!blockAllFeatures && canAccess(feature)) {
     return <>{children}</>;
   }
 
