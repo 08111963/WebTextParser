@@ -18,35 +18,35 @@ export default function MetabolismCard({
   gender, 
   activityLevel 
 }: MetabolismCardProps) {
-  // Calcola metabolismo basale (calorie a riposo)
+  // Calculate basal metabolism (calories at rest)
   const bmr = calculateBMR(weight, height, age, gender);
   
-  // Calcola fabbisogno calorico giornaliero totale
+  // Calculate total daily caloric requirement
   const tdee = calculateTDEE(bmr, activityLevel);
   
-  // Suggerisce distribuzione macronutrienti basata sul "mantenimento"
-  const macros = suggestMacroDistribution("mantenimento");
+  // Suggest macronutrient distribution based on "maintenance"
+  const macros = suggestMacroDistribution("maintenance");
   
-  // Traduzione livello attività
+  // Activity level translation
   const activityLevelLabel = {
-    "sedentario": "Sedentario",
-    "sedentary": "Sedentario",
-    "leggero": "Leggero",
-    "light": "Leggero",
-    "moderato": "Moderato",
-    "moderate": "Moderato",
-    "attivo": "Attivo",
-    "active": "Attivo",
-    "molto attivo": "Molto attivo",
-    "very active": "Molto attivo"
-  }[activityLevel?.toLowerCase()] || "Non specificato";
+    "sedentario": "Sedentary",
+    "sedentary": "Sedentary",
+    "leggero": "Light",
+    "light": "Light",
+    "moderato": "Moderate",
+    "moderate": "Moderate",
+    "attivo": "Active",
+    "active": "Active",
+    "molto attivo": "Very Active",
+    "very active": "Very Active"
+  }[activityLevel?.toLowerCase()] || "Not specified";
   
   return (
     <Card>
       <CardHeader className="pb-2">
         <CardTitle className="text-lg flex items-center gap-2">
           <Flame className="h-5 w-5 text-primary" />
-          <span>Metabolismo Basale</span>
+          <span>Basal Metabolism</span>
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
@@ -54,15 +54,15 @@ export default function MetabolismCard({
               </TooltipTrigger>
               <TooltipContent className="max-w-sm">
                 <p>
-                  Il Metabolismo Basale (BMR) rappresenta le calorie che il corpo consuma a riposo per le funzioni vitali.
-                  Il Fabbisogno Energetico Totale (TDEE) include anche l'attività fisica quotidiana.
+                  Basal Metabolic Rate (BMR) represents the calories your body burns at rest for vital functions.
+                  Total Daily Energy Expenditure (TDEE) also includes daily physical activity.
                 </p>
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>
         </CardTitle>
         <CardDescription>
-          Calorie necessarie per il tuo corpo, calcolate con formula Harris-Benedict
+          Calories needed for your body, calculated with the Harris-Benedict formula
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -70,37 +70,37 @@ export default function MetabolismCard({
           <div className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <div className="bg-primary/10 p-3 rounded-md text-center">
-                <div className="text-sm text-muted-foreground">Metabolismo Basale</div>
+                <div className="text-sm text-muted-foreground">Basal Metabolism</div>
                 <div className="text-2xl font-bold">{bmr} kcal</div>
-                <div className="text-xs text-muted-foreground">A riposo</div>
+                <div className="text-xs text-muted-foreground">At rest</div>
               </div>
               
               <div className="bg-primary/10 p-3 rounded-md text-center">
-                <div className="text-sm text-muted-foreground">Fabbisogno Totale</div>
+                <div className="text-sm text-muted-foreground">Total Requirement</div>
                 <div className="text-2xl font-bold">{tdee} kcal</div>
-                <div className="text-xs text-muted-foreground">Liv. attività: {activityLevelLabel}</div>
+                <div className="text-xs text-muted-foreground">Activity level: {activityLevelLabel}</div>
               </div>
             </div>
             
             <div className="mt-4">
-              <div className="text-sm font-medium mb-2">Distribuzione macronutrienti consigliata:</div>
+              <div className="text-sm font-medium mb-2">Recommended macronutrient distribution:</div>
               <div className="grid grid-cols-3 gap-3">
                 <div className="border rounded-md p-2 text-center">
-                  <div className="text-xs text-muted-foreground">Proteine</div>
+                  <div className="text-xs text-muted-foreground">Protein</div>
                   <div className="font-semibold">{macros.proteins}%</div>
                   <div className="text-xs text-muted-foreground">
                     ~{Math.round((tdee * macros.proteins / 100) / 4)}g
                   </div>
                 </div>
                 <div className="border rounded-md p-2 text-center">
-                  <div className="text-xs text-muted-foreground">Carboidrati</div>
+                  <div className="text-xs text-muted-foreground">Carbohydrates</div>
                   <div className="font-semibold">{macros.carbs}%</div>
                   <div className="text-xs text-muted-foreground">
                     ~{Math.round((tdee * macros.carbs / 100) / 4)}g
                   </div>
                 </div>
                 <div className="border rounded-md p-2 text-center">
-                  <div className="text-xs text-muted-foreground">Grassi</div>
+                  <div className="text-xs text-muted-foreground">Fat</div>
                   <div className="font-semibold">{macros.fats}%</div>
                   <div className="text-xs text-muted-foreground">
                     ~{Math.round((tdee * macros.fats / 100) / 9)}g
@@ -111,8 +111,8 @@ export default function MetabolismCard({
           </div>
         ) : (
           <div className="text-center py-8 text-muted-foreground">
-            <p>Dati insufficienti per il calcolo</p>
-            <p className="text-sm mt-1">Assicurati di aver inserito peso, altezza, età e genere nel tuo profilo</p>
+            <p>Insufficient data for calculation</p>
+            <p className="text-sm mt-1">Make sure you have entered weight, height, age, and gender in your profile</p>
           </div>
         )}
       </CardContent>
