@@ -54,8 +54,18 @@ export default function AIObjectives({ userId }: AIObjectivesProps) {
   } = useQuery<{ recommendations: NutritionGoalRecommendation[] }>({
     queryKey: ["/api/recommendations/nutrition-goals", userId],
     queryFn: async () => {
-      const res = await apiRequest("GET", `/api/recommendations/nutrition-goals?userId=${userId}`);
-      return await res.json();
+      try {
+        const res = await apiRequest("GET", `/api/recommendations/nutrition-goals?userId=${userId}&forceNew=true`);
+        if (!res.ok) {
+          const errorText = await res.text();
+          console.error("API error:", errorText);
+          throw new Error("Impossibile recuperare le raccomandazioni");
+        }
+        return await res.json();
+      } catch (error) {
+        console.error("Query error:", error);
+        throw error;
+      }
     },
     enabled: !!userId,
     retry: 1,
@@ -74,8 +84,22 @@ export default function AIObjectives({ userId }: AIObjectivesProps) {
         title: "Aggiornamento",
         description: "Generazione di nuove raccomandazioni in corso...",
       });
-      const result = await refetchGoals();
-      console.log("Raccomandazioni aggiornate:", result.data);
+      
+      // Facciamo una chiamata diretta all'API invece di usare refetch
+      const res = await apiRequest("GET", `/api/recommendations/nutrition-goals?userId=${userId}&forceNew=true&timestamp=${Date.now()}`);
+      
+      if (!res.ok) {
+        const errorText = await res.text();
+        console.error("API refresh error:", errorText);
+        throw new Error("Impossibile recuperare le raccomandazioni");
+      }
+      
+      const data = await res.json();
+      console.log("Raccomandazioni aggiornate:", data);
+      
+      // Aggiorniamo manualmente il dato nella cache di React Query
+      refetchGoals();
+      
       toast({
         title: "Completato",
         description: "Nuove raccomandazioni generate con successo",
