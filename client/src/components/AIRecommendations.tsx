@@ -86,6 +86,7 @@ export default function AIRecommendations({ userId }: AIRecommendationsProps) {
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState("goals");
   const [selectedMealType, setSelectedMealType] = useState<string>("all");
+  const [isUserAuthenticated, setIsUserAuthenticated] = useState(userId !== "0");
   
   // Raccomandazioni per obiettivi nutrizionali
   const {
@@ -99,7 +100,7 @@ export default function AIRecommendations({ userId }: AIRecommendationsProps) {
       const res = await apiRequest("GET", `/api/recommendations/nutrition-goals?userId=${userId}`);
       return await res.json();
     },
-    enabled: !!userId,
+    enabled: !!userId && isUserAuthenticated,
     retry: 1,
     refetchOnWindowFocus: false,
   });
@@ -140,7 +141,7 @@ export default function AIRecommendations({ userId }: AIRecommendationsProps) {
         return { suggestions: [] };
       }
     },
-    enabled: !!userId,
+    enabled: !!userId && isUserAuthenticated,
     retry: 2,
     refetchOnWindowFocus: false,
   });
@@ -159,6 +160,16 @@ export default function AIRecommendations({ userId }: AIRecommendationsProps) {
 
   // Funzione per aggiornare le raccomandazioni
   const handleRefresh = async () => {
+    // Se l'utente non è autenticato, mostra messaggio di login
+    if (!isUserAuthenticated) {
+      toast({
+        title: "Autenticazione richiesta",
+        description: "Per utilizzare le raccomandazioni AI personalizzate è necessario accedere o registrarsi.",
+        variant: "destructive",
+      });
+      return;
+    }
+    
     try {
       // Imposta manualmente lo stato di caricamento
       setIsManualLoading(true);
@@ -246,31 +257,50 @@ export default function AIRecommendations({ userId }: AIRecommendationsProps) {
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <div className="flex justify-between items-center mb-4">
-          <div className="flex items-center gap-2">
-            <Utensils className="h-5 w-5 text-primary" />
-            <span className="font-medium">Idee per Pasti</span>
+        {!isUserAuthenticated ? (
+          <div className="text-center py-10 border rounded-lg">
+            <Sparkles className="h-12 w-12 text-primary mx-auto mb-4" />
+            <h3 className="text-xl font-medium mb-2">Attiva Raccomandazioni Personalizzate</h3>
+            <p className="text-muted-foreground max-w-md mx-auto mb-6">
+              Accedi o registrati per sbloccare raccomandazioni personalizzate basate sul tuo profilo e sui tuoi obiettivi nutrizionali.
+            </p>
+            <Button onClick={() => {
+              toast({
+                title: "Autenticazione richiesta",
+                description: "Per utilizzare le raccomandazioni AI personalizzate è necessario accedere o registrarsi.",
+                duration: 5000
+              });
+            }}>
+              Accedi per Sbloccare
+            </Button>
           </div>
-          
-          <Button 
-            variant="outline" 
-            size="sm" 
-            onClick={handleRefresh} 
-            disabled={isLoadingMeals || isManualLoading}
-          >
-            {(isLoadingMeals || isManualLoading) ? (
-              <Loader2 className="h-4 w-4 mr-1 animate-spin" />
-            ) : (
-              <Sparkles className="h-4 w-4 mr-1" />
-            )}
-            Genera Nuovi
-          </Button>
-        </div>
-          
-        <div className="space-y-6">
-          <div className="mb-2">
-            <MealsChatbotSpecialized userId={userId} />
-          </div>
+        ) : (
+          <>
+            <div className="flex justify-between items-center mb-4">
+              <div className="flex items-center gap-2">
+                <Utensils className="h-5 w-5 text-primary" />
+                <span className="font-medium">Idee per Pasti</span>
+              </div>
+              
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={handleRefresh} 
+                disabled={isLoadingMeals || isManualLoading}
+              >
+                {(isLoadingMeals || isManualLoading) ? (
+                  <Loader2 className="h-4 w-4 mr-1 animate-spin" />
+                ) : (
+                  <Sparkles className="h-4 w-4 mr-1" />
+                )}
+                Genera Nuovi
+              </Button>
+            </div>
+              
+            <div className="space-y-6">
+              <div className="mb-2">
+                <MealsChatbotSpecialized userId={userId} />
+              </div>
           
           <div className="border-t pt-6 mt-4">
             <div className="flex items-center justify-between mb-4">
@@ -369,6 +399,8 @@ export default function AIRecommendations({ userId }: AIRecommendationsProps) {
             </div>
           </div>
         </div>
+          </>
+        )}
       </CardContent>
     </Card>
   );
