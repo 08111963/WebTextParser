@@ -11,7 +11,7 @@ import AIObjectives from '@/components/AIObjectives';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/use-auth';
 import { useQuery } from '@tanstack/react-query';
-import { Loader2, Plus, Calendar, BarChart, UserRound, Sparkles } from 'lucide-react';
+import { Loader2, Plus, Calendar, BarChart, UserRound, Sparkles, Target } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -314,24 +314,6 @@ export default function Home() {
                 <div className="space-y-4">
                   {/* Form per aggiungere un nuovo pasto */}
                   <MealForm userId={user.id.toString()} />
-                  
-                  {/* Bottone per le raccomandazioni AI */}
-                  <div className="mt-6">
-                    <Button
-                      variant="outline"
-                      className="w-full"
-                      onClick={() => {
-                        // Mostra una notifica che la funzionalità sarà aggiunta in futuro
-                        toast({
-                          title: "Raccomandazioni AI",
-                          description: "Le raccomandazioni AI saranno disponibili nella prossima versione dell'app.",
-                        });
-                      }}
-                    >
-                      <Sparkles className="h-4 w-4 mr-2" />
-                      Raccomandazioni AI
-                    </Button>
-                  </div>
                 </div>
                 
                 {/* Lista dei pasti */}
@@ -350,6 +332,15 @@ export default function Home() {
                 </Card>
               </div>
             </div>
+            
+            {/* Sezione Raccomandazioni AI per Pasti */}
+            <div className="mt-12">
+              <h2 className="text-2xl font-bold mb-6 flex items-center">
+                <Sparkles className="h-5 w-5 mr-2 text-primary" />
+                Raccomandazioni AI per Pasti
+              </h2>
+              <AIRecommendations userId={user.id.toString()} />
+            </div>
           </TabsContent>
 
           <TabsContent value="goals" className="max-h-[calc(100vh-13rem)] overflow-y-auto">
@@ -363,24 +354,6 @@ export default function Home() {
                 <div className="space-y-4">
                   {/* Form per aggiungere un nuovo obiettivo */}
                   <NutritionGoalForm userId={user.id.toString()} />
-                  
-                  {/* Bottone per le raccomandazioni AI */}
-                  <div className="mt-6">
-                    <Button
-                      variant="outline"
-                      className="w-full"
-                      onClick={() => {
-                        // Mostra una notifica che la funzionalità sarà aggiunta in futuro
-                        toast({
-                          title: "Raccomandazioni AI",
-                          description: "Le raccomandazioni AI saranno disponibili nella prossima versione dell'app.",
-                        });
-                      }}
-                    >
-                      <Sparkles className="h-4 w-4 mr-2" />
-                      Raccomandazioni AI
-                    </Button>
-                  </div>
                 </div>
                 
                 {/* Visualizzazione dell'obiettivo attivo e cronologia */}
@@ -450,7 +423,14 @@ export default function Home() {
               </div>
             </div>
             
-            {/* Il componente AIObjectives è stato nascosto */}
+            {/* Sezione Raccomandazioni AI per Obiettivi */}
+            <div className="mt-12">
+              <h2 className="text-2xl font-bold mb-6 flex items-center">
+                <Target className="h-5 w-5 mr-2 text-primary" />
+                Raccomandazioni AI per Obiettivi
+              </h2>
+              <AIObjectives userId={user.id.toString()} />
+            </div>
           </TabsContent>
 
           <TabsContent value="profile">
