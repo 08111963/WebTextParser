@@ -39,7 +39,7 @@ export default function NutritionChatbot({ userId }: NutritionChatbotProps) {
   const [messages, setMessages] = useState<Message[]>([
     {
       type: "bot",
-      content: "Ciao! Sono il tuo assistente nutrizionale personale. Come posso aiutarti oggi? Puoi chiedermi consigli sulla nutrizione, informazioni sugli alimenti o suggerimenti per i tuoi pasti.",
+      content: "Hello! I'm your personal nutrition assistant. How can I help you today? You can ask me for nutrition advice, information about foods, or suggestions for your meals.",
       timestamp: new Date(),
     },
   ]);
@@ -64,14 +64,14 @@ export default function NutritionChatbot({ userId }: NutritionChatbotProps) {
     onError: (error: Error) => {
       console.error("Failed to get AI response:", error);
       toast({
-        title: "Errore",
-        description: "Non è stato possibile generare una risposta. Riprova più tardi.",
+        title: "Error",
+        description: "Unable to generate a response. Please try again later.",
         variant: "destructive",
       });
       
       setMessages(prev => [...prev, {
         type: "bot",
-        content: "Mi dispiace, si è verificato un errore durante la generazione della risposta. Riprova più tardi.",
+        content: "I'm sorry, an error occurred while generating the response. Please try again later.",
         timestamp: new Date()
       }]);
     }
@@ -104,14 +104,14 @@ export default function NutritionChatbot({ userId }: NutritionChatbotProps) {
     setQuery("");
   };
   
-  // Esempio messaggi suggeriti
+  // Example suggested messages
   const suggestedQueries = [
-    "Quali alimenti sono ricchi di proteine ma a basso contenuto di grassi?",
-    "Come posso aumentare la mia assunzione di fibre?",
-    "Dammi un'idea per una colazione sana e veloce",
-    "Quali sono i benefici degli acidi grassi omega-3?",
-    "Come posso soddisfare il mio fabbisogno di calcio senza latticini?",
-    "Consigli per uno spuntino post-allenamento",
+    "Which foods are high in protein but low in fat?",
+    "How can I increase my fiber intake?",
+    "Give me an idea for a quick, healthy breakfast",
+    "What are the benefits of omega-3 fatty acids?",
+    "How can I meet my calcium needs without dairy?",
+    "Tips for a post-workout snack",
   ];
   
   return (
@@ -119,10 +119,10 @@ export default function NutritionChatbot({ userId }: NutritionChatbotProps) {
       <CardHeader className="pb-2">
         <CardTitle className="flex items-center space-x-2">
           <Bot className="h-5 w-5 text-primary" />
-          <span>Assistente Nutrizionale</span>
+          <span>Nutrition Assistant</span>
         </CardTitle>
         <CardDescription>
-          Chiedi consigli personalizzati sulla tua alimentazione
+          Ask for personalized advice about your diet
         </CardDescription>
       </CardHeader>
       
@@ -148,7 +148,7 @@ export default function NutritionChatbot({ userId }: NutritionChatbotProps) {
                       <Bot className="h-5 w-5" />
                     )}
                     <AvatarFallback>
-                      {message.type === "user" ? "TU" : "AI"}
+                      {message.type === "user" ? "YOU" : "AI"}
                     </AvatarFallback>
                   </Avatar>
                   
@@ -182,7 +182,7 @@ export default function NutritionChatbot({ userId }: NutritionChatbotProps) {
                   <div className="rounded-lg p-3 bg-muted">
                     <div className="flex items-center space-x-2">
                       <Loader2 className="h-4 w-4 animate-spin" />
-                      <p className="text-sm">Sto elaborando la risposta...</p>
+                      <p className="text-sm">Processing your response...</p>
                     </div>
                   </div>
                 </div>
@@ -195,7 +195,7 @@ export default function NutritionChatbot({ userId }: NutritionChatbotProps) {
         
         {messages.length === 1 && (
           <div className="px-4 pb-2">
-            <p className="text-sm text-muted-foreground mb-2">Esempi di domande:</p>
+            <p className="text-sm text-muted-foreground mb-2">Example questions:</p>
             <div className="flex flex-wrap gap-2">
               {suggestedQueries.slice(0, 3).map((q, i) => (
                 <Button
@@ -229,7 +229,7 @@ export default function NutritionChatbot({ userId }: NutritionChatbotProps) {
       <CardFooter className="p-4 pt-2">
         <form className="flex space-x-2 w-full" onSubmit={handleSubmit}>
           <Input
-            placeholder="Scrivi la tua domanda..."
+            placeholder="Type your question..."
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             disabled={aiChatMutation.isPending}
