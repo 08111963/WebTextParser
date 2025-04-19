@@ -85,7 +85,7 @@ export default function UserProfile() {
   const queryClient = useQueryClient();
   const [isOpen, setIsOpen] = useState(false);
 
-  // Ottiene il profilo utente
+  // Get user profile
   const {
     data: profile,
     isLoading: isProfileLoading,
@@ -98,7 +98,7 @@ export default function UserProfile() {
         const res = await apiRequest("GET", `/api/user-profile?userId=${user?.id}`);
         return await res.json();
       } catch (err) {
-        // Se l'errore è "User profile not found", restituisci null invece di generare un errore
+        // If the error is "User profile not found", return null instead of throwing an error
         if (err instanceof Error && err.message.includes("User profile not found")) {
           return null;
         }
@@ -109,7 +109,7 @@ export default function UserProfile() {
     retry: false,
   });
 
-  // Form per modifica del profilo
+  // Profile edit form
   const form = useForm<ProfileFormValues>({
     resolver: zodResolver(profileFormSchema),
     defaultValues: {
@@ -122,7 +122,7 @@ export default function UserProfile() {
     },
   });
 
-  // Quando viene caricato il profilo, popola il form
+  // When profile is loaded, populate the form
   useEffect(() => {
     if (profile) {
       form.reset({
@@ -148,21 +148,21 @@ export default function UserProfile() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/user-profile", user?.id.toString()] });
       toast({
-        title: "Profilo creato",
-        description: "Il tuo profilo è stato creato con successo!",
+        title: "Profile created",
+        description: "Your profile has been created successfully!",
       });
       setIsOpen(false);
     },
     onError: (error: Error) => {
       toast({
-        title: "Errore",
-        description: `Si è verificato un errore: ${error.message}`,
+        title: "Error",
+        description: `An error occurred: ${error.message}`,
         variant: "destructive",
       });
     },
   });
 
-  // Aggiornamento del profilo esistente
+  // Update existing profile
   const updateProfileMutation = useMutation({
     mutationFn: async (data: ProfileFormValues) => {
       const res = await apiRequest("PATCH", `/api/user-profile/${user?.id}`, data);
@@ -171,15 +171,15 @@ export default function UserProfile() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/user-profile", user?.id.toString()] });
       toast({
-        title: "Profilo aggiornato",
-        description: "Il tuo profilo è stato aggiornato con successo!",
+        title: "Profile updated",
+        description: "Your profile has been updated successfully!",
       });
       setIsOpen(false);
     },
     onError: (error: Error) => {
       toast({
-        title: "Errore",
-        description: `Si è verificato un errore: ${error.message}`,
+        title: "Error",
+        description: `An error occurred: ${error.message}`,
         variant: "destructive",
       });
     },
@@ -199,7 +199,7 @@ export default function UserProfile() {
     return null;
   }
 
-  // Visualizzazione del profilo dell'utente
+  // User profile display
   return (
     <Card>
       <CardHeader>
