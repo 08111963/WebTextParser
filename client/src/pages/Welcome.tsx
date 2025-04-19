@@ -1,9 +1,11 @@
 import { useLocation } from 'wouter';
 import { Button } from '@/components/ui/button';
 import { Bolt, PieChart, Calendar, Plus, BarChart3, User } from 'lucide-react';
+import { useConditionalNavigation } from '@/lib/conditional-route';
 
 export default function Welcome() {
   const [, navigate] = useLocation();
+  const { navigateTo, LoginPrompt } = useConditionalNavigation();
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -22,22 +24,21 @@ export default function Welcome() {
             <h2 className="text-xl font-semibold mb-2">Traccia i tuoi pasti</h2>
             <p className="text-gray-600 mb-4">Registra facilmente ciò che mangi e monitora le calorie e i nutrienti.</p>
             <Button 
-              onClick={() => navigate('/auth')} 
+              onClick={() => navigateTo('meals')} 
               className="bg-primary hover:bg-primary-dark text-white font-medium py-2 px-4 rounded-md transition-colors"
             >
-              Accedi per iniziare
+              Esplora Pasti
             </Button>
           </div>
           
           <div className="bg-white p-6 rounded-lg shadow-md text-center">
-            <h2 className="text-xl font-semibold mb-2">Esplora l'App</h2>
-            <p className="text-gray-600 mb-4">Guarda come l'app può aiutarti a raggiungere i tuoi obiettivi nutrizionali.</p>
+            <h2 className="text-xl font-semibold mb-2">Gestisci Obiettivi</h2>
+            <p className="text-gray-600 mb-4">Imposta obiettivi personalizzati e monitora i tuoi progressi nel tempo.</p>
             <Button 
-              onClick={() => document.getElementById('demo-section')?.scrollIntoView({ behavior: 'smooth' })} 
-              variant="outline"
-              className="border border-primary text-primary hover:bg-primary/10 font-medium py-2 px-4 rounded-md transition-colors"
+              onClick={() => navigateTo('goals')} 
+              className="bg-primary hover:bg-primary-dark text-white font-medium py-2 px-4 rounded-md transition-colors"
             >
-              Vedi Demo
+              Esplora Obiettivi
             </Button>
           </div>
         </div>

@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useLocation } from 'wouter';
 import Header from '@/components/Header';
 import MealForm from '@/components/MealForm';
 import MealList from '@/components/MealList';
@@ -25,7 +26,14 @@ function createDate(dateString: string): Date {
 export default function Home() {
   const { user } = useAuth();
   const { toast } = useToast();
-  const [activeTab, setActiveTab] = useState('dashboard');
+  const [, params] = useLocation().search ? useLocation().search.split('?') : ['', ''];
+  const urlParams = new URLSearchParams(params);
+  const sectionParam = urlParams.get('section');
+  const initialTab = sectionParam && ['dashboard', 'meals', 'goals', 'profile'].includes(sectionParam) 
+    ? sectionParam 
+    : 'dashboard';
+  
+  const [activeTab, setActiveTab] = useState(initialTab);
   
   // Effetto per resettare la posizione di scroll quando cambia la tab
   useEffect(() => {
