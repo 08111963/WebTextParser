@@ -1,5 +1,8 @@
 import PricingCard from "@/components/PricingCard";
 import { useSubscription } from "@/hooks/use-subscription";
+import { Button } from "@/components/ui/button";
+import { ArrowLeft } from "lucide-react";
+import { Link } from "wouter";
 
 // Durata del periodo di prova in giorni
 const TRIAL_PERIOD_DAYS = 5;
@@ -83,6 +86,14 @@ export default function Pricing() {
 
   return (
     <div className="py-8">
+      <div className="container mx-auto px-4 mb-6">
+        <Link href="/">
+          <Button variant="outline" size="lg" className="mb-6 flex items-center">
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Return to Home
+          </Button>
+        </Link>
+      </div>
       <PricingCard pricingData={pricingData} />
     </div>
   );
