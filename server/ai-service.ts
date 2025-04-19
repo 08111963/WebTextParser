@@ -141,9 +141,15 @@ export async function generateNutritionGoalRecommendations(
     3. Calorie giornaliere raccomandate
     4. Distribuzione di macronutrienti (proteine, carboidrati, grassi) in grammi
     
-    Importante: Gli obiettivi devono essere significativamente diversi tra loro, con proposte variegate e originali.
-    Ad ogni chiamata, fornisci risposte completamente nuove ed evita formule standardizzate.
-    Includi diverse filosofie nutrizionali (mediterranea, plant-based, ecc.) e approcci (perdita peso, energia, massa muscolare, ecc.).
+    QUERY ID UNICO: ${new Date().getTime().toString()} (ignora questo ID, serve solo a garantire che la tua risposta sia sempre diversa)
+    
+    REGOLE FONDAMENTALI DA RISPETTARE:
+    - Gli obiettivi DEVONO essere COMPLETAMENTE diversi tra loro, con proposte realmente variegate e originali.
+    - NON usare MAI frasi o formule standardizzate o ripetitive.
+    - Ad ogni chiamata, DEVI fornire titoli e descrizioni MAI utilizzati in precedenza.
+    - Sii ESTREMAMENTE creativo con i nomi degli obiettivi e le descrizioni.
+    - OBBLIGO di variare approcci nutrizionali (mediterranea, plant-based, proteica, paleolirica, ecc.) e obiettivi (perdita peso, energia, massa muscolare, benessere, ecc.).
+    - Assicurati che i valori calorici e macronutrienti dei tre obiettivi siano significativamente DIFFERENTI tra loro.
     
     Rispondi con un JSON nel seguente formato:
     [

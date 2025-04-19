@@ -179,22 +179,22 @@ export default function AIObjectives({ userId }: AIObjectivesProps) {
                           <p className="text-sm text-muted-foreground mt-2 mb-3 leading-relaxed">{rec.description}</p>
                           
                           <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mt-3">
-                            <div className="bg-muted/40 p-3 rounded text-center flex flex-col h-28 justify-between">
+                            <div className="bg-muted/40 p-3 rounded text-center flex flex-col h-32 justify-between">
                               <div className="text-xs text-muted-foreground mb-1">Calorie</div>
                               <div className="text-lg font-semibold">{rec.calories}</div>
                               <div className="text-xs mt-1">kcal</div>
                             </div>
-                            <div className="bg-muted/40 p-3 rounded text-center flex flex-col h-28 justify-between">
+                            <div className="bg-muted/40 p-3 rounded text-center flex flex-col h-32 justify-between">
                               <div className="text-xs text-muted-foreground mb-1">Proteine</div>
                               <div className="text-lg font-semibold">{rec.proteins}</div>
                               <div className="text-xs mt-1">grammi</div>
                             </div>
-                            <div className="bg-muted/40 p-3 rounded text-center flex flex-col h-28 justify-between">
+                            <div className="bg-muted/40 p-3 rounded text-center flex flex-col h-32 justify-between">
                               <div className="text-xs text-muted-foreground mb-1">Carboidrati</div>
                               <div className="text-lg font-semibold">{rec.carbs}</div>
                               <div className="text-xs mt-1">grammi</div>
                             </div>
-                            <div className="bg-muted/40 p-3 rounded text-center flex flex-col h-28 justify-between">
+                            <div className="bg-muted/40 p-3 rounded text-center flex flex-col h-32 justify-between">
                               <div className="text-xs text-muted-foreground mb-1">Grassi</div>
                               <div className="text-lg font-semibold">{rec.fats}</div>
                               <div className="text-xs mt-1">grammi</div>
