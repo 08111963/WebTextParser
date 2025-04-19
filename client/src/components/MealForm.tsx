@@ -157,7 +157,7 @@ export default function MealForm({ userId }: MealFormProps) {
 
   return (
     <div className="bg-white p-6 rounded-lg shadow-sm border">
-      <h2 className="text-xl font-semibold mb-4">Aggiungi Pasto</h2>
+      <h2 className="text-xl font-semibold mb-4">Add Meal</h2>
       <div className="space-y-4">
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
@@ -166,7 +166,7 @@ export default function MealForm({ userId }: MealFormProps) {
               name="foodPreset"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Alimento</FormLabel>
+                  <FormLabel>Food</FormLabel>
                   <Select 
                     onValueChange={(value) => {
                       field.onChange(value);
@@ -176,11 +176,11 @@ export default function MealForm({ userId }: MealFormProps) {
                   >
                     <FormControl>
                       <SelectTrigger>
-                        <SelectValue placeholder="Seleziona un alimento" />
+                        <SelectValue placeholder="Select a food" />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="custom">Altro (personalizzato)</SelectItem>
+                      <SelectItem value="custom">Other (custom)</SelectItem>
                       {foodItems.map((food) => (
                         <SelectItem key={food.id} value={food.id}>
                           {food.name} ({food.portion})
@@ -190,7 +190,7 @@ export default function MealForm({ userId }: MealFormProps) {
                   </Select>
                   {selectedFoodPortion && (
                     <p className="text-xs text-muted-foreground mt-1">
-                      Valori nutrizionali per {selectedFoodPortion}
+                      Nutritional values for {selectedFoodPortion}
                     </p>
                   )}
                   <FormMessage />
@@ -203,18 +203,18 @@ export default function MealForm({ userId }: MealFormProps) {
               name="mealType"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Tipo di pasto</FormLabel>
+                  <FormLabel>Meal Type</FormLabel>
                   <Select onValueChange={field.onChange} defaultValue={field.value}>
                     <FormControl>
                       <SelectTrigger>
-                        <SelectValue placeholder="Seleziona un tipo" />
+                        <SelectValue placeholder="Select a type" />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="breakfast">Colazione</SelectItem>
-                      <SelectItem value="lunch">Pranzo</SelectItem>
-                      <SelectItem value="dinner">Cena</SelectItem>
-                      <SelectItem value="snack">Spuntino</SelectItem>
+                      <SelectItem value="breakfast">Breakfast</SelectItem>
+                      <SelectItem value="lunch">Lunch</SelectItem>
+                      <SelectItem value="dinner">Dinner</SelectItem>
+                      <SelectItem value="snack">Snack</SelectItem>
                     </SelectContent>
                   </Select>
                   <FormMessage />
@@ -227,9 +227,9 @@ export default function MealForm({ userId }: MealFormProps) {
               name="food"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Nome alimento</FormLabel>
+                  <FormLabel>Food Name</FormLabel>
                   <FormControl>
-                    <Input {...field} placeholder="Es: Yogurt greco" />
+                    <Input {...field} placeholder="Ex: Greek yogurt" />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -242,7 +242,7 @@ export default function MealForm({ userId }: MealFormProps) {
                 name="calories"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Calorie (kcal)</FormLabel>
+                    <FormLabel>Calories (kcal)</FormLabel>
                     <FormControl>
                       <Input type="number" {...field} />
                     </FormControl>
@@ -256,7 +256,7 @@ export default function MealForm({ userId }: MealFormProps) {
                 name="proteins"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Proteine (g)</FormLabel>
+                    <FormLabel>Proteins (g)</FormLabel>
                     <FormControl>
                       <Input type="number" {...field} />
                     </FormControl>
@@ -272,7 +272,7 @@ export default function MealForm({ userId }: MealFormProps) {
                 name="carbs"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Carboidrati (g)</FormLabel>
+                    <FormLabel>Carbs (g)</FormLabel>
                     <FormControl>
                       <Input type="number" {...field} />
                     </FormControl>
@@ -286,7 +286,7 @@ export default function MealForm({ userId }: MealFormProps) {
                 name="fats"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Grassi (g)</FormLabel>
+                    <FormLabel>Fats (g)</FormLabel>
                     <FormControl>
                       <Input type="number" {...field} />
                     </FormControl>
@@ -301,7 +301,7 @@ export default function MealForm({ userId }: MealFormProps) {
               className="w-full"
               disabled={addMealMutation.isPending}
             >
-              {addMealMutation.isPending ? 'Aggiunta in corso...' : 'Aggiungi Pasto'}
+              {addMealMutation.isPending ? 'Adding...' : 'Add Meal'}
             </Button>
           </form>
         </Form>
