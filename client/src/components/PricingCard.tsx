@@ -1,10 +1,7 @@
-import { useState } from "react";
 import { Check, X } from "lucide-react";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Switch } from "@/components/ui/switch";
-import { Label } from "@/components/ui/label";
 import { useLocation } from "wouter";
 
 type PricingTier = {
@@ -28,23 +25,10 @@ type PricingCardProps = {
 };
 
 export default function PricingCard({ pricingData }: PricingCardProps) {
-  const [billingCycle, setBillingCycle] = useState<"monthly" | "yearly">("monthly");
   const [_, navigate] = useLocation();
-
-  const toggleBillingCycle = () => {
-    setBillingCycle(billingCycle === "monthly" ? "yearly" : "monthly");
-  };
 
   const handleGetStarted = (planId: string) => {
     navigate(`/checkout?planId=${planId}`);
-  };
-
-  const getYearlySavings = (monthly: number, yearly: number) => {
-    const monthlyCost = monthly * 12;
-    const yearlyCost = yearly;
-    const savings = monthlyCost - yearlyCost;
-    const percentage = Math.round((savings / monthlyCost) * 100);
-    return percentage;
   };
 
   return (
@@ -54,24 +38,9 @@ export default function PricingCard({ pricingData }: PricingCardProps) {
         <p className="mt-4 text-muted-foreground max-w-2xl">
           Choose the perfect plan for your nutrition needs. All plans include core features.
         </p>
-        
-        <div className="flex items-center justify-center mt-8 space-x-2">
-          <Label htmlFor="billing-switch" className={billingCycle === "monthly" ? "font-semibold" : ""}>Monthly</Label>
-          <Switch
-            id="billing-switch"
-            checked={billingCycle === "yearly"}
-            onCheckedChange={toggleBillingCycle}
-          />
-          <Label htmlFor="billing-switch" className={billingCycle === "yearly" ? "font-semibold" : ""}>
-            Yearly
-            <Badge variant="outline" className="ml-2 bg-green-50 text-green-700 hover:bg-green-50 border-green-200">
-              Save up to 25%
-            </Badge>
-          </Label>
-        </div>
       </div>
       
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+      <div className="grid gap-6 md:grid-cols-3">
         {pricingData.map((tier) => (
           <Card 
             key={tier.id} 
@@ -92,18 +61,12 @@ export default function PricingCard({ pricingData }: PricingCardProps) {
               <div className="mt-4">
                 <div className="flex items-baseline">
                   <span className="text-3xl font-bold">
-                    ${billingCycle === "monthly" ? tier.price.monthly : tier.price.yearly}
+                    ${tier.price.monthly}
                   </span>
                   <span className="ml-1 text-muted-foreground">
-                    /{billingCycle === "monthly" ? "month" : "year"}
+                    {tier.id === "premium-yearly" ? "/year" : tier.id === "free" ? "" : "/month"}
                   </span>
                 </div>
-                
-                {billingCycle === "yearly" && (
-                  <p className="mt-1 text-sm text-green-600">
-                    Save {getYearlySavings(tier.price.monthly, tier.price.yearly)}%
-                  </p>
-                )}
               </div>
             </CardHeader>
             

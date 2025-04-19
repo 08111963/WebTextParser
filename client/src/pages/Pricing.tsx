@@ -17,12 +17,12 @@ const pricingData = [
     ],
   },
   {
-    id: "premium",
-    name: "Premium",
+    id: "premium-monthly",
+    name: "Premium Monthly",
     description: "Enhanced features for dedicated health enthusiasts",
     price: {
       monthly: 3.99,
-      yearly: 39.99,
+      yearly: 3.99,
     },
     highlighted: true,
     badge: "Most Popular",
@@ -42,13 +42,14 @@ const pricingData = [
     ],
   },
   {
-    id: "unlimited",
-    name: "Unlimited",
-    description: "Complete solution for professional nutrition management",
+    id: "premium-yearly",
+    name: "Premium Annual",
+    description: "Same premium features with annual billing",
     price: {
-      monthly: 19.99,
-      yearly: 179.99,
+      monthly: 39.99,
+      yearly: 39.99,
     },
+    badge: "Best Value",
     features: [
       { text: "Basic meal tracking", included: true },
       { text: "BMI calculator", included: true },
@@ -59,8 +60,9 @@ const pricingData = [
       { text: "Goal tracking & analytics", included: true },
       { text: "Meal plan export", included: true },
       { text: "Premium customer support", included: true },
+      { text: "AI Meal Recommendations", included: true },
+      { text: "AI Goal Recommendations", included: true },
       { text: "API access", included: true },
-      { text: "White-label options", included: true },
     ],
   },
 ];
