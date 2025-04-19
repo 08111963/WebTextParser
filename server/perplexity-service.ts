@@ -146,40 +146,40 @@ export async function generateNutritionalAdviceWithPerplexity(
   console.log("Generating nutritional advice with Perplexity for user:", profile.userId);
   console.log("User query:", userQuery);
 
-  // Costruisci il prompt per Perplexity
-  const systemPrompt = `Sei un nutrizionista esperto che risponde a domande sulla nutrizione, alimentazione e salute.
-    Fornisci consigli nutrizionali personalizzati basati sul profilo dell'utente.
-    Rispondi in modo esauriente, fornendo informazioni accurate e scientifiche.
-    Usa uno stile professionale ma accessibile, con spiegazioni chiare ed esempi pratici.
-    Rispondi in italiano.`;
+  // Build the prompt for Perplexity
+  const systemPrompt = `You are a nutrition expert who answers questions about nutrition, diet, and health.
+    Provide personalized nutritional advice based on the user's profile.
+    Answer comprehensively, providing accurate and scientific information.
+    Use a professional but accessible style, with clear explanations and practical examples.
+    Answer in English.`;
 
-  // Informazioni sull'utente per personalizzare i consigli
-  let userProfileInfo = `Profilo Utente:
-    - Età: ${profile.age || 'Non specificata'}
-    - Genere: ${profile.gender || 'Non specificato'}
-    - Peso: ${profile.weight ? `${profile.weight} kg` : 'Non specificato'}
-    - Altezza: ${profile.height ? `${profile.height} cm` : 'Non specificata'}
-    - Livello di attività: ${profile.activityLevel || 'Non specificato'}`;
+  // User information to personalize advice
+  let userProfileInfo = `User Profile:
+    - Age: ${profile.age || 'Not specified'}
+    - Gender: ${profile.gender || 'Not specified'}
+    - Weight: ${profile.weight ? `${profile.weight} kg` : 'Not specified'}
+    - Height: ${profile.height ? `${profile.height} cm` : 'Not specified'}
+    - Activity level: ${profile.activityLevel || 'Not specified'}`;
 
-  // Calcola il BMI se altezza e peso sono disponibili
+  // Calculate BMI if height and weight are available
   if (profile.height && profile.weight) {
     const heightInMeters = profile.height / 100;
     const bmi = Math.round((profile.weight / (heightInMeters * heightInMeters)) * 10) / 10;
-    userProfileInfo += `\n- BMI calcolato: ${bmi}`;
+    userProfileInfo += `\n- Calculated BMI: ${bmi}`;
   }
 
-  // Prompt finale per l'utente
-  const promptWithQuery = `In base a questo profilo utente:
+  // Final prompt for the user
+  const promptWithQuery = `Based on this user profile:
     ${userProfileInfo}
     
-    Rispondi a questa domanda sulla nutrizione:
+    Answer this nutrition question:
     "${userQuery}"
     
-    Fornisci una risposta completa e personalizzata, con spiegazioni chiare e consigli pratici.
-    Includi, quando opportuno, riferimenti a studi scientifici recenti e linee guida nutrizionali aggiornate.`;
+    Provide a complete and personalized response, with clear explanations and practical advice.
+    Include, when appropriate, references to recent scientific studies and updated nutritional guidelines.`;
 
   try {
-    // Chiamata a Perplexity API
+    // Call to Perplexity API
     const messages = [
       { role: "system", content: systemPrompt },
       { role: "user", content: promptWithQuery }
@@ -194,7 +194,7 @@ export async function generateNutritionalAdviceWithPerplexity(
       timestamp: new Date().toISOString()
     };
   } catch (error) {
-    console.error("Errore nella generazione dei consigli nutrizionali:", error);
+    console.error("Error generating nutritional advice:", error);
     throw error;
   }
 }
