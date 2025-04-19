@@ -85,54 +85,21 @@ export default function AIObjectives({ userId }: AIObjectivesProps) {
         title: "Aggiornamento",
         description: "Generazione di nuove raccomandazioni in corso...",
       });
+
+      // Facciamo una chiamata diretta all'API per generare nuove raccomandazioni
+      const res = await apiRequest("GET", `/api/recommendations/nutrition-goals?userId=${userId}&forceNew=true&timestamp=${Date.now()}`);
       
-      // Generiamo localmente delle raccomandazioni senza aspettare una risposta dall'API
-      // Le raccomandazioni sono mostrate immediatamente all'utente
-      const mockData = {
-        recommendations: [
-          {
-            title: "Mediterranea Bilanciata",
-            description: "Ispirata alla dieta mediterranea tradizionale, questo piano si concentra su cibi integrali, grassi sani e proteine magre, perfetto per mantenere energia sostenuta durante il giorno.",
-            calories: 2200,
-            proteins: 115,
-            carbs: 280,
-            fats: 75
-          },
-          {
-            title: "Energia Plus",
-            description: "Un piano ottimizzato per l'energia con un focus su carboidrati complessi e proteine di qualità, ideale per sostenere un'attività fisica moderata e migliorare le performance.",
-            calories: 2300,
-            proteins: 120,
-            carbs: 300,
-            fats: 70
-          },
-          {
-            title: "Tonificazione Attiva",
-            description: "Incrementa l'apporto proteico per favorire il tono muscolare, mantenendo un buon equilibrio energetico. Perfetto per chi desidera migliorare la composizione corporea.",
-            calories: 2100,
-            proteins: 140,
-            carbs: 250,
-            fats: 65
-          }
-        ],
-        timestamp: new Date().toISOString()
-      };
+      if (!res.ok) {
+        const errorText = await res.text();
+        console.error("API refresh error:", errorText);
+        throw new Error("Impossibile recuperare le raccomandazioni");
+      }
       
-      // Aggiorniamo manualmente i dati nella cache di React Query
-      queryClient.setQueryData(["/api/recommendations/nutrition-goals", userId], mockData);
+      const data = await res.json();
+      console.log("Raccomandazioni generate dall'API:", data);
       
-      // Facciamo comunque una chiamata all'API in background, ma non aspettiamo la risposta
-      fetch(`${window.location.origin}/api/recommendations/nutrition-goals?userId=${userId}&forceNew=true&timestamp=${Date.now()}`, {
-        method: "GET",
-        credentials: "include"
-      }).then(async (res) => {
-        if (res.ok) {
-          const data = await res.json();
-          console.log("API response ricevuta in background:", data);
-        }
-      }).catch(err => {
-        console.error("Errore in background:", err);
-      });
+      // Aggiorniamo la cache di React Query con i risultati reali dall'API
+      queryClient.setQueryData(["/api/recommendations/nutrition-goals", userId], data);
       
       toast({
         title: "Completato",
