@@ -27,7 +27,7 @@ type GoalsChatbotProps = {
 export default function GoalsChatbotSpecialized({ userId }: GoalsChatbotProps) {
   const { toast } = useToast();
   
-  const initialMessage = "Ciao! Sono l'assistente specializzato per gli obiettivi nutrizionali. Posso aiutarti a definire obiettivi personalizzati in base al tuo profilo, rispondere a domande sui macronutrienti e suggerire approcci per raggiungere i tuoi goal. Come posso aiutarti oggi?";
+  const initialMessage = "Hello! I'm the specialized assistant for nutritional goals. I can help you define personalized goals based on your profile, answer questions about macronutrients, and suggest approaches to achieve your goals. How can I help you today?";
   
   const [messages, setMessages] = useState<Message[]>([
     { type: "bot", content: initialMessage, timestamp: new Date() }
@@ -36,11 +36,11 @@ export default function GoalsChatbotSpecialized({ userId }: GoalsChatbotProps) {
   const [query, setQuery] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
   
-  // Esempi di domande specifiche per obiettivi nutrizionali
+  // Examples of specific questions for nutritional goals
   const suggestedQueries = [
-    "Quante calorie dovrei assumere per perdere peso?",
-    "Quali sono i macronutrienti ideali per la massa muscolare?",
-    "Come posso ridurre i carboidrati mantenendo l'energia?"
+    "How many calories should I consume to lose weight?",
+    "What are the ideal macronutrients for muscle gain?",
+    "How can I reduce carbohydrates while maintaining energy?"
   ];
   
   // Query AI mutation
@@ -49,7 +49,7 @@ export default function GoalsChatbotSpecialized({ userId }: GoalsChatbotProps) {
       const res = await apiRequest("POST", "/api/ai-chat", {
         userId,
         query,
-        chatType: "goals" // Specifichiamo che è una richiesta per obiettivi
+        chatType: "goals" // Specify that this is a request for goals
       });
       return await res.json();
     },
@@ -63,14 +63,14 @@ export default function GoalsChatbotSpecialized({ userId }: GoalsChatbotProps) {
     onError: (error: Error) => {
       console.error("Failed to get AI response:", error);
       toast({
-        title: "Errore",
-        description: "Non è stato possibile generare una risposta. Riprova più tardi.",
+        title: "Error",
+        description: "Unable to generate a response. Please try again later.",
         variant: "destructive",
       });
       
       setMessages(prev => [...prev, {
         type: "bot",
-        content: "Mi dispiace, si è verificato un errore durante la generazione della risposta. Riprova più tardi.",
+        content: "I'm sorry, an error occurred while generating the response. Please try again later.",
         timestamp: new Date()
       }]);
     }
@@ -123,7 +123,7 @@ export default function GoalsChatbotSpecialized({ userId }: GoalsChatbotProps) {
       <CardHeader className="py-3 border-b bg-primary/5">
         <CardTitle className="text-base font-medium flex items-center gap-2">
           <Target className="h-5 w-5 text-primary" />
-          <span>Consulente Obiettivi Nutrizionali</span>
+          <span>Nutritional Goals Consultant</span>
         </CardTitle>
       </CardHeader>
       
@@ -152,7 +152,7 @@ export default function GoalsChatbotSpecialized({ userId }: GoalsChatbotProps) {
               <div className="chat-bubble chat-bubble-bot">
                 <div className="flex items-center gap-2">
                   <Loader2 className="h-4 w-4 animate-spin" />
-                  <span>Sto elaborando la risposta sugli obiettivi nutrizionali...</span>
+                  <span>Processing response about nutritional goals...</span>
                 </div>
               </div>
             </div>
@@ -163,7 +163,7 @@ export default function GoalsChatbotSpecialized({ userId }: GoalsChatbotProps) {
         
         {messages.length === 1 && (
           <div className="px-4 py-3 border-t border-b">
-            <p className="text-xs font-medium mb-2 text-muted-foreground">Domande sugli obiettivi nutrizionali:</p>
+            <p className="text-xs font-medium mb-2 text-muted-foreground">Questions about nutritional goals:</p>
             <div className="flex flex-wrap gap-2">
               {suggestedQueries.map((q, i) => (
                 <Button

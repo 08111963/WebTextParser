@@ -163,7 +163,7 @@ export default function MealsChatbotSpecialized({ userId }: MealsChatbotProps) {
         
         {messages.length === 1 && (
           <div className="px-4 py-3 border-t border-b">
-            <p className="text-xs font-medium mb-2 text-muted-foreground">Domande sulla nutrizione e i pasti:</p>
+            <p className="text-xs font-medium mb-2 text-muted-foreground">Questions about nutrition and meals:</p>
             <div className="flex flex-wrap gap-2">
               {suggestedQueries.map((q, i) => (
                 <Button
@@ -184,7 +184,7 @@ export default function MealsChatbotSpecialized({ userId }: MealsChatbotProps) {
       <CardFooter className="border-t p-3">
         <form onSubmit={handleSubmit} className="flex w-full gap-2">
           <Input
-            placeholder="Chiedi informazioni su alimenti e ricette..."
+            placeholder="Ask for information about food and recipes..."
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             disabled={aiChatMutation.isPending}
