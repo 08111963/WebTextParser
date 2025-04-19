@@ -40,7 +40,7 @@ export default function MealsChatbot({ userId }: MealsChatbotProps) {
   const [messages, setMessages] = useState<Message[]>([
     {
       type: "bot",
-      content: "Ciao! Sono l'assistente specializzato in alimentazione. Posso aiutarti con suggerimenti per pasti, ricette, e informazioni su valori nutrizionali degli alimenti. Cosa vorresti sapere?",
+      content: "Hello! I'm your specialized nutrition assistant. I can help you with meal suggestions, recipes, and information about nutritional values of foods. What would you like to know?",
       timestamp: new Date(),
     },
   ]);
@@ -66,14 +66,14 @@ export default function MealsChatbot({ userId }: MealsChatbotProps) {
     onError: (error: Error) => {
       console.error("Failed to get AI response:", error);
       toast({
-        title: "Errore",
-        description: "Non è stato possibile generare una risposta. Riprova più tardi.",
+        title: "Error",
+        description: "Unable to generate a response. Please try again later.",
         variant: "destructive",
       });
       
       setMessages(prev => [...prev, {
         type: "bot",
-        content: "Mi dispiace, si è verificato un errore durante la generazione della risposta. Riprova più tardi.",
+        content: "I'm sorry, an error occurred while generating the response. Please try again later.",
         timestamp: new Date()
       }]);
     }
@@ -106,14 +106,14 @@ export default function MealsChatbot({ userId }: MealsChatbotProps) {
     setQuery("");
   };
   
-  // Esempio messaggi suggeriti per pasti e alimentazione
+  // Example suggested messages for meals and nutrition
   const suggestedQueries = [
-    "Quali sono i valori nutrizionali dell'avocado?",
-    "Puoi suggerirmi un'insalata proteica per pranzo?",
-    "Che alternative posso usare al posto dello zucchero?",
-    "Che colazione mi consigli se seguo una dieta a basso contenuto di carboidrati?",
-    "Quali sono i cibi più ricchi di ferro?",
-    "Come posso preparare un pasto veloce e salutare per la cena?",
+    "What are the nutritional values of avocado?",
+    "Can you suggest a protein-rich salad for lunch?",
+    "What alternatives can I use instead of sugar?",
+    "What breakfast do you recommend if I follow a low-carb diet?",
+    "Which foods are richest in iron?",
+    "How can I prepare a quick and healthy meal for dinner?",
   ];
   
   return (
@@ -121,7 +121,7 @@ export default function MealsChatbot({ userId }: MealsChatbotProps) {
       <CardHeader className="pb-2 border-b">
         <CardTitle className="text-base flex items-center gap-2">
           <Utensils className="h-5 w-5 text-primary" />
-          <span>Consulente Alimentare</span>
+          <span>Nutrition Consultant</span>
         </CardTitle>
       </CardHeader>
       
@@ -135,13 +135,13 @@ export default function MealsChatbot({ userId }: MealsChatbotProps) {
                 <div className="flex items-center mb-1 text-xs text-muted-foreground">
                   {message.type === "user" ? (
                     <>
-                      <span>Tu</span>
+                      <span>You</span>
                       <User className="h-3 w-3 ml-1" />
                     </>
                   ) : (
                     <>
                       <Utensils className="h-3 w-3 mr-1" />
-                      <span>Consulente Alimentare</span>
+                      <span>Nutrition Consultant</span>
                     </>
                   )}
                 </div>
@@ -179,13 +179,13 @@ export default function MealsChatbot({ userId }: MealsChatbotProps) {
               <div className="max-w-[85%] flex flex-col items-start">
                 <div className="flex items-center mb-1 text-xs text-muted-foreground">
                   <Utensils className="h-3 w-3 mr-1" />
-                  <span>Consulente Alimentare</span>
+                  <span>Nutrition Consultant</span>
                 </div>
                 
                 <div className="rounded-xl px-4 py-3 bg-muted rounded-tl-none">
                   <div className="flex items-center gap-2">
                     <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
-                    <span className="text-sm">Sto elaborando la risposta...</span>
+                    <span className="text-sm">Processing response...</span>
                   </div>
                 </div>
               </div>
