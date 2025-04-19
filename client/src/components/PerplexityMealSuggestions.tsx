@@ -1,0 +1,294 @@
+import { useState } from "react";
+import { useQuery, useMutation } from "@tanstack/react-query";
+import { apiRequest, queryClient } from "@/lib/queryClient";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Loader2, Sparkles, Pizza, UserCircle2 } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
+
+type PerplexityMealSuggestionsProps = {
+  userId: string;
+};
+
+type MealSuggestion = {
+  name: string;
+  description: string;
+  calories: number;
+  proteins: number;
+  carbs: number;
+  fats: number;
+  ingredients: string[];
+};
+
+export default function PerplexityMealSuggestions({ userId }: PerplexityMealSuggestionsProps) {
+  const { toast } = useToast();
+  const [mealType, setMealType] = useState<string>("pranzo");
+  const [isUserAuthenticated, setIsUserAuthenticated] = useState(userId !== "0");
+  const [dietaryPreferences, setDietaryPreferences] = useState<string[]>([]);
+
+  // Toggle dietary preference
+  const togglePreference = (value: string) => {
+    setDietaryPreferences(prev => 
+      prev.includes(value) 
+        ? prev.filter(p => p !== value) 
+        : [...prev, value]
+    );
+  };
+
+  // Fetch meal suggestions
+  const { data, isLoading, error, refetch } = useQuery({
+    queryKey: ['/api/perplexity/meal-suggestions', userId, mealType, dietaryPreferences],
+    queryFn: async () => {
+      // Costruisci i parametri della query
+      const params = new URLSearchParams();
+      params.append('userId', userId);
+      params.append('mealType', mealType);
+      dietaryPreferences.forEach(pref => {
+        params.append('dietaryPreferences', pref);
+      });
+
+      const res = await apiRequest('GET', `/api/perplexity/meal-suggestions?${params.toString()}`);
+      if (!res.ok) throw new Error('Impossibile recuperare i suggerimenti');
+      return res.json();
+    },
+    enabled: !!userId && isUserAuthenticated && false, // Inizialmente disabilitato, verrà attivato dal pulsante "Genera"
+    refetchOnWindowFocus: false,
+  });
+
+  // Mutation per richiedere nuovi suggerimenti
+  const generateMutation = useMutation({
+    mutationFn: async () => {
+      await queryClient.resetQueries({ 
+        queryKey: ['/api/perplexity/meal-suggestions', userId, mealType, dietaryPreferences] 
+      });
+      return refetch();
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Errore",
+        description: "Impossibile generare i suggerimenti. Riprova più tardi.",
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Gestisci il cambio di tipo di pasto
+  const handleMealTypeChange = (value: string) => {
+    setMealType(value);
+  };
+
+  // Genera nuovi suggerimenti
+  const handleGenerate = () => {
+    generateMutation.mutate();
+  };
+
+  // Verifica se ci sono suggerimenti validi
+  const hasSuggestions = data?.meals && Array.isArray(data.meals) && data.meals.length > 0;
+
+  return (
+    <Card className="w-full">
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
+          <Pizza className="h-5 w-5 text-primary" />
+          <span>Suggerimenti Pasti con Perplexity AI</span>
+        </CardTitle>
+        <CardDescription>
+          Suggerimenti personalizzati basati sul tuo profilo e preferenze
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        {!isUserAuthenticated ? (
+          <div className="text-center py-10 border rounded-lg">
+            <UserCircle2 className="h-12 w-12 text-primary mx-auto mb-4" />
+            <h3 className="text-xl font-medium mb-2">Accedi per Generare Suggerimenti</h3>
+            <p className="text-muted-foreground max-w-md mx-auto mb-6">
+              Accedi o registrati per ricevere suggerimenti pasti personalizzati con Perplexity AI.
+            </p>
+            <Button onClick={() => {
+              toast({
+                title: "Autenticazione richiesta",
+                description: "Per utilizzare i suggerimenti pasti personalizzati è necessario accedere o registrarsi.",
+                duration: 5000
+              });
+            }}>
+              Accedi per Sbloccare
+            </Button>
+          </div>
+        ) : (
+          <>
+            <div className="space-y-4 mb-6">
+              <div>
+                <h3 className="text-sm font-medium mb-2">Tipo di Pasto</h3>
+                <Select value={mealType} onValueChange={handleMealTypeChange}>
+                  <SelectTrigger className="w-full md:w-[220px]">
+                    <SelectValue placeholder="Seleziona il tipo di pasto" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="colazione">Colazione</SelectItem>
+                    <SelectItem value="pranzo">Pranzo</SelectItem>
+                    <SelectItem value="cena">Cena</SelectItem>
+                    <SelectItem value="spuntino">Spuntino</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div>
+                <h3 className="text-sm font-medium mb-2">Preferenze Dietetiche</h3>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+                  <div className="flex items-center space-x-2">
+                    <Checkbox 
+                      id="vegetariano" 
+                      checked={dietaryPreferences.includes('vegetariano')}
+                      onCheckedChange={() => togglePreference('vegetariano')}
+                    />
+                    <Label htmlFor="vegetariano">Vegetariano</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <Checkbox 
+                      id="vegano" 
+                      checked={dietaryPreferences.includes('vegano')}
+                      onCheckedChange={() => togglePreference('vegano')}
+                    />
+                    <Label htmlFor="vegano">Vegano</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <Checkbox 
+                      id="senza-glutine" 
+                      checked={dietaryPreferences.includes('senza-glutine')}
+                      onCheckedChange={() => togglePreference('senza-glutine')}
+                    />
+                    <Label htmlFor="senza-glutine">Senza Glutine</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <Checkbox 
+                      id="low-carb" 
+                      checked={dietaryPreferences.includes('low-carb')}
+                      onCheckedChange={() => togglePreference('low-carb')}
+                    />
+                    <Label htmlFor="low-carb">Low Carb</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <Checkbox 
+                      id="proteico" 
+                      checked={dietaryPreferences.includes('proteico')}
+                      onCheckedChange={() => togglePreference('proteico')}
+                    />
+                    <Label htmlFor="proteico">Alto Proteico</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <Checkbox 
+                      id="mediterraneo" 
+                      checked={dietaryPreferences.includes('mediterraneo')}
+                      onCheckedChange={() => togglePreference('mediterraneo')}
+                    />
+                    <Label htmlFor="mediterraneo">Mediterraneo</Label>
+                  </div>
+                </div>
+              </div>
+
+              <div className="pt-2">
+                <Button 
+                  onClick={handleGenerate}
+                  disabled={isLoading || generateMutation.isPending}
+                  className="w-full md:w-auto"
+                >
+                  {(isLoading || generateMutation.isPending) ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Generazione in corso...
+                    </>
+                  ) : (
+                    <>
+                      <Sparkles className="mr-2 h-4 w-4" />
+                      Genera Suggerimenti
+                    </>
+                  )}
+                </Button>
+              </div>
+            </div>
+
+            <div className="mt-6">
+              {isLoading || generateMutation.isPending ? (
+                <div className="flex justify-center py-12">
+                  <div className="flex flex-col items-center gap-2">
+                    <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                    <p className="text-sm text-muted-foreground">Perplexity AI sta generando i tuoi suggerimenti...</p>
+                  </div>
+                </div>
+              ) : error ? (
+                <div className="text-center py-8 space-y-2 mt-4">
+                  <p className="text-destructive">Si è verificato un errore durante la generazione dei suggerimenti.</p>
+                  <Button variant="outline" onClick={handleGenerate}>Riprova</Button>
+                </div>
+              ) : hasSuggestions ? (
+                <div className="space-y-6">
+                  <ScrollArea className="max-h-[500px]">
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+                      {data.meals.map((meal: MealSuggestion, index: number) => (
+                        <Card key={index} className="overflow-hidden">
+                          <CardHeader className="p-4 pb-2">
+                            <CardTitle className="text-lg">{meal.name}</CardTitle>
+                            <CardDescription className="line-clamp-2">{meal.description}</CardDescription>
+                          </CardHeader>
+                          <CardContent className="p-4 pt-2">
+                            <div className="mb-3">
+                              <h4 className="text-xs font-medium text-muted-foreground mb-1">Ingredienti</h4>
+                              <div className="flex flex-wrap gap-1">
+                                {meal.ingredients.map((ingredient, idx) => (
+                                  <Badge key={idx} variant="outline" className="text-xs">
+                                    {ingredient}
+                                  </Badge>
+                                ))}
+                              </div>
+                            </div>
+                            
+                            <div className="grid grid-cols-2 gap-2 mt-3">
+                              <div className="rounded bg-muted/40 p-2 text-center">
+                                <div className="text-xs text-muted-foreground">Calorie</div>
+                                <div className="font-medium">{meal.calories} kcal</div>
+                              </div>
+                              <div className="rounded bg-muted/40 p-2 text-center">
+                                <div className="text-xs text-muted-foreground">Proteine</div>
+                                <div className="font-medium">{meal.proteins}g</div>
+                              </div>
+                              <div className="rounded bg-muted/40 p-2 text-center">
+                                <div className="text-xs text-muted-foreground">Carboidrati</div>
+                                <div className="font-medium">{meal.carbs}g</div>
+                              </div>
+                              <div className="rounded bg-muted/40 p-2 text-center">
+                                <div className="text-xs text-muted-foreground">Grassi</div>
+                                <div className="font-medium">{meal.fats}g</div>
+                              </div>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      ))}
+                    </div>
+                  </ScrollArea>
+                </div>
+              ) : (
+                <div className="text-center py-8 space-y-4 mt-4 border rounded-lg">
+                  <div className="rounded-full w-16 h-16 mx-auto bg-muted flex items-center justify-center">
+                    <Pizza className="h-6 w-6 text-muted-foreground" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-medium mb-1">Nessun suggerimento ancora generato</h3>
+                    <p className="text-muted-foreground max-w-md mx-auto">
+                      Seleziona le tue preferenze e clicca su "Genera Suggerimenti" per ricevere idee
+                      per i tuoi pasti personalizzate.
+                    </p>
+                  </div>
+                </div>
+              )}
+            </div>
+          </>
+        )}
+      </CardContent>
+    </Card>
+  );
+}

@@ -9,6 +9,8 @@ import NutritionChart from '@/components/NutritionChart';
 import UserProfile from '@/components/UserProfile';
 import AIRecommendations from '@/components/AIRecommendations';
 import AIObjectives from '@/components/AIObjectives';
+import PerplexityMealSuggestions from '@/components/PerplexityMealSuggestions';
+import PerplexityNutritionalAdvice from '@/components/PerplexityNutritionalAdvice';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/use-auth';
 import { useQuery } from '@tanstack/react-query';
@@ -519,6 +521,24 @@ export default function Home({
                 Raccomandazioni AI per Obiettivi
               </h2>
               <AIObjectives userId={user.id.toString()} />
+            </div>
+
+            {/* Sezione Suggerimenti Pasti con Perplexity AI */}
+            <div className="mt-12">
+              <h2 className="text-2xl font-bold mb-6 flex items-center">
+                <Sparkles className="h-5 w-5 mr-2 text-primary" />
+                Suggerimenti Pasti con Perplexity AI
+              </h2>
+              <PerplexityMealSuggestions userId={user.id.toString()} />
+            </div>
+
+            {/* Sezione Consigli Nutrizionali con Perplexity AI */}
+            <div className="mt-12 mb-8">
+              <h2 className="text-2xl font-bold mb-6 flex items-center">
+                <Sparkles className="h-5 w-5 mr-2 text-primary" />
+                Consigli Nutrizionali con Perplexity AI
+              </h2>
+              <PerplexityNutritionalAdvice userId={user.id.toString()} />
             </div>
           </TabsContent>
 
