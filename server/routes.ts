@@ -713,19 +713,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error: any) {
       console.error("Error generating AI chat response:", error);
       
-      // Gestiamo diversi tipi di errori con messaggi specifici
-      let errorMessage = "Mi dispiace, si è verificato un errore durante la generazione della risposta. Riprova più tardi.";
-      
-      // Verifichiamo se si tratta di un errore specifico di OpenAI
-      if (error.message) {
-        if (error.message.includes("limite di richieste")) {
-          errorMessage = "Il servizio AI ha raggiunto il limite di richieste per le risposte del chatbot. Riprova più tardi.";
-        } else if (error.message.includes("autenticazione")) {
-          errorMessage = "Problema di autenticazione con il servizio AI. Contatta l'amministratore.";
-        } else if (error.message.includes("connessione")) {
-          errorMessage = "Problema di connessione al servizio AI. Verifica la tua connessione internet e riprova.";
-        }
-      }
+      // Usiamo un messaggio di errore generico indipendentemente dal tipo di errore
+      let errorMessage = "Si è verificato un problema di connessione nella generazione dei suggerimenti. Riprova più tardi.";
       
       res.status(500).json({ 
         message: "Failed to generate AI response", 
