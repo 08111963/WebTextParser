@@ -89,16 +89,17 @@ export async function generateAIResponse(
   } catch (error: any) {
     console.error("Error generating AI response:", error);
     
-    // Gestione dettagliata degli errori OpenAI
+    // Registriamo l'errore specifico per debug ma lanciamo un messaggio generico all'utente
     if (error.status === 429) {
-      throw new Error("Il servizio AI ha raggiunto il limite di richieste. Riprova più tardi.");
+      console.log("API rate limit exceeded for OpenAI");
     } else if (error.status === 401 || error.status === 403) {
-      throw new Error("Errore di autenticazione con il servizio AI. Verifica che la chiave API sia valida.");
+      console.log("Authentication error with OpenAI API");
     } else if (error.code === 'ECONNRESET' || error.code === 'ETIMEDOUT' || error.code === 'ESOCKETTIMEDOUT') {
-      throw new Error("Connessione al servizio AI interrotta. Verifica la tua connessione internet e riprova.");
-    } else {
-      throw new Error(`Errore durante la generazione della risposta AI: ${error?.message || 'Errore sconosciuto'}`);
+      console.log("Connection issue with OpenAI API", error.code);
     }
+    
+    // Messaggio generico per l'utente
+    throw new Error("Si è verificato un problema nella generazione della risposta. Riprova più tardi.");
   }
 }
 
@@ -381,16 +382,17 @@ export async function generateNutritionGoalRecommendations(
   } catch (error: any) {
     console.error("Error generating nutrition goal recommendations:", error);
     
-    // Gestione dettagliata degli errori OpenAI
+    // Registriamo l'errore specifico per debug ma lanciamo un messaggio generico all'utente
     if (error.status === 429) {
-      throw new Error("Il servizio AI ha raggiunto il limite di richieste per gli obiettivi nutrizionali. Riprova più tardi.");
+      console.log("API rate limit exceeded for nutrition goal recommendations");
     } else if (error.status === 401 || error.status === 403) {
-      throw new Error("Errore di autenticazione con il servizio AI per gli obiettivi nutrizionali. Verifica che la chiave API sia valida.");
+      console.log("Authentication error with OpenAI API for nutrition goals");
     } else if (error.code === 'ECONNRESET' || error.code === 'ETIMEDOUT' || error.code === 'ESOCKETTIMEDOUT') {
-      throw new Error("Connessione al servizio AI interrotta. Verifica la tua connessione internet e riprova.");
-    } else {
-      throw new Error(`Errore durante la generazione delle raccomandazioni: ${error?.message || 'Errore sconosciuto'}`);
+      console.log("Connection issue with OpenAI API", error.code);
     }
+    
+    // Messaggio generico per l'utente
+    throw new Error("Si è verificato un problema nella generazione delle raccomandazioni. Riprova più tardi.");
   }
 }
 
@@ -580,15 +582,16 @@ export async function generateMealSuggestions(
   } catch (error: any) {
     console.error("Error generating meal suggestions:", error);
     
-    // Gestione dettagliata degli errori OpenAI
+    // Registriamo l'errore specifico per debug ma lanciamo un messaggio generico all'utente
     if (error.status === 429) {
-      throw new Error("Il servizio AI ha raggiunto il limite di richieste per i suggerimenti pasti. Riprova più tardi.");
+      console.log("API rate limit exceeded for meal suggestions");
     } else if (error.status === 401 || error.status === 403) {
-      throw new Error("Errore di autenticazione con il servizio AI per i suggerimenti pasti. Verifica che la chiave API sia valida.");
+      console.log("Authentication error with OpenAI API for meal suggestions");
     } else if (error.code === 'ECONNRESET' || error.code === 'ETIMEDOUT' || error.code === 'ESOCKETTIMEDOUT') {
-      throw new Error("Connessione al servizio AI interrotta. Verifica la tua connessione internet e riprova.");
-    } else {
-      throw new Error(`Errore durante la generazione dei suggerimenti pasti: ${error?.message || 'Errore sconosciuto'}`);
+      console.log("Connection issue with OpenAI API", error.code);
     }
+    
+    // Messaggio generico per l'utente
+    throw new Error("Si è verificato un problema nella generazione dei suggerimenti pasti. Riprova più tardi.");
   }
 }
