@@ -28,14 +28,14 @@ type ChatbotProps = {
 export default function SimpleChatbot({ userId, type }: ChatbotProps) {
   const { toast } = useToast();
   
-  // Determina il tipo di chatbot e le impostazioni appropriate
+  // Determine the chatbot type and appropriate settings
   const isGoalsChatbot = type === "goals";
-  const chatTitle = isGoalsChatbot ? "Consulente Obiettivi" : "Consulente Pasti";
+  const chatTitle = isGoalsChatbot ? "Goals Consultant" : "Meal Consultant";
   const BotIcon = isGoalsChatbot ? Target : Utensils;
   
   const initialMessage = isGoalsChatbot
-    ? "Ciao! Sono l'assistente specializzato in obiettivi nutrizionali. Posso aiutarti a definire e comprendere meglio i tuoi obiettivi nutrizionali. Cosa vorresti sapere?"
-    : "Ciao! Sono l'assistente specializzato in alimentazione. Posso aiutarti con suggerimenti per pasti, ricette, e informazioni su valori nutrizionali degli alimenti. Cosa vorresti sapere?";
+    ? "Hello! I'm the nutrition goals specialist. I can help you define and better understand your nutritional goals. What would you like to know?"
+    : "Hello! I'm the nutrition and meal specialist. I can help you with meal suggestions, recipes, and information about nutritional values of foods. What would you like to know?";
   
   const [messages, setMessages] = useState<Message[]>([
     { type: "bot", content: initialMessage, timestamp: new Date() }
@@ -44,17 +44,17 @@ export default function SimpleChatbot({ userId, type }: ChatbotProps) {
   const [query, setQuery] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
   
-  // Esempi di domande suggerite in base al tipo di chatbot
+  // Sample suggested questions based on chatbot type
   const suggestedQueries = isGoalsChatbot
     ? [
-        "Come posso impostare un obiettivo per perdere peso?",
-        "Qual è un buon obiettivo di proteine per la massa?",
-        "Quali macronutrienti sono adatti al mio profilo?"
+        "How can I set a weight loss goal?",
+        "What's a good protein target for muscle gain?",
+        "Which macronutrients are suitable for my profile?"
       ]
     : [
-        "Quali sono i valori nutrizionali dell'avocado?",
-        "Suggeriscimi un'insalata proteica per pranzo",
-        "Alternative allo zucchero per dolcificare?"
+        "What are the nutritional values of avocado?",
+        "Suggest a high-protein salad for lunch",
+        "What are alternatives to sugar for sweetening?"
       ];
   
   // Query AI mutation
@@ -63,7 +63,7 @@ export default function SimpleChatbot({ userId, type }: ChatbotProps) {
       const res = await apiRequest("POST", "/api/ai-chat", {
         userId,
         query,
-        chatType: type // Passiamo il tipo di chatbot all'API
+        chatType: type // Pass the chatbot type to the API
       });
       return await res.json();
     },
@@ -77,14 +77,14 @@ export default function SimpleChatbot({ userId, type }: ChatbotProps) {
     onError: (error: Error) => {
       console.error("Failed to get AI response:", error);
       toast({
-        title: "Errore",
-        description: "Non è stato possibile generare una risposta. Riprova più tardi.",
+        title: "Error",
+        description: "Unable to generate a response. Please try again later.",
         variant: "destructive",
       });
       
       setMessages(prev => [...prev, {
         type: "bot",
-        content: "Mi dispiace, si è verificato un errore durante la generazione della risposta. Riprova più tardi.",
+        content: "I'm sorry, an error occurred while generating the response. Please try again later.",
         timestamp: new Date()
       }]);
     }
@@ -166,7 +166,7 @@ export default function SimpleChatbot({ userId, type }: ChatbotProps) {
               <div className="chat-bubble chat-bubble-bot">
                 <div className="flex items-center gap-2">
                   <Loader2 className="h-4 w-4 animate-spin" />
-                  <span>Sto elaborando la risposta...</span>
+                  <span>Processing response...</span>
                 </div>
               </div>
             </div>
@@ -177,7 +177,7 @@ export default function SimpleChatbot({ userId, type }: ChatbotProps) {
         
         {messages.length === 1 && (
           <div className="px-4 py-3 border-t border-b">
-            <p className="text-xs font-medium mb-2 text-muted-foreground">Prova a chiedere:</p>
+            <p className="text-xs font-medium mb-2 text-muted-foreground">Try asking:</p>
             <div className="flex flex-wrap gap-2">
               {suggestedQueries.map((q, i) => (
                 <Button
@@ -198,7 +198,7 @@ export default function SimpleChatbot({ userId, type }: ChatbotProps) {
       <CardFooter className="border-t p-3">
         <form onSubmit={handleSubmit} className="flex w-full gap-2">
           <Input
-            placeholder={`Chiedi al ${chatTitle.toLowerCase()}...`}
+            placeholder={`Ask the ${chatTitle.toLowerCase()}...`}
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             disabled={aiChatMutation.isPending}
