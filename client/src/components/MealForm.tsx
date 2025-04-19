@@ -52,7 +52,7 @@ export default function MealForm({ userId }: MealFormProps) {
     },
   });
 
-  // Mutazione per aggiungere un pasto
+  // Mutation to add a meal
   const addMealMutation = useMutation({
     mutationFn: async (mealData: {
       userId: string;
@@ -67,17 +67,17 @@ export default function MealForm({ userId }: MealFormProps) {
       const res = await apiRequest('POST', '/api/meals', mealData);
       if (!res.ok) {
         const errorData = await res.json();
-        throw new Error(errorData.message || 'Errore durante l\'aggiunta del pasto');
+        throw new Error(errorData.message || 'Error adding the meal');
       }
       return res.json();
     },
     onSuccess: () => {
-      // Invalida la query per ricaricare i pasti
+      // Invalidate query to reload meals
       queryClient.invalidateQueries({ queryKey: ['/api/meals'] });
       
       toast({
-        title: "Successo",
-        description: "Pasto aggiunto con successo",
+        title: "Success",
+        description: "Meal added successfully",
       });
       
       // Reset form
@@ -93,16 +93,16 @@ export default function MealForm({ userId }: MealFormProps) {
       setSelectedFoodPortion("");
     },
     onError: (error: Error) => {
-      console.error("Errore durante l'aggiunta del pasto:", error);
+      console.error("Error adding meal:", error);
       toast({
-        title: "Errore",
-        description: `Impossibile aggiungere il pasto: ${error.message}`,
+        title: "Error",
+        description: `Unable to add meal: ${error.message}`,
         variant: "destructive",
       });
     }
   });
 
-  // Gestisce la selezione di un cibo predefinito
+  // Handles preset food selection
   const handleFoodPresetChange = (value: string) => {
     if (value === 'custom') {
       form.setValue('foodPreset', 'custom');
@@ -129,17 +129,17 @@ export default function MealForm({ userId }: MealFormProps) {
   };
 
   const onSubmit = async (values: MealFormValues) => {
-    // Verifica che l'utente sia autenticato
+    // Check if user is authenticated
     if (!userId) {
       toast({
-        title: "Errore",
-        description: "Devi effettuare l'accesso per aggiungere un pasto",
+        title: "Error",
+        description: "You must be logged in to add a meal",
         variant: "destructive",
       });
       return;
     }
     
-    // Prepara i dati da inviare
+    // Prepare data to send
     const mealData = {
       userId,
       food: values.food,
@@ -151,7 +151,7 @@ export default function MealForm({ userId }: MealFormProps) {
       timestamp: new Date().toISOString()
     };
     
-    // Invia i dati
+    // Send data
     addMealMutation.mutate(mealData);
   };
 
