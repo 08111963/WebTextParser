@@ -37,6 +37,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   setupAuth(app);
   
   // Endpoint per verificare la scadenza del periodo di prova dal database
+  // e lo stato dell'abbonamento dell'utente
   app.get('/api/trial-status', isAuthenticated, async (req, res) => {
     try {
       // Una volta che il middleware isAuthenticated è passato, req.user è sempre definito
@@ -47,6 +48,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "User profile not found" });
       }
       
+      // Verifica se l'utente ha un abbonamento attivo
+      // Nella versione reale, controlleremmo lo stato dell'abbonamento nel database
+      // e con il provider di pagamento (Stripe)
+      const hasActiveSubscription = false; // Per ora disabilitiamo l'accesso per tutti
+      
+      // Se l'utente ha un abbonamento attivo, restituiamo info premium
+      if (hasActiveSubscription) {
+        return res.json({
+          trialActive: true, // Considerato come in trial attivo per attivare le funzionalità
+          trialDaysLeft: 999, // Valore alto per indicare che è un utente premium
+          trialEndDate: new Date(2099, 11, 31).toISOString(), // Data futura
+          trialStartDate: new Date().toISOString(),
+          message: null,
+          isPremium: true,
+          subscriptionPlan: "premium" // Tipo di piano abbonamento
+        });
+      }
+      
+      // Altrimenti, procediamo con la logica del trial
       const registrationDate = userProfile.createdAt ? new Date(userProfile.createdAt) : new Date();
       const trialPeriodDays = 5; // Durata del periodo di prova in giorni
       const trialEndDate = new Date(registrationDate);
@@ -68,7 +88,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         trialDaysLeft: daysLeft,
         trialEndDate: trialEndDate.toISOString(),
         trialStartDate: registrationDate.toISOString(),
-        message: message
+        message: message,
+        isPremium: false,
+        subscriptionPlan: "trial"
       });
     } catch (error) {
       console.error('Error checking trial status:', error);
