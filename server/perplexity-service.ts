@@ -82,7 +82,7 @@ export async function generateMealSuggestionsWithPerplexity(
     - Proteine: ${nutritionGoal.proteins} g
     - Carboidrati: ${nutritionGoal.carbs} g
     - Grassi: ${nutritionGoal.fats} g
-    - Obiettivo: ${nutritionGoal.title}
+    - Obiettivo: ${nutritionGoal.name}
     - Descrizione: ${nutritionGoal.description || 'Non specificata'}`;
   }
 
