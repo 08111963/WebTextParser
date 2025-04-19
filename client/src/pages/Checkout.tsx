@@ -3,8 +3,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
-import { useLocation } from "wouter";
-
+import { useLocation, Redirect } from "wouter";
+import { useAuth } from "@/hooks/use-auth";
 import { RouteComponentProps } from "wouter";
 
 type CheckoutProps = RouteComponentProps & {
@@ -12,12 +12,20 @@ type CheckoutProps = RouteComponentProps & {
 };
 
 export default function Checkout(props: RouteComponentProps) {
+  // Verifica autenticazione
+  const { user, isLoading } = useAuth();
+  
   // Extract planId from URL query or use default
   const queryParams = new URLSearchParams(window.location.search);
   const planId = queryParams.get('planId') || "premium-monthly";
   const [error, setError] = useState<string | null>(null);
   const [stripeUrl, setStripeUrl] = useState<string | null>(null);
   const [_, navigate] = useLocation();
+  
+  // Reindirizza alla pagina di autenticazione se l'utente non è autenticato
+  if (!isLoading && !user) {
+    return <Redirect to={`/auth?redirect=/checkout?planId=${planId}`} />;
+  }
 
   useEffect(() => {
     const redirectToStripeCheckout = async () => {

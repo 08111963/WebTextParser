@@ -3,6 +3,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useLocation } from "wouter";
+import { useAuth } from "@/hooks/use-auth";
 
 type PricingTier = {
   id: string;
@@ -28,9 +29,17 @@ type PricingCardProps = {
 
 export default function PricingCard({ pricingData }: PricingCardProps) {
   const [_, navigate] = useLocation();
+  const { user } = useAuth();
 
   const handleGetStarted = (planId: string) => {
-    navigate(`/checkout?planId=${planId}`);
+    // Se l'utente non è autenticato, reindirizza alla pagina di login/registrazione
+    // con un parametro che indica dove tornare dopo l'autenticazione
+    if (!user) {
+      navigate(`/auth?redirect=/checkout?planId=${planId}`);
+    } else {
+      // Se l'utente è già autenticato, procedi direttamente al checkout
+      navigate(`/checkout?planId=${planId}`);
+    }
   };
 
   return (
