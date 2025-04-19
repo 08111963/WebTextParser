@@ -142,27 +142,27 @@ export default function PerplexityMealSuggestions({ userId }: PerplexityMealSugg
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
                   <div className="flex items-center space-x-2">
                     <Checkbox 
-                      id="vegetariano" 
-                      checked={dietaryPreferences.includes('vegetariano')}
-                      onCheckedChange={() => togglePreference('vegetariano')}
+                      id="vegetarian" 
+                      checked={dietaryPreferences.includes('vegetarian')}
+                      onCheckedChange={() => togglePreference('vegetarian')}
                     />
-                    <Label htmlFor="vegetariano">Vegetarian</Label>
+                    <Label htmlFor="vegetarian">Vegetarian</Label>
                   </div>
                   <div className="flex items-center space-x-2">
                     <Checkbox 
-                      id="vegano" 
-                      checked={dietaryPreferences.includes('vegano')}
-                      onCheckedChange={() => togglePreference('vegano')}
+                      id="vegan" 
+                      checked={dietaryPreferences.includes('vegan')}
+                      onCheckedChange={() => togglePreference('vegan')}
                     />
-                    <Label htmlFor="vegano">Vegan</Label>
+                    <Label htmlFor="vegan">Vegan</Label>
                   </div>
                   <div className="flex items-center space-x-2">
                     <Checkbox 
-                      id="senza-glutine" 
-                      checked={dietaryPreferences.includes('senza-glutine')}
-                      onCheckedChange={() => togglePreference('senza-glutine')}
+                      id="gluten-free" 
+                      checked={dietaryPreferences.includes('gluten-free')}
+                      onCheckedChange={() => togglePreference('gluten-free')}
                     />
-                    <Label htmlFor="senza-glutine">Gluten Free</Label>
+                    <Label htmlFor="gluten-free">Gluten Free</Label>
                   </div>
                   <div className="flex items-center space-x-2">
                     <Checkbox 
@@ -174,19 +174,19 @@ export default function PerplexityMealSuggestions({ userId }: PerplexityMealSugg
                   </div>
                   <div className="flex items-center space-x-2">
                     <Checkbox 
-                      id="proteico" 
-                      checked={dietaryPreferences.includes('proteico')}
-                      onCheckedChange={() => togglePreference('proteico')}
+                      id="high-protein" 
+                      checked={dietaryPreferences.includes('high-protein')}
+                      onCheckedChange={() => togglePreference('high-protein')}
                     />
-                    <Label htmlFor="proteico">High Protein</Label>
+                    <Label htmlFor="high-protein">High Protein</Label>
                   </div>
                   <div className="flex items-center space-x-2">
                     <Checkbox 
-                      id="mediterraneo" 
-                      checked={dietaryPreferences.includes('mediterraneo')}
-                      onCheckedChange={() => togglePreference('mediterraneo')}
+                      id="mediterranean" 
+                      checked={dietaryPreferences.includes('mediterranean')}
+                      onCheckedChange={() => togglePreference('mediterranean')}
                     />
-                    <Label htmlFor="mediterraneo">Mediterranean</Label>
+                    <Label htmlFor="mediterranean">Mediterranean</Label>
                   </div>
                 </div>
               </div>
@@ -200,12 +200,12 @@ export default function PerplexityMealSuggestions({ userId }: PerplexityMealSugg
                   {(isLoading || generateMutation.isPending) ? (
                     <>
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Generazione in corso...
+                      Generating...
                     </>
                   ) : (
                     <>
                       <Sparkles className="mr-2 h-4 w-4" />
-                      Genera Suggerimenti
+                      Generate Suggestions
                     </>
                   )}
                 </Button>
@@ -217,13 +217,13 @@ export default function PerplexityMealSuggestions({ userId }: PerplexityMealSugg
                 <div className="flex justify-center py-12">
                   <div className="flex flex-col items-center gap-2">
                     <Loader2 className="h-8 w-8 animate-spin text-primary" />
-                    <p className="text-sm text-muted-foreground">Perplexity AI sta generando i tuoi suggerimenti...</p>
+                    <p className="text-sm text-muted-foreground">Perplexity AI is generating your suggestions...</p>
                   </div>
                 </div>
               ) : error ? (
                 <div className="text-center py-8 space-y-2 mt-4">
-                  <p className="text-destructive">Si è verificato un errore durante la generazione dei suggerimenti.</p>
-                  <Button variant="outline" onClick={handleGenerate}>Riprova</Button>
+                  <p className="text-destructive">An error occurred while generating suggestions.</p>
+                  <Button variant="outline" onClick={handleGenerate}>Try Again</Button>
                 </div>
               ) : hasSuggestions ? (
                 <div className="space-y-6">
@@ -237,7 +237,7 @@ export default function PerplexityMealSuggestions({ userId }: PerplexityMealSugg
                           </CardHeader>
                           <CardContent className="p-4 pt-2">
                             <div className="mb-3">
-                              <h4 className="text-xs font-medium text-muted-foreground mb-1">Ingredienti</h4>
+                              <h4 className="text-xs font-medium text-muted-foreground mb-1">Ingredients</h4>
                               <div className="flex flex-wrap gap-1">
                                 {meal.ingredients.map((ingredient, idx) => (
                                   <Badge key={idx} variant="outline" className="text-xs">
@@ -249,19 +249,19 @@ export default function PerplexityMealSuggestions({ userId }: PerplexityMealSugg
                             
                             <div className="grid grid-cols-2 gap-2 mt-3">
                               <div className="rounded bg-muted/40 p-2 text-center">
-                                <div className="text-xs text-muted-foreground">Calorie</div>
+                                <div className="text-xs text-muted-foreground">Calories</div>
                                 <div className="font-medium">{meal.calories} kcal</div>
                               </div>
                               <div className="rounded bg-muted/40 p-2 text-center">
-                                <div className="text-xs text-muted-foreground">Proteine</div>
+                                <div className="text-xs text-muted-foreground">Proteins</div>
                                 <div className="font-medium">{meal.proteins}g</div>
                               </div>
                               <div className="rounded bg-muted/40 p-2 text-center">
-                                <div className="text-xs text-muted-foreground">Carboidrati</div>
+                                <div className="text-xs text-muted-foreground">Carbs</div>
                                 <div className="font-medium">{meal.carbs}g</div>
                               </div>
                               <div className="rounded bg-muted/40 p-2 text-center">
-                                <div className="text-xs text-muted-foreground">Grassi</div>
+                                <div className="text-xs text-muted-foreground">Fats</div>
                                 <div className="font-medium">{meal.fats}g</div>
                               </div>
                             </div>
@@ -277,10 +277,10 @@ export default function PerplexityMealSuggestions({ userId }: PerplexityMealSugg
                     <Pizza className="h-6 w-6 text-muted-foreground" />
                   </div>
                   <div>
-                    <h3 className="text-lg font-medium mb-1">Nessun suggerimento ancora generato</h3>
+                    <h3 className="text-lg font-medium mb-1">No suggestions generated yet</h3>
                     <p className="text-muted-foreground max-w-md mx-auto">
-                      Seleziona le tue preferenze e clicca su "Genera Suggerimenti" per ricevere idee
-                      per i tuoi pasti personalizzate.
+                      Select your preferences and click "Generate Suggestions" to receive
+                      personalized meal ideas.
                     </p>
                   </div>
                 </div>
