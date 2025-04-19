@@ -155,10 +155,10 @@ export default function AIRecommendations({ userId }: AIRecommendationsProps) {
     console.error("Error fetching meal suggestions:", mealError);
   }
 
-  // Stato locale per il caricamento manuale
+  // Local state for manual loading
   const [isManualLoading, setIsManualLoading] = useState(false);
 
-  // Funzione per aggiornare le raccomandazioni
+  // Function to update recommendations
   const handleRefresh = async () => {
     // If user is not authenticated, show login message
     if (!isUserAuthenticated) {
@@ -181,16 +181,16 @@ export default function AIRecommendations({ userId }: AIRecommendationsProps) {
         duration: 60000, // Long enough for complete loading
       });
       
-      // Aggiungiamo timestamp unico e forzaNew=true direttamente nella chiamata API
+      // Add unique timestamp and forceNew=true directly in the API call
       const timestamp = new Date().getTime();
       let url = `/api/recommendations/meals?userId=${userId}&forceNew=true&ts=${timestamp}`;
       if (selectedMealType && selectedMealType !== 'all') {
         url += `&mealType=${selectedMealType}`;
       }
       
-      console.log("Richiesta generazione nuovi pasti:", url);
+      console.log("Requesting new meal generation:", url);
       
-      // Disabilita temporaneamente la cache per questa richiesta
+      // Temporarily disable cache for this request
       const res = await fetch(url, {
         method: "GET",
         headers: {
@@ -202,22 +202,22 @@ export default function AIRecommendations({ userId }: AIRecommendationsProps) {
       });
       
       if (!res.ok) {
-        throw new Error(`Errore durante il fetch: ${res.status}`);
+        throw new Error(`Error during fetch: ${res.status}`);
       }
       
       const data = await res.json();
-      console.log("Nuovi pasti generati:", data);
+      console.log("New meals generated:", data);
       
-      // Assicuriamoci che ci siano suggerimenti validi
+      // Make sure there are valid suggestions
       if (!data.suggestions || data.suggestions.length === 0) {
-        throw new Error("Nessun suggerimento ricevuto dall'API");
+        throw new Error("No suggestions received from the API");
       }
       
-      // Forza l'aggiornamento dei dati con il risultato appena ottenuto
-      // Questo usa TanStack Query per aggiornare la cache
+      // Force data update with the newly obtained result
+      // This uses TanStack Query to update the cache
       queryClient.setQueryData(["/api/recommendations/meals", userId, selectedMealType], data);
       
-      // Invalida esplicitamente la query per forzare un refresh completo
+      // Explicitly invalidate the query to force a complete refresh
       await queryClient.invalidateQueries({
         queryKey: ["/api/recommendations/meals", userId, selectedMealType]
       });
@@ -240,7 +240,7 @@ export default function AIRecommendations({ userId }: AIRecommendationsProps) {
     }
   };
 
-  // Cambia tipo di pasto e aggiorna i suggerimenti
+  // Change meal type and update suggestions
   const handleMealTypeChange = (value: string) => {
     setSelectedMealType(value);
   };
@@ -328,7 +328,7 @@ export default function AIRecommendations({ userId }: AIRecommendationsProps) {
                     <div className="flex flex-col items-center justify-center py-12">
                       <Loader2 className="h-12 w-12 animate-spin text-primary mb-4" />
                       <p className="text-muted-foreground text-center max-w-md">
-                        Creazione di nuovi suggerimenti intelligenti in corso...
+                        Creating new intelligent suggestions in progress...
                       </p>
                     </div>
                   ) : mealSuggestions?.suggestions && mealSuggestions.suggestions.length > 0 ? (
@@ -356,27 +356,27 @@ export default function AIRecommendations({ userId }: AIRecommendationsProps) {
                             </div>
                             <div className="border rounded-lg p-4 text-center bg-red-50 dark:bg-red-900/10">
                               <div className="text-2xl font-medium">{meal.proteins}</div>
-                              <div className="text-sm text-muted-foreground">Proteine (g)</div>
+                              <div className="text-sm text-muted-foreground">Protein (g)</div>
                             </div>
                             <div className="border rounded-lg p-4 text-center bg-green-50 dark:bg-green-900/10">
                               <div className="text-2xl font-medium">{meal.carbs}</div>
-                              <div className="text-sm text-muted-foreground">Carboidrati (g)</div>
+                              <div className="text-sm text-muted-foreground">Carbs (g)</div>
                             </div>
                             <div className="border rounded-lg p-4 text-center bg-yellow-50 dark:bg-yellow-900/10">
                               <div className="text-2xl font-medium">{meal.fats}</div>
-                              <div className="text-sm text-muted-foreground">Grassi (g)</div>
+                              <div className="text-sm text-muted-foreground">Fat (g)</div>
                             </div>
                           </div>
                           
                           <div className="mt-4 flex justify-end">
                             <Button variant="outline" className="text-sm" onClick={() => {
                               toast({
-                                title: "Funzionalità in arrivo",
-                                description: "L'aggiunta automatica di pasti sarà disponibile presto!",
+                                title: "Coming Soon",
+                                description: "Automatic meal addition will be available soon!",
                               });
                             }}>
                               <ArrowRight className="h-4 w-4 mr-2" />
-                              Aggiungi pasto
+                              Add Meal
                             </Button>
                           </div>
                         </div>
@@ -393,7 +393,7 @@ export default function AIRecommendations({ userId }: AIRecommendationsProps) {
                           ) : (
                             <Sparkles className="h-5 w-5 mr-2" />
                           )}
-                          Genera Nuovi Pasti
+                          Generate New Meals
                         </Button>
                       </div>
                     </div>
@@ -403,9 +403,9 @@ export default function AIRecommendations({ userId }: AIRecommendationsProps) {
                         <Utensils className="h-6 w-6 text-muted-foreground" />
                       </div>
                       <div>
-                        <h3 className="text-lg font-medium mb-1">Nessun suggerimento disponibile</h3>
+                        <h3 className="text-lg font-medium mb-1">No suggestions available</h3>
                         <p className="text-muted-foreground">
-                          Clicca "Genera Nuovi" per ricevere suggerimenti personalizzati per i tuoi pasti.
+                          Click "Generate New" to receive personalized meal suggestions.
                         </p>
                       </div>
                       <Button 
@@ -419,7 +419,7 @@ export default function AIRecommendations({ userId }: AIRecommendationsProps) {
                         ) : (
                           <Sparkles className="h-4 w-4 mr-2" />
                         )}
-                        Genera Suggerimenti
+                        Generate Suggestions
                       </Button>
                     </div>
                   )}
