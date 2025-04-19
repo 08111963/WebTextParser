@@ -924,9 +924,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // === PAYMENT ROUTES WITH STRIPE ===
   
-  // Check for Stripe secret key
+  // Check for Stripe secret key and price IDs
   if (!process.env.STRIPE_SECRET_KEY) {
     console.warn("Warning: STRIPE_SECRET_KEY is not set. Payment functionality will not work.");
+  }
+  
+  if (!process.env.STRIPE_PRICE_ID_MONTHLY || !process.env.STRIPE_PRICE_ID_YEARLY) {
+    console.warn("Warning: STRIPE_PRICE_ID_MONTHLY or STRIPE_PRICE_ID_YEARLY is not set. Subscription plans will not work properly.");
   }
   
   // Initialize Stripe with secret key if available
@@ -945,15 +949,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       const { planId } = req.body;
       
-      // Price mapping for different plans in cents (USD)
-      const planPrices = {
-        free: 0,
-        premium: 999, // $9.99
-        unlimited: 1999 // $19.99
-      };
+      let priceId;
+      let amount;
       
-      // Get price based on plan
-      const amount = planPrices[planId as keyof typeof planPrices] || planPrices.premium;
+      // Match the planId to the correct Stripe price ID
+      if (planId === 'premium-monthly') {
+        priceId = process.env.STRIPE_PRICE_ID_MONTHLY;
+        amount = 399; // $3.99 in cents
+      } else if (planId === 'premium-yearly') {
+        priceId = process.env.STRIPE_PRICE_ID_YEARLY;
+        amount = 3999; // $39.99 in cents
+      } else {
+        return res.status(400).json({ message: "Invalid plan ID." });
+      }
+      
+      if (!priceId) {
+        return res.status(500).json({ 
+          message: "Stripe price ID not configured for the selected plan." 
+        });
+      }
       
       // Create a PaymentIntent with the order amount and currency
       const paymentIntent = await stripe.paymentIntents.create({
@@ -963,7 +977,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
           enabled: true,
         },
         metadata: {
-          planId
+          planId,
+          priceId
         }
       });
       
