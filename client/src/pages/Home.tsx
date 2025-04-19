@@ -304,6 +304,24 @@ export default function Home() {
                 <div className="space-y-4">
                   {/* Form per aggiungere un nuovo pasto */}
                   <MealForm userId={user.id.toString()} />
+                  
+                  {/* Bottone per le raccomandazioni AI */}
+                  <div className="mt-6">
+                    <Button
+                      variant="outline"
+                      className="w-full"
+                      onClick={() => {
+                        // Mostra una notifica che la funzionalità sarà aggiunta in futuro
+                        toast({
+                          title: "Raccomandazioni AI",
+                          description: "Le raccomandazioni AI saranno disponibili nella prossima versione dell'app.",
+                        });
+                      }}
+                    >
+                      <Sparkles className="h-4 w-4 mr-2" />
+                      Raccomandazioni AI
+                    </Button>
+                  </div>
                 </div>
                 
                 {/* Lista dei pasti */}
@@ -322,12 +340,6 @@ export default function Home() {
                 </Card>
               </div>
             </div>
-            
-            {/* Sezione separata per le raccomandazioni AI */}
-            <div className="mt-10 border-t pt-10">
-              <h2 className="text-2xl font-bold mb-6">Raccomandazioni AI per Pasti</h2>
-              <AIRecommendations userId={user.id.toString()} />
-            </div>
           </TabsContent>
 
           <TabsContent value="goals" className="max-h-[calc(100vh-13rem)] overflow-y-auto">
@@ -341,6 +353,24 @@ export default function Home() {
                 <div className="space-y-4">
                   {/* Form per aggiungere un nuovo obiettivo */}
                   <NutritionGoalForm userId={user.id.toString()} />
+                  
+                  {/* Bottone per le raccomandazioni AI */}
+                  <div className="mt-6">
+                    <Button
+                      variant="outline"
+                      className="w-full"
+                      onClick={() => {
+                        // Mostra una notifica che la funzionalità sarà aggiunta in futuro
+                        toast({
+                          title: "Raccomandazioni AI",
+                          description: "Le raccomandazioni AI saranno disponibili nella prossima versione dell'app.",
+                        });
+                      }}
+                    >
+                      <Sparkles className="h-4 w-4 mr-2" />
+                      Raccomandazioni AI
+                    </Button>
+                  </div>
                 </div>
                 
                 {/* Visualizzazione dell'obiettivo attivo e cronologia */}
@@ -410,11 +440,7 @@ export default function Home() {
               </div>
             </div>
             
-            {/* Sezione separata per le raccomandazioni AI */}
-            <div className="mt-10 border-t pt-10">
-              <h2 className="text-2xl font-bold mb-6">Raccomandazioni AI per Obiettivi</h2>
-              <AIObjectives userId={user.id.toString()} />
-            </div>
+            {/* Il componente AIObjectives è stato nascosto */}
           </TabsContent>
 
           <TabsContent value="profile">
