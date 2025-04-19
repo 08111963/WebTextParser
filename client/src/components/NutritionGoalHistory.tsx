@@ -288,12 +288,12 @@ export default function NutritionGoalHistory({ userId }: NutritionGoalHistoryPro
                     className="flex items-center gap-1 hover:bg-transparent p-0"
                     onClick={() => requestSort('endDate')}
                   >
-                    Data Fine 
+                    End Date 
                     <ArrowUpDown className="h-3 w-3" />
                   </Button>
                 </TableHead>
-                <TableHead>Stato</TableHead>
-                <TableHead className="text-right">Azioni</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead className="text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -307,9 +307,9 @@ export default function NutritionGoalHistory({ userId }: NutritionGoalHistoryPro
                   </TableCell>
                   <TableCell>
                     {goal.isActive ? (
-                      <Badge variant="default">Attivo</Badge>
+                      <Badge variant="default">Active</Badge>
                     ) : (
-                      <Badge variant="outline">Inattivo</Badge>
+                      <Badge variant="outline">Inactive</Badge>
                     )}
                   </TableCell>
                   <TableCell className="text-right">
@@ -324,42 +324,42 @@ export default function NutritionGoalHistory({ userId }: NutritionGoalHistoryPro
                           <div className="space-y-4">
                             <div>
                               <h3 className="text-lg font-medium">{goal.name}</h3>
-                              <p className="text-sm text-muted-foreground">{goal.description || "Nessuna descrizione"}</p>
+                              <p className="text-sm text-muted-foreground">{goal.description || "No description"}</p>
                             </div>
                             <div className="grid grid-cols-2 gap-4">
                               <div>
-                                <h4 className="text-sm font-medium">Calorie</h4>
+                                <h4 className="text-sm font-medium">Calories</h4>
                                 <p>{goal.calories} kcal</p>
                               </div>
                               <div>
-                                <h4 className="text-sm font-medium">Proteine</h4>
+                                <h4 className="text-sm font-medium">Proteins</h4>
                                 <p>{goal.proteins} g</p>
                               </div>
                               <div>
-                                <h4 className="text-sm font-medium">Carboidrati</h4>
+                                <h4 className="text-sm font-medium">Carbs</h4>
                                 <p>{goal.carbs} g</p>
                               </div>
                               <div>
-                                <h4 className="text-sm font-medium">Grassi</h4>
+                                <h4 className="text-sm font-medium">Fats</h4>
                                 <p>{goal.fats} g</p>
                               </div>
                             </div>
                             <div className="grid grid-cols-2 gap-4">
                               <div>
-                                <h4 className="text-sm font-medium">Data Inizio</h4>
+                                <h4 className="text-sm font-medium">Start Date</h4>
                                 <p>{format(new Date(goal.startDate), 'dd/MM/yyyy')}</p>
                               </div>
                               <div>
-                                <h4 className="text-sm font-medium">Data Fine</h4>
+                                <h4 className="text-sm font-medium">End Date</h4>
                                 <p>{goal.endDate ? format(new Date(goal.endDate), 'dd/MM/yyyy') : '-'}</p>
                               </div>
                             </div>
                             <div>
-                              <h4 className="text-sm font-medium">Stato</h4>
-                              <p>{goal.isActive ? 'Attivo' : 'Inattivo'}</p>
+                              <h4 className="text-sm font-medium">Status</h4>
+                              <p>{goal.isActive ? 'Active' : 'Inactive'}</p>
                             </div>
                             <div>
-                              <h4 className="text-sm font-medium">Creato</h4>
+                              <h4 className="text-sm font-medium">Created</h4>
                               <p>{format(new Date(goal.createdAt), 'dd/MM/yyyy HH:mm')}</p>
                             </div>
                           </div>
@@ -371,7 +371,7 @@ export default function NutritionGoalHistory({ userId }: NutritionGoalHistoryPro
                         onClick={() => handleEditClick(goal)}
                       >
                         <Edit className="h-4 w-4 mr-1" />
-                        Modifica
+                        Edit
                       </Button>
                       <Button 
                         size="sm" 
@@ -380,7 +380,7 @@ export default function NutritionGoalHistory({ userId }: NutritionGoalHistoryPro
                         onClick={() => openDeleteDialog(goal)}
                       >
                         <Trash2 className="h-4 w-4 mr-1" />
-                        Elimina
+                        Delete
                       </Button>
                     </div>
                   </TableCell>
