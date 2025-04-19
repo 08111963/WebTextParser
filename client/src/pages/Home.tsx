@@ -11,6 +11,7 @@ import AIRecommendations from '@/components/AIRecommendations';
 import AIObjectives from '@/components/AIObjectives';
 import PerplexityMealSuggestions from '@/components/PerplexityMealSuggestions';
 import PerplexityNutritionalAdvice from '@/components/PerplexityNutritionalAdvice';
+import PremiumFeature from '@/components/PremiumFeature';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/use-auth';
 import { useQuery } from '@tanstack/react-query';
@@ -421,7 +422,13 @@ export default function Home({
                 <Sparkles className="h-5 w-5 mr-2 text-primary" />
                 AI Meal Recommendations
               </h2>
-              <AIRecommendations userId={user.id.toString()} />
+              <PremiumFeature 
+                feature="ai-meal-recommendations" 
+                title="AI Meal Recommendations" 
+                description="Get personalized meal recommendations powered by AI. Upgrade to Premium to access this feature."
+              >
+                <AIRecommendations userId={user.id.toString()} />
+              </PremiumFeature>
             </div>
           </TabsContent>
 
@@ -520,7 +527,13 @@ export default function Home({
                     <Target className="h-5 w-5 mr-2 text-primary" />
                     AI Goal Recommendations
                   </h2>
-                  <AIObjectives userId={user.id.toString()} />
+                  <PremiumFeature 
+                    feature="ai-goal-recommendations" 
+                    title="AI Goal Recommendations" 
+                    description="Get personalized nutrition goal recommendations powered by AI. Upgrade to Premium to access this feature."
+                  >
+                    <AIObjectives userId={user.id.toString()} />
+                  </PremiumFeature>
                 </div>
               </div>
             </div>
