@@ -202,8 +202,8 @@ export default function AIObjectives({ userId }: AIObjectivesProps) {
                 </div>
                 
                 <div className="border-t pt-6 mt-4">
-                  <h3 className="text-lg font-medium mb-4 flex items-center gap-2">
-                    <Star className="h-5 w-5 text-yellow-500" />
+                  <h3 className="text-xl font-bold mb-5 flex items-center gap-2">
+                    <Star className="h-6 w-6 text-yellow-500" />
                     <span>Obiettivi Nutrizionali Consigliati</span>
                   </h3>
                   
@@ -213,46 +213,44 @@ export default function AIObjectives({ userId }: AIObjectivesProps) {
                         <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
                       </div>
                     ) : nutritionGoalRecommendations?.recommendations && nutritionGoalRecommendations.recommendations.length > 0 ? (
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="grid grid-cols-1 gap-6">
                         {nutritionGoalRecommendations.recommendations.map((rec, index) => (
-                          <div key={index} className="border rounded-lg p-4 bg-card shadow-sm">
-                            <h4 className="font-medium flex items-center gap-2 text-base">
-                              <span className="break-words">{rec.title}</span>
+                          <div key={index} className="border rounded-lg p-6 bg-card shadow-sm">
+                            <h4 className="font-medium text-xl mb-3">
+                              {rec.title}
                             </h4>
                             
-                            <p className="text-sm text-muted-foreground mt-2 mb-3 leading-relaxed overflow-auto max-h-[8rem] border border-gray-200 bg-slate-50 dark:bg-slate-800/50 p-3 rounded-md">{rec.description}</p>
+                            <p className="text-base text-muted-foreground mb-5 leading-relaxed border border-gray-200 bg-slate-50 dark:bg-slate-800/50 p-4 rounded-md">
+                              {rec.description}
+                            </p>
                             
-                            <div className="grid grid-cols-2 gap-4 mt-3">
-                              <div className="bg-muted/40 p-4 rounded text-center flex flex-col h-28 justify-between">
-                                <div className="text-xs text-muted-foreground mb-1">Calorie</div>
-                                <div className="text-2xl font-semibold">{rec.calories}</div>
-                                <div className="text-xs mt-1">kcal</div>
+                            <div className="grid grid-cols-4 gap-4 mt-4">
+                              <div className="border rounded-lg p-4 text-center">
+                                <div className="text-2xl font-medium">{rec.calories}</div>
+                                <div className="text-sm text-muted-foreground">kcal</div>
                               </div>
-                              <div className="bg-muted/40 p-4 rounded text-center flex flex-col h-28 justify-between">
-                                <div className="text-xs text-muted-foreground mb-1">Proteine</div>
-                                <div className="text-2xl font-semibold">{rec.proteins}</div>
-                                <div className="text-xs mt-1">grammi</div>
+                              <div className="border rounded-lg p-4 text-center bg-red-50 dark:bg-red-900/10">
+                                <div className="text-2xl font-medium">{rec.proteins}</div>
+                                <div className="text-sm text-muted-foreground">Proteine (g)</div>
                               </div>
-                              <div className="bg-muted/40 p-4 rounded text-center flex flex-col h-28 justify-between">
-                                <div className="text-xs text-muted-foreground mb-1">Carboidrati</div>
-                                <div className="text-2xl font-semibold">{rec.carbs}</div>
-                                <div className="text-xs mt-1">grammi</div>
+                              <div className="border rounded-lg p-4 text-center bg-green-50 dark:bg-green-900/10">
+                                <div className="text-2xl font-medium">{rec.carbs}</div>
+                                <div className="text-sm text-muted-foreground">Carboidrati (g)</div>
                               </div>
-                              <div className="bg-muted/40 p-4 rounded text-center flex flex-col h-28 justify-between">
-                                <div className="text-xs text-muted-foreground mb-1">Grassi</div>
-                                <div className="text-2xl font-semibold">{rec.fats}</div>
-                                <div className="text-xs mt-1">grammi</div>
+                              <div className="border rounded-lg p-4 text-center bg-yellow-50 dark:bg-yellow-900/10">
+                                <div className="text-2xl font-medium">{rec.fats}</div>
+                                <div className="text-sm text-muted-foreground">Grassi (g)</div>
                               </div>
                             </div>
                             
-                            <div className="mt-3 flex justify-end">
-                              <Button variant="outline" size="sm" className="text-xs" onClick={() => {
+                            <div className="mt-4 flex justify-end">
+                              <Button variant="outline" className="text-sm" onClick={() => {
                                 toast({
                                   title: "Funzionalità in arrivo",
                                   description: "La creazione automatica di obiettivi sarà disponibile presto!",
                                 });
                               }}>
-                                <CircleCheck className="h-3.5 w-3.5 mr-1" />
+                                <CircleCheck className="h-4 w-4 mr-2" />
                                 Usa questo obiettivo
                               </Button>
                             </div>
