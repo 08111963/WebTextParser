@@ -8,11 +8,11 @@ export type FoodItem = {
   fats: number;
 };
 
-// Database di alimenti comuni con valori nutrizionali calcolati per porzione specificata
+// Database of common foods with nutritional values calculated per specified portion
 export const foodItems: FoodItem[] = [
   {
     id: "yogurt-greco",
-    name: "Yogurt greco",
+    name: "Greek yogurt",
     portion: "150g",
     calories: 145,
     proteins: 15,
@@ -21,7 +21,7 @@ export const foodItems: FoodItem[] = [
   },
   {
     id: "petto-di-pollo",
-    name: "Petto di pollo",
+    name: "Chicken breast",
     portion: "100g",
     calories: 165,
     proteins: 31,
@@ -30,8 +30,8 @@ export const foodItems: FoodItem[] = [
   },
   {
     id: "uova",
-    name: "Uova",
-    portion: "2 uova medie (100g)",
+    name: "Eggs",
+    portion: "2 medium eggs (100g)",
     calories: 155,
     proteins: 13,
     carbs: 1,
@@ -39,8 +39,8 @@ export const foodItems: FoodItem[] = [
   },
   {
     id: "pasta",
-    name: "Pasta di grano duro",
-    portion: "80g (secco)",
+    name: "Durum wheat pasta",
+    portion: "80g (dry)",
     calories: 280,
     proteins: 10,
     carbs: 56,
@@ -48,8 +48,8 @@ export const foodItems: FoodItem[] = [
   },
   {
     id: "riso",
-    name: "Riso bianco",
-    portion: "80g (secco)",
+    name: "White rice",
+    portion: "80g (dry)",
     calories: 290,
     proteins: 5,
     carbs: 64,
@@ -57,8 +57,8 @@ export const foodItems: FoodItem[] = [
   },
   {
     id: "pane",
-    name: "Pane integrale",
-    portion: "50g (1 fetta)",
+    name: "Whole wheat bread",
+    portion: "50g (1 slice)",
     calories: 120,
     proteins: 5,
     carbs: 20,
@@ -66,7 +66,7 @@ export const foodItems: FoodItem[] = [
   },
   {
     id: "salmone",
-    name: "Salmone",
+    name: "Salmon",
     portion: "100g",
     calories: 208,
     proteins: 20,
@@ -75,8 +75,8 @@ export const foodItems: FoodItem[] = [
   },
   {
     id: "tonno",
-    name: "Tonno in scatola al naturale",
-    portion: "100g (sgocciolato)",
+    name: "Canned tuna in water",
+    portion: "100g (drained)",
     calories: 116,
     proteins: 26,
     carbs: 0,
@@ -85,7 +85,7 @@ export const foodItems: FoodItem[] = [
   {
     id: "avocado",
     name: "Avocado",
-    portion: "1 medio (150g)",
+    portion: "1 medium (150g)",
     calories: 240,
     proteins: 3,
     carbs: 12,
@@ -94,7 +94,7 @@ export const foodItems: FoodItem[] = [
   {
     id: "banana",
     name: "Banana",
-    portion: "1 media (120g)",
+    portion: "1 medium (120g)",
     calories: 105,
     proteins: 1,
     carbs: 27,
@@ -102,8 +102,8 @@ export const foodItems: FoodItem[] = [
   },
   {
     id: "mela",
-    name: "Mela",
-    portion: "1 media (150g)",
+    name: "Apple",
+    portion: "1 medium (150g)",
     calories: 80,
     proteins: 0,
     carbs: 21,
@@ -111,7 +111,7 @@ export const foodItems: FoodItem[] = [
   },
   {
     id: "mandorle",
-    name: "Mandorle",
+    name: "Almonds",
     portion: "30g",
     calories: 174,
     proteins: 6,
@@ -120,7 +120,7 @@ export const foodItems: FoodItem[] = [
   },
   {
     id: "latte",
-    name: "Latte parzialmente scremato",
+    name: "Semi-skimmed milk",
     portion: "250ml",
     calories: 115,
     proteins: 8,
@@ -129,8 +129,8 @@ export const foodItems: FoodItem[] = [
   },
   {
     id: "olio-oliva",
-    name: "Olio d'oliva",
-    portion: "1 cucchiaio (15ml)",
+    name: "Olive oil",
+    portion: "1 tablespoon (15ml)",
     calories: 120,
     proteins: 0,
     carbs: 0,
@@ -138,8 +138,8 @@ export const foodItems: FoodItem[] = [
   },
   {
     id: "spinaci",
-    name: "Spinaci",
-    portion: "100g (crudi)",
+    name: "Spinach",
+    portion: "100g (raw)",
     calories: 23,
     proteins: 3,
     carbs: 4,
@@ -147,8 +147,8 @@ export const foodItems: FoodItem[] = [
   },
   {
     id: "patate",
-    name: "Patate",
-    portion: "150g (bollite)",
+    name: "Potatoes",
+    portion: "150g (boiled)",
     calories: 130,
     proteins: 3,
     carbs: 30,
@@ -156,8 +156,8 @@ export const foodItems: FoodItem[] = [
   },
   {
     id: "riso-integrale",
-    name: "Riso integrale",
-    portion: "80g (secco)",
+    name: "Brown rice",
+    portion: "80g (dry)",
     calories: 280,
     proteins: 6,
     carbs: 59,
@@ -175,7 +175,7 @@ export const foodItems: FoodItem[] = [
   {
     id: "quinoa",
     name: "Quinoa",
-    portion: "80g (secco)",
+    portion: "80g (dry)",
     calories: 280,
     proteins: 10,
     carbs: 51,
@@ -183,7 +183,7 @@ export const foodItems: FoodItem[] = [
   },
   {
     id: "burger-vegetale",
-    name: "Burger vegetale",
+    name: "Veggie burger",
     portion: "100g",
     calories: 240,
     proteins: 16,
