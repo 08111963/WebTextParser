@@ -522,32 +522,6 @@ export default function Home({
               </h2>
               <AIObjectives userId={user.id.toString()} />
             </div>
-
-            {/* Sezione Consigli Nutrizionali con Perplexity AI */}
-            <div className="mt-12 mb-8">
-              <h2 className="text-2xl font-bold mb-6 flex items-center">
-                <Sparkles className="h-5 w-5 mr-2 text-primary" />
-                Consigli Nutrizionali con Perplexity AI
-              </h2>
-              {typeof PerplexityNutritionalAdvice === 'function' ? (
-                <PerplexityNutritionalAdvice userId={user.id.toString()} />
-              ) : (
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Consigli Nutrizionali con Perplexity AI</CardTitle>
-                    <CardDescription>Consigli personalizzati da un esperto nutrizionista AI</CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-center py-10 border rounded-lg">
-                      <p className="text-xl font-medium mb-2">Componente in caricamento...</p>
-                      <p className="text-muted-foreground mb-6">
-                        Il sistema sta caricando i consigli nutrizionali personalizzati.
-                      </p>
-                    </div>
-                  </CardContent>
-                </Card>
-              )}
-            </div>
           </TabsContent>
 
           <TabsContent value="profile">
