@@ -11,6 +11,7 @@ import { useToast } from "@/hooks/use-toast";
 // Import componenti per i calcoli fitness
 import BMICard from "@/components/BMICard";
 import MetabolismCard from "@/components/MetabolismCard";
+import PremiumFeature from "@/components/PremiumFeature";
 import { 
   Card, 
   CardContent, 
@@ -281,14 +282,27 @@ export default function UserProfile() {
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
-              <BMICard weight={profile.weight} height={profile.height} />
-              <MetabolismCard 
-                weight={profile.weight} 
-                height={profile.height} 
-                age={profile.age}
-                gender={profile.gender} 
-                activityLevel={profile.activityLevel} 
-              />
+              <PremiumFeature
+                feature="bmi-calculator"
+                title="BMI Calculator"
+                description="Calculate and track your Body Mass Index based on your height and weight"
+              >
+                <BMICard weight={profile.weight} height={profile.height} />
+              </PremiumFeature>
+              
+              <PremiumFeature
+                feature="metabolism-calculator"
+                title="Metabolism Calculator"
+                description="Get personalized metabolic rate calculations based on your physical profile"
+              >
+                <MetabolismCard 
+                  weight={profile.weight} 
+                  height={profile.height} 
+                  age={profile.age}
+                  gender={profile.gender} 
+                  activityLevel={profile.activityLevel} 
+                />
+              </PremiumFeature>
             </div>
             
             <div className="pt-2">
