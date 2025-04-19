@@ -938,7 +938,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     new Stripe(process.env.STRIPE_SECRET_KEY) : 
     null;
   
-  // Create payment intent route
+  // Create Stripe checkout session for subscription
   app.post("/api/create-payment-intent", async (req, res) => {
     try {
       if (!stripe) {
@@ -949,16 +949,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       const { planId } = req.body;
       
+      // Determine which price ID to use based on the plan
       let priceId;
-      let amount;
       
-      // Match the planId to the correct Stripe price ID
       if (planId === 'premium-monthly') {
         priceId = process.env.STRIPE_PRICE_ID_MONTHLY;
-        amount = 399; // $3.99 in cents
       } else if (planId === 'premium-yearly') {
         priceId = process.env.STRIPE_PRICE_ID_YEARLY;
-        amount = 3999; // $39.99 in cents
       } else {
         return res.status(400).json({ message: "Invalid plan ID." });
       }
@@ -969,21 +966,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
       
-      // Create a PaymentIntent with the order amount and currency
-      const paymentIntent = await stripe.paymentIntents.create({
-        amount,
-        currency: "usd",
-        automatic_payment_methods: {
-          enabled: true,
-        },
+      // Create a Checkout Session instead of a PaymentIntent
+      // This redirects the user to the Stripe-hosted checkout page
+      const session = await stripe.checkout.sessions.create({
+        payment_method_types: ['card'],
+        line_items: [
+          {
+            price: priceId,
+            quantity: 1,
+          },
+        ],
+        mode: 'subscription',
+        success_url: `${req.headers.origin}/payment-success?session_id={CHECKOUT_SESSION_ID}`,
+        cancel_url: `${req.headers.origin}/pricing`,
         metadata: {
-          planId,
-          priceId
+          planId
         }
       });
       
       res.status(200).json({
-        clientSecret: paymentIntent.client_secret,
+        url: session.url,
       });
     } catch (error) {
       console.error("Error creating payment intent:", error);

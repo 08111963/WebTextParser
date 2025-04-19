@@ -28,34 +28,35 @@ export default function Checkout(props: RouteComponentProps) {
   const [_, navigate] = useLocation();
 
   useEffect(() => {
-    if (!stripePromise) {
-      setError("Stripe is not properly configured. Missing public key.");
-      setLoading(false);
-      return;
-    }
-
-    const createPaymentIntent = async () => {
+    const redirectToStripeCheckout = async () => {
       try {
+        setLoading(true);
+        
         const response = await apiRequest("POST", "/api/create-payment-intent", {
           planId,
         });
         
         if (!response.ok) {
           const errorData = await response.json();
-          throw new Error(errorData.message || "Failed to create payment intent");
+          throw new Error(errorData.message || "Failed to create checkout session");
         }
         
         const data = await response.json();
-        setClientSecret(data.clientSecret);
+        
+        // Redirect to Stripe Checkout page
+        if (data.url) {
+          window.location.href = data.url;
+        } else {
+          throw new Error("No checkout URL returned from the server");
+        }
       } catch (error) {
-        console.error("Error creating payment intent:", error);
+        console.error("Error creating checkout session:", error);
         setError("Failed to initialize payment. Please try again later.");
-      } finally {
         setLoading(false);
       }
     };
 
-    createPaymentIntent();
+    redirectToStripeCheckout();
   }, [planId]);
 
   if (error) {
