@@ -509,15 +509,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
           isResponseSent = true;
           clearTimeout(timeoutHandle);
           
-          // Utilizziamo solo le raccomandazioni genuine dell'AI
-          let finalRecommendations = recommendations || [];
-          
-          // Se non ci sono raccomandazioni, restituisci un array vuoto invece di null
-          res.json({ 
-            recommendations: finalRecommendations,
-            timestamp: new Date().toISOString(),
-            source: "ai"
-          });
+          // Utilizzare le raccomandazioni genuine dell'AI se esistono e non sono vuote
+          if (recommendations && Array.isArray(recommendations) && recommendations.length > 0) {
+            // Se non ci sono raccomandazioni, restituisci un array vuoto invece di null
+            res.json({ 
+              recommendations: recommendations,
+              timestamp: new Date().toISOString(),
+              source: "ai"
+            });
+          } else {
+            // Se non abbiamo ricevuto raccomandazioni valide, usiamo il fallback
+            console.log("Empty recommendations from API, using fallback");
+            const fallbackRecommendations = getFallbackRecommendations();
+            res.json({ 
+              recommendations: fallbackRecommendations,
+              timestamp: new Date().toISOString(),
+              source: "fallback"
+            });
+          }
         }
       } catch (generationError) {
         console.error("Error in AI generation:", generationError);
@@ -527,32 +536,55 @@ export async function registerRoutes(app: Express): Promise<Server> {
           clearTimeout(timeoutHandle);
           
           // Rispondiamo con un set predefinito di raccomandazioni in caso di errore
-          const fallbackRecommendations = [
-            {
-              title: "Mediterranea Equilibrata",
-              description: "Approccio mediterraneo con equilibrio tra tutti i macronutrienti, ideale per sostenere energia e salute in modo bilanciato.",
-              calories: 2200,
-              proteins: 120,
-              carbs: 270,
-              fats: 70
-            },
-            {
-              title: "Proteica Potenziata",
-              description: "Un approccio ad alto contenuto proteico per supportare la massa muscolare e migliorare la sazietà durante la giornata.",
-              calories: 2300,
-              proteins: 150,
-              carbs: 250,
-              fats: 75
-            },
-            {
-              title: "Low-Carb Naturale",
-              description: "Una strategia con carboidrati ridotti e grassi sani aumentati, ideale per stabilizzare i livelli di energia e migliorare il metabolismo.",
-              calories: 2000,
-              proteins: 125,
-              carbs: 180,
-              fats: 100
-            }
-          ];
+          console.log("AI error occurred, using fallback recommendations");
+          const fallbackRecommendations = getFallbackRecommendations();
+          
+          // Funzione helper per ottenere raccomandazioni di fallback con variazione
+          function getFallbackRecommendations() {
+            // Definizione delle raccomandazioni base
+            const baseRecommendations = [
+              {
+                title: "Mediterranea Equilibrata",
+                description: "Approccio mediterraneo con equilibrio tra tutti i macronutrienti, ideale per sostenere energia e salute in modo bilanciato.",
+                calories: 2200,
+                proteins: 120,
+                carbs: 270,
+                fats: 70
+              },
+              {
+                title: "Proteica Potenziata",
+                description: "Un approccio ad alto contenuto proteico per supportare la massa muscolare e migliorare la sazietà durante la giornata.",
+                calories: 2300,
+                proteins: 150,
+                carbs: 250,
+                fats: 75
+              },
+              {
+                title: "Low-Carb Naturale",
+                description: "Una strategia con carboidrati ridotti e grassi sani aumentati, ideale per stabilizzare i livelli di energia e migliorare il metabolismo.",
+                calories: 2000,
+                proteins: 125,
+                carbs: 180,
+                fats: 100
+              }
+            ];
+            
+            // Funzione per aggiungere una variazione casuale del ±7.5% a un valore
+            const addRandomVariation = (value: number) => {
+              const variation = 0.075; // ±7.5%
+              const randomFactor = 1 + (Math.random() * variation * 2 - variation);
+              return Math.round(value * randomFactor);
+            };
+            
+            // Applica variazioni casuali ai valori numerici
+            return baseRecommendations.map(rec => ({
+              ...rec,
+              calories: addRandomVariation(rec.calories),
+              proteins: addRandomVariation(rec.proteins),
+              carbs: addRandomVariation(rec.carbs),
+              fats: addRandomVariation(rec.fats)
+            }));
+          }
           
           res.json({ 
             recommendations: fallbackRecommendations,
