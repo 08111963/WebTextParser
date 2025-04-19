@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/use-auth";
-import { Redirect, useLocation } from "wouter";
+import { Redirect, useLocation, Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -10,7 +10,7 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { Loader2 } from "lucide-react";
+import { Loader2, ChevronLeft, Home } from "lucide-react";
 
 const loginSchema = z.object({
   username: z.string().min(3, "Il nome utente deve contenere almeno 3 caratteri"),
@@ -89,6 +89,14 @@ export default function AuthPage() {
     <div className="min-h-screen flex flex-col md:flex-row">
       <div className="flex-1 flex items-center justify-center p-6 md:p-10">
         <div className="w-full max-w-md">
+          <div className="mb-6">
+            <Link href="/">
+              <Button variant="outline" size="sm" className="flex items-center">
+                <ChevronLeft className="h-4 w-4 mr-2" />
+                Torna alla Home
+              </Button>
+            </Link>
+          </div>
           <Tabs defaultValue={activeTab} onValueChange={setActiveTab} className="w-full">
             <TabsList className="grid w-full grid-cols-2 mb-6">
               <TabsTrigger value="login">Accesso</TabsTrigger>
