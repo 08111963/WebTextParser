@@ -157,43 +157,11 @@ export default function AIRecommendations({ userId }: AIRecommendationsProps) {
   // Stato locale per il caricamento manuale
   const [isManualLoading, setIsManualLoading] = useState(false);
 
-  // Stato per un suggerimento locale temporaneo durante l'attesa
-  const [tempSuggestions, setTempSuggestions] = useState<MealSuggestion[]>([]);
-
-  // Funzione per generare suggerimenti temporanei che appaiono immediatamente
-  const generateTempSuggestions = () => {
-    // Suggerimenti basilari che vengono mostrati mentre si caricano quelli veri
-    const basicSuggestions = [
-      {
-        name: "Caricamento suggerimento...",
-        description: "Stiamo preparando un pasto personalizzato in base alle tue preferenze e obiettivi nutrizionali...",
-        mealType: selectedMealType !== 'all' ? selectedMealType : "pranzo",
-        calories: 0,
-        proteins: 0,
-        carbs: 0,
-        fats: 0
-      },
-      {
-        name: "Preparazione in corso...",
-        description: "Il nostro assistente AI sta elaborando un'opzione nutrizionalmente bilanciata per te...",
-        mealType: selectedMealType !== 'all' ? selectedMealType : "cena",
-        calories: 0,
-        proteins: 0, 
-        carbs: 0,
-        fats: 0
-      }
-    ];
-    return basicSuggestions;
-  };
-
   // Funzione per aggiornare le raccomandazioni
   const handleRefresh = async () => {
     try {
       // Imposta manualmente lo stato di caricamento
       setIsManualLoading(true);
-      
-      // Genera e mostra immediatamente suggerimenti temporanei
-      const tempMeals = generateTempSuggestions();
       
       // Mostra un toast con caricamento in corso
       toast({
@@ -210,9 +178,6 @@ export default function AIRecommendations({ userId }: AIRecommendationsProps) {
       }
       
       console.log("Richiesta generazione nuovi pasti:", url);
-      
-      // Mostra i suggerimenti temporanei durante l'attesa
-      queryClient.setQueryData(["/api/recommendations/meals", userId, selectedMealType], { suggestions: tempMeals });
       
       // Disabilita temporaneamente la cache per questa richiesta
       const res = await fetch(url, {
@@ -340,7 +305,7 @@ export default function AIRecommendations({ userId }: AIRecommendationsProps) {
                         </Badge>
                       </div>
                       
-                      <div className={`mt-2 mb-3 ${meal.name.includes("Caricamento") ? "animate-pulse" : ""}`}>
+                      <div className="mt-2 mb-3">
                         <p className="text-sm text-muted-foreground leading-relaxed min-h-[5rem] overflow-visible bg-muted/20 p-2 rounded-sm">
                           {meal.description}
                         </p>
