@@ -48,9 +48,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "User profile not found" });
       }
       
-      // Per il test, forziamo tutti i trial a essere scaduti
-      // In una versione reale, controlleremmo lo stato dell'abbonamento nel database o con Stripe
-      const forceTrialExpired = true; 
+      // Controlla se ci sono pagamenti nell'URL o nella sessione
+      // In una versione reale, verificheremmo lo stato dell'abbonamento nel database
+      
+      // Verifica se l'utente ha recentemente completato un pagamento
+      // (simuliamo questa verifica controllando i cookie della sessione)
+      const hasPaidSubscription = req.session.subscription?.active === true;
+      
+      // Se c'è un abbonamento attivo, restituisci lo stato premium
+      if (hasPaidSubscription) {
+        return res.json({
+          trialActive: true, // Impostiamo come attivo per permettere l'accesso
+          trialDaysLeft: 999, // Un numero grande per indicare che non scadrà presto
+          trialEndDate: new Date(new Date().setFullYear(new Date().getFullYear() + 1)).toISOString(), // Scadenza tra un anno
+          trialStartDate: new Date().toISOString(),
+          message: null,
+          isPremium: true,
+          subscriptionPlan: req.session.subscription?.plan || "premium-monthly" 
+        });
+      }
+      
+      // Se non ha abbonamento, forzare la scadenza del trial per il test
+      const forceTrialExpired = true;
       
       if (forceTrialExpired) {
         // Restituisci un periodo di prova scaduto
@@ -970,8 +989,63 @@ export async function registerRoutes(app: Express): Promise<Server> {
     new Stripe(process.env.STRIPE_SECRET_KEY) : 
     null;
   
+  // Endpoint per verificare e aggiornare lo stato dell'abbonamento dopo il pagamento
+  app.post("/api/verify-payment", isAuthenticated, async (req, res) => {
+    try {
+      if (!stripe) {
+        return res.status(500).json({ message: "Stripe non configurato" });
+      }
+      
+      const { sessionId, planId } = req.body;
+      
+      if (!sessionId) {
+        return res.status(400).json({ message: "ID sessione di pagamento mancante" });
+      }
+      
+      // Verifica la sessione di pagamento con Stripe
+      const session = await stripe.checkout.sessions.retrieve(sessionId);
+      
+      // Verifica che il pagamento sia completato con successo
+      if (session.payment_status === "paid") {
+        // In una applicazione reale, qui salveremmo le informazioni
+        // dell'abbonamento nel database, associandole all'utente
+        
+        // Salviamo l'informazione nella sessione dell'utente
+        if (!req.session.subscription) {
+          req.session.subscription = {
+            active: true,
+            plan: planId || "premium-monthly",
+            startDate: new Date().toISOString(),
+            // In una versione reale qui useremmo le informazioni dall'abbonamento Stripe
+            endDate: new Date(new Date().setFullYear(new Date().getFullYear() + 1)).toISOString()
+          };
+        }
+        
+        // Ritorna successo e informazioni sull'abbonamento
+        return res.status(200).json({
+          success: true,
+          subscriptionActive: true,
+          plan: planId || "premium-monthly",
+          message: "Abbonamento attivato con successo!"
+        });
+      } else {
+        return res.status(400).json({
+          success: false,
+          message: "Il pagamento non risulta completato."
+        });
+      }
+    } catch (error) {
+      console.error("Errore nella verifica del pagamento:", error);
+      res.status(500).json({ 
+        success: false,
+        message: "Errore durante la verifica del pagamento", 
+        error: error instanceof Error ? error.message : String(error)
+      });
+    }
+  });
+
   // Create Stripe checkout session for subscription
-  app.post("/api/create-payment-intent", async (req, res) => {
+  app.post("/api/create-payment-intent", isAuthenticated, async (req, res) => {
     try {
       console.log("Processing payment request for plan:", req.body.planId);
       
@@ -1008,6 +1082,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Ensure we have a valid origin for the success and cancel URLs
       const origin = req.headers.origin || 'https://nutrieasy.replit.app';
       
+      // Aggiungiamo l'ID utente nei metadati per tracciare di chi è il pagamento
+      const userId = req.user!.id.toString();
+
       const session = await stripe.checkout.sessions.create({
         payment_method_types: ['card'],
         line_items: [
@@ -1017,11 +1094,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
           },
         ],
         mode: 'subscription',
-        success_url: `${origin}/payment-success?session_id={CHECKOUT_SESSION_ID}`,
+        success_url: `${origin}/payment-success?session_id={CHECKOUT_SESSION_ID}&plan=${planId}`,
         cancel_url: `${origin}/pricing`,
         metadata: {
-          planId
-        }
+          planId,
+          userId
+        },
+        client_reference_id: userId, // Utile per identificare l'utente anche nei webhook Stripe
       });
       
       console.log("Created Stripe session with success URL:", `${origin}/payment-success?session_id={CHECKOUT_SESSION_ID}`);
