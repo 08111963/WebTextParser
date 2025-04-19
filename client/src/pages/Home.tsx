@@ -523,32 +523,6 @@ export default function Home({
               <AIObjectives userId={user.id.toString()} />
             </div>
 
-            {/* Sezione Suggerimenti Pasti con Perplexity AI */}
-            <div className="mt-12">
-              <h2 className="text-2xl font-bold mb-6 flex items-center">
-                <Sparkles className="h-5 w-5 mr-2 text-primary" />
-                Suggerimenti Pasti con Perplexity AI
-              </h2>
-              {typeof PerplexityMealSuggestions === 'function' ? (
-                <PerplexityMealSuggestions userId={user.id.toString()} />
-              ) : (
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Suggerimenti Pasti con Perplexity AI</CardTitle>
-                    <CardDescription>Suggerimenti personalizzati basati sul tuo profilo</CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-center py-10 border rounded-lg">
-                      <p className="text-xl font-medium mb-2">Componente in caricamento...</p>
-                      <p className="text-muted-foreground mb-6">
-                        Il sistema sta caricando i suggerimenti personalizzati per i pasti.
-                      </p>
-                    </div>
-                  </CardContent>
-                </Card>
-              )}
-            </div>
-
             {/* Sezione Consigli Nutrizionali con Perplexity AI */}
             <div className="mt-12 mb-8">
               <h2 className="text-2xl font-bold mb-6 flex items-center">
