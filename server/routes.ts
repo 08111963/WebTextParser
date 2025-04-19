@@ -431,16 +431,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "User ID is required" });
       }
       
-      // Impostazione del timeout a 30 secondi per evitare attese troppo lunghe
+      // Setting a 30-second timeout to avoid too long waits
       const TIMEOUT_MS = 30000;
       let isResponseSent = false;
       
-      // Timeout per terminare la richiesta se ci vuole troppo tempo
+      // Timeout to terminate the request if it takes too long
       const timeoutHandle = setTimeout(() => {
         if (!isResponseSent) {
           isResponseSent = true;
           
-          // Rispondiamo con un set predefinito di raccomandazioni di fallback
+          // Respond with a predefined set of fallback recommendations
           const fallbackRecommendations = [
             {
               title: "Balanced Mediterranean",
@@ -510,16 +510,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
           isResponseSent = true;
           clearTimeout(timeoutHandle);
           
-          // Utilizzare le raccomandazioni genuine dell'AI se esistono e non sono vuote
+          // Use genuine AI recommendations if they exist and are not empty
           if (recommendations && Array.isArray(recommendations) && recommendations.length > 0) {
-            // Se abbiamo ricevuto raccomandazioni valide dall'AI, le restituiamo
+            // If we received valid AI recommendations, return them
             res.json({ 
               recommendations: recommendations,
               timestamp: new Date().toISOString(),
               source: "ai"
             });
           } else {
-            // Se non abbiamo ricevuto raccomandazioni valide, restituiamo un errore
+            // If we haven't received valid recommendations, return an error
             console.log("Empty recommendations from API");
             res.status(500).json({
               error: "Unable to generate recommendations. Please try again later.",
@@ -571,16 +571,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "User ID is required" });
       }
       
-      // Impostazione del timeout a 30 secondi per evitare attese troppo lunghe
+      // Setting a 30-second timeout to avoid too long waits
       const TIMEOUT_MS = 30000;
       let isResponseSent = false;
       
-      // Timeout per terminare la richiesta se ci vuole troppo tempo
+      // Timeout to terminate the request if it takes too long
       const timeoutHandle = setTimeout(() => {
         if (!isResponseSent) {
           isResponseSent = true;
           
-          // Rispondiamo con un messaggio di timeout
+          // Respond with a timeout message
           console.log("Meal suggestions API request timed out after 30 seconds");
           res.status(504).json({ 
             error: "The request took too long. Please try again later.",
