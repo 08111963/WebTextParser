@@ -28,47 +28,47 @@ export async function generateAIResponse(
   customSystemPrompt?: string
 ) {
   try {
-    // Utilizza il prompt personalizzato se fornito, altrimenti usa quello predefinito
-    const systemPrompt = customSystemPrompt || `Sei un nutrizionista esperto che risponde a domande in italiano sulla nutrizione, alimentazione e salute.
-    Hai accesso al profilo dell'utente e ai suoi dati nutrizionali, che dovresti utilizzare per personalizzare le tue risposte.
-    Rispondi in modo colloquiale ma professionale, fornendo informazioni accurate ed esaurienti.
-    Basa le tue risposte su informazioni scientifiche aggiornate.
-    Se non sai la risposta a una domanda specifica, non inventare informazioni e indirizza gentilmente l'utente a un professionista.`;
+    // Use the custom prompt if provided, otherwise use the default one
+    const systemPrompt = customSystemPrompt || `You are an expert nutritionist who answers questions in English about nutrition, diet, and health.
+    You have access to the user's profile and nutritional data, which you should use to personalize your answers.
+    Respond in a conversational but professional manner, providing accurate and comprehensive information.
+    Base your answers on up-to-date scientific information.
+    If you don't know the answer to a specific question, don't make up information and gently direct the user to a professional.`;
     
     const userInfo = {
-      profilo: {
-        età: profile.age || "Non specificata",
-        peso: profile.weight ? `${profile.weight} kg` : "Non specificato",
-        altezza: profile.height ? `${profile.height} cm` : "Non specificata",
-        genere: profile.gender || "Non specificato",
-        livelloAttività: profile.activityLevel || "Non specificato",
+      profile: {
+        age: profile.age || "Not specified",
+        weight: profile.weight ? `${profile.weight} kg` : "Not specified",
+        height: profile.height ? `${profile.height} cm` : "Not specified",
+        gender: profile.gender || "Not specified",
+        activityLevel: profile.activityLevel || "Not specified",
       },
-      obiettivoNutrizionale: currentGoal ? {
-        nome: currentGoal.name,
-        calorie: currentGoal.calories,
-        proteine: currentGoal.proteins,
-        carboidrati: currentGoal.carbs,
-        grassi: currentGoal.fats,
-      } : "Nessun obiettivo attualmente impostato",
-      pastiRecenti: recentMeals && recentMeals.length > 0 
+      nutritionalGoal: currentGoal ? {
+        name: currentGoal.name,
+        calories: currentGoal.calories,
+        proteins: currentGoal.proteins,
+        carbs: currentGoal.carbs,
+        fats: currentGoal.fats,
+      } : "No goal currently set",
+      recentMeals: recentMeals && recentMeals.length > 0 
         ? recentMeals.slice(0, 5).map(m => ({
-            cibo: m.food,
-            tipo: m.mealType,
-            calorie: m.calories,
-            proteine: m.proteins,
-            carboidrati: m.carbs,
-            grassi: m.fats
+            food: m.food,
+            type: m.mealType,
+            calories: m.calories,
+            proteins: m.proteins,
+            carbs: m.carbs,
+            fats: m.fats
           }))
-        : "Nessun pasto registrato recentemente"
+        : "No recently recorded meals"
     };
     
     const userPrompt = `
-    Tieni in considerazione queste informazioni sull'utente:
+    Take into account this user information:
     ${JSON.stringify(userInfo, null, 2)}
     
-    Domanda dell'utente: ${query}
+    User question: ${query}
     
-    Fornisci una risposta completa e personalizzata, tenendo conto del profilo dell'utente e dei suoi dati nutrizionali.
+    Provide a complete and personalized answer, taking into account the user's profile and nutritional data.
     `;
 
     console.log("Sending user query to OpenAI using goals API key:", query);
@@ -85,11 +85,11 @@ export async function generateAIResponse(
     const answer = response.choices[0].message.content;
     console.log("OpenAI response received:", answer);
     
-    return answer || "Mi dispiace, non sono riuscito a elaborare una risposta. Prova a riformulare la tua domanda.";
+    return answer || "I'm sorry, I wasn't able to process a response. Please try rephrasing your question.";
   } catch (error: any) {
     console.error("Error generating AI response:", error);
     
-    // Registriamo l'errore specifico per debug ma lanciamo un messaggio generico all'utente
+    // Log specific error for debugging but throw a generic message to the user
     if (error.status === 429) {
       console.log("API rate limit exceeded for OpenAI");
     } else if (error.status === 401 || error.status === 403) {
@@ -98,13 +98,13 @@ export async function generateAIResponse(
       console.log("Connection issue with OpenAI API", error.code);
     }
     
-    // Messaggio generico per l'utente
+    // Generic message for the user
     throw new Error("A connection issue occurred while generating recommendations. Please try again later.");
   }
 }
 
 /**
- * Genera consigli personalizzati per obiettivi nutrizionali basati sul profilo utente
+ * Generates personalized recommendations for nutritional goals based on user profile
  */
 export async function generateNutritionGoalRecommendations(
   profile: UserProfile,
@@ -268,15 +268,15 @@ export async function generateNutritionGoalRecommendations(
     let recommendation3: any = {};
     
     try {
-      // Parsing della prima risposta (mediterranea)
+      // Parsing the first response (Mediterranean)
       const responseContent1 = response1.choices[0].message.content || '{}';
       recommendation1 = JSON.parse(responseContent1);
-      console.log("Parsed recommendation 1 (mediterranea):", recommendation1);
+      console.log("Parsed recommendation 1 (Mediterranean):", recommendation1);
     } catch (parseError) {
       console.error("Failed to parse OpenAI response 1:", parseError);
       recommendation1 = {
         title: "Balanced Mediterranean",
-        description: "Approccio mediterraneo con equilibrio tra tutti i macronutrienti, ideale per sostenere energia e salute in modo bilanciato.",
+        description: "Mediterranean approach with balance between all macronutrients, ideal for supporting energy and health in a balanced way.",
         calories: 2200,
         proteins: 120,
         carbs: 270,
@@ -285,15 +285,15 @@ export async function generateNutritionGoalRecommendations(
     }
     
     try {
-      // Parsing della seconda risposta (proteica)
+      // Parsing the second response (protein-focused)
       const responseContent2 = response2.choices[0].message.content || '{}';
       recommendation2 = JSON.parse(responseContent2);
-      console.log("Parsed recommendation 2 (proteica):", recommendation2);
+      console.log("Parsed recommendation 2 (protein-focused):", recommendation2);
     } catch (parseError) {
       console.error("Failed to parse OpenAI response 2:", parseError);
       recommendation2 = {
-        title: "Proteica Potenziata",
-        description: "Un approccio ad alto contenuto proteico per supportare la massa muscolare e migliorare la sazietà durante la giornata.",
+        title: "Enhanced Protein",
+        description: "A high-protein approach to support muscle mass and improve satiety throughout the day.",
         calories: 2300,
         proteins: 150,
         carbs: 250,
@@ -302,15 +302,15 @@ export async function generateNutritionGoalRecommendations(
     }
     
     try {
-      // Parsing della terza risposta (plant-based/low-carb)
+      // Parsing the third response (plant-based/low-carb)
       const responseContent3 = response3.choices[0].message.content || '{}';
       recommendation3 = JSON.parse(responseContent3);
       console.log("Parsed recommendation 3 (plant-based/low-carb):", recommendation3);
     } catch (parseError) {
       console.error("Failed to parse OpenAI response 3:", parseError);
       recommendation3 = {
-        title: "Low-Carb Naturale",
-        description: "Una strategia con carboidrati ridotti e grassi sani aumentati, ideale per stabilizzare i livelli di energia e migliorare il metabolismo.",
+        title: "Natural Low-Carb",
+        description: "A strategy with reduced carbohydrates and increased healthy fats, ideal for stabilizing energy levels and improving metabolism.",
         calories: 2000,
         proteins: 125,
         carbs: 180,
@@ -397,7 +397,7 @@ export async function generateNutritionGoalRecommendations(
 }
 
 /**
- * Genera suggerimenti personalizzati per pasti basati sul profilo utente e obiettivi nutrizionali
+ * Generates personalized meal suggestions based on user profile and nutritional goals
  */
 export async function generateMealSuggestions(
   profile: UserProfile,
