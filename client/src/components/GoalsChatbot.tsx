@@ -52,7 +52,7 @@ export default function GoalsChatbot({ userId }: GoalsChatbotProps) {
       const res = await apiRequest("POST", "/api/ai-chat", {
         userId,
         query,
-        chatType: "goals" // Indichiamo che è una richiesta specializzata per obiettivi
+        chatType: "goals" // Indicate that this is a specialized request for goals
       });
       return await res.json();
     },
@@ -179,13 +179,13 @@ export default function GoalsChatbot({ userId }: GoalsChatbotProps) {
               <div className="max-w-[85%] flex flex-col items-start">
                 <div className="flex items-center mb-1 text-xs text-muted-foreground">
                   <Target className="h-3 w-3 mr-1" />
-                  <span>Consulente Nutrizionale</span>
+                  <span>Nutritional Consultant</span>
                 </div>
                 
                 <div className="rounded-xl px-4 py-3 bg-muted rounded-tl-none">
                   <div className="flex items-center gap-2">
                     <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
-                    <span className="text-sm">Sto elaborando la risposta...</span>
+                    <span className="text-sm">Processing response...</span>
                   </div>
                 </div>
               </div>
@@ -197,7 +197,7 @@ export default function GoalsChatbot({ userId }: GoalsChatbotProps) {
         
         {messages.length === 1 && (
           <div className="mt-4 mb-1">
-            <p className="text-sm font-medium mb-2">Esempi di domande:</p>
+            <p className="text-sm font-medium mb-2">Example questions:</p>
             <div className="flex flex-wrap gap-2">
               {suggestedQueries.slice(0, 3).map((q, i) => (
                 <Button
@@ -230,7 +230,7 @@ export default function GoalsChatbot({ userId }: GoalsChatbotProps) {
       <CardFooter className="pt-2 pb-3 px-3 border-t">
         <form className="flex space-x-2 w-full" onSubmit={handleSubmit}>
           <Input
-            placeholder="Fai una domanda sugli obiettivi nutrizionali..."
+            placeholder="Ask a question about nutritional goals..."
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             disabled={aiChatMutation.isPending}
