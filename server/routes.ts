@@ -927,10 +927,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Check for Stripe secret key and price IDs
   if (!process.env.STRIPE_SECRET_KEY) {
     console.warn("Warning: STRIPE_SECRET_KEY is not set. Payment functionality will not work.");
+  } else {
+    console.log("Stripe Secret Key available (starts with):", process.env.STRIPE_SECRET_KEY.substring(0, 7) + "...");
   }
   
-  if (!process.env.STRIPE_PRICE_ID_MONTHLY || !process.env.STRIPE_PRICE_ID_YEARLY) {
-    console.warn("Warning: STRIPE_PRICE_ID_MONTHLY or STRIPE_PRICE_ID_YEARLY is not set. Subscription plans will not work properly.");
+  if (!process.env.STRIPE_PRICE_ID_MONTHLY) {
+    console.warn("Warning: STRIPE_PRICE_ID_MONTHLY is not set.");
+  } else {
+    console.log("Monthly Price ID available:", process.env.STRIPE_PRICE_ID_MONTHLY);
+  }
+  
+  if (!process.env.STRIPE_PRICE_ID_YEARLY) {
+    console.warn("Warning: STRIPE_PRICE_ID_YEARLY is not set.");
+  } else {
+    console.log("Yearly Price ID available:", process.env.STRIPE_PRICE_ID_YEARLY);
   }
   
   // Initialize Stripe with secret key if available
@@ -941,13 +951,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Create Stripe checkout session for subscription
   app.post("/api/create-payment-intent", async (req, res) => {
     try {
+      console.log("Processing payment request for plan:", req.body.planId);
+      
       if (!stripe) {
+        console.error("Stripe not configured - missing secret key");
         return res.status(500).json({ 
           message: "Stripe is not configured. Please set STRIPE_SECRET_KEY environment variable." 
         });
       }
       
       const { planId } = req.body;
+      console.log("Processing plan ID:", planId);
       
       // Determine which price ID to use based on the plan
       let priceId;

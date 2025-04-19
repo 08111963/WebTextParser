@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
 import { useLocation } from "wouter";
@@ -15,26 +16,43 @@ export default function Checkout(props: RouteComponentProps) {
   const queryParams = new URLSearchParams(window.location.search);
   const planId = queryParams.get('planId') || "premium-monthly";
   const [error, setError] = useState<string | null>(null);
+  const [stripeUrl, setStripeUrl] = useState<string | null>(null);
   const [_, navigate] = useLocation();
 
   useEffect(() => {
     const redirectToStripeCheckout = async () => {
       try {
+        console.log("Starting checkout process for plan:", planId);
+        
         const response = await apiRequest("POST", "/api/create-payment-intent", {
           planId,
         });
         
+        console.log("Server response status:", response.status);
+        
         if (!response.ok) {
           const errorData = await response.json();
+          console.error("Server error response:", errorData);
           throw new Error(errorData.message || "Failed to create checkout session");
         }
         
         const data = await response.json();
+        console.log("Server response data:", data);
         
         // Redirect to Stripe Checkout page
         if (data.url) {
-          window.location.href = data.url;
+          console.log("Redirecting to Stripe URL:", data.url);
+          
+          // Prima proviamo ad aprire in una nuova finestra
+          const newWindow = window.open(data.url, '_blank');
+          
+          // Se il blocco popup impedisce l'apertura, forniamo un pulsante per aprire manualmente
+          if (!newWindow || newWindow.closed || typeof newWindow.closed === 'undefined') {
+            console.log("Popup blocked or failed to open. Using fallback.");
+            setStripeUrl(data.url);
+          }
         } else {
+          console.error("No URL in response data");
           throw new Error("No checkout URL returned from the server");
         }
       } catch (error) {
@@ -46,14 +64,26 @@ export default function Checkout(props: RouteComponentProps) {
     redirectToStripeCheckout();
   }, [planId]);
 
-  // Mostra solo la schermata di loading o di errore
+  // Mostra errore, URL di Stripe o schermata di caricamento
   return (
     <div className="container max-w-md mx-auto py-10">
       <Card>
         <CardHeader>
-          <CardTitle>{error ? "Payment Error" : "Redirecting to Payment"}</CardTitle>
+          <CardTitle>
+            {error 
+              ? "Payment Error" 
+              : stripeUrl 
+                ? "Checkout Ready" 
+                : "Preparing Checkout"
+            }
+          </CardTitle>
           <CardDescription>
-            {error ? "We couldn't initialize the payment process." : "You're being redirected to the secure payment page..."}
+            {error 
+              ? "We couldn't initialize the payment process." 
+              : stripeUrl 
+                ? "Click the button below to continue to secure payment" 
+                : "Please wait while we prepare your secure checkout..."
+            }
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -67,6 +97,25 @@ export default function Checkout(props: RouteComponentProps) {
                 Return to pricing
               </button>
             </>
+          ) : stripeUrl ? (
+            <div className="flex flex-col items-center gap-4 py-2">
+              <a 
+                href={stripeUrl} 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="w-full"
+              >
+                <Button className="w-full">
+                  Continue to Secure Checkout
+                </Button>
+              </a>
+              <button 
+                onClick={() => navigate("/pricing")}
+                className="text-primary hover:underline text-sm"
+              >
+                Cancel and return to pricing
+              </button>
+            </div>
           ) : (
             <div className="flex flex-col items-center gap-2 py-6">
               <Loader2 className="h-8 w-8 animate-spin text-primary" />
