@@ -98,7 +98,7 @@ export default function Home() {
     <div className="flex flex-col min-h-screen bg-gray-50">
       <Header />
       
-      <main className="container mx-auto px-4 py-6 flex-1">
+      <main className="container mx-auto px-4 py-6 pb-16 flex-1">
         <div className="mb-6">
           <h1 className="text-3xl font-bold">Benvenuto, {user.username}!</h1>
           <p className="text-gray-600">Monitora la tua nutrizione e raggiungi i tuoi obiettivi.</p>
@@ -262,7 +262,7 @@ export default function Home() {
             )}
           </TabsContent>
 
-          <TabsContent value="meals">
+          <TabsContent value="meals" className="max-h-[calc(100vh-13rem)] overflow-y-auto">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               {/* Form per aggiungere un nuovo pasto */}
               <div className="space-y-4">
@@ -289,7 +289,7 @@ export default function Home() {
             </div>
           </TabsContent>
 
-          <TabsContent value="goals">
+          <TabsContent value="goals" className="max-h-[calc(100vh-13rem)] overflow-y-auto">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="space-y-4">
                 {/* Form per aggiungere un nuovo obiettivo */}

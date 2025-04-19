@@ -191,7 +191,7 @@ export default function AIObjectives({ userId }: AIObjectivesProps) {
                             <span className="break-words">{rec.title}</span>
                           </h4>
                           
-                          <p className="text-sm text-muted-foreground mt-2 mb-3 leading-relaxed">{rec.description}</p>
+                          <p className="text-sm text-muted-foreground mt-2 mb-3 leading-relaxed overflow-auto max-h-[8rem] border border-gray-200 bg-slate-50 dark:bg-slate-800/50 p-3 rounded-md">{rec.description}</p>
                           
                           <div className="grid grid-cols-2 gap-4 mt-3">
                             <div className="bg-muted/40 p-4 rounded text-center flex flex-col h-28 justify-between">

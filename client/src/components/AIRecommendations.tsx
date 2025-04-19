@@ -314,7 +314,7 @@ export default function AIRecommendations({ userId }: AIRecommendationsProps) {
                       </div>
                       
                       <div className="mt-2 mb-3">
-                        <p className="text-sm text-muted-foreground leading-relaxed min-h-[5rem] overflow-visible border border-gray-200 bg-slate-50 dark:bg-slate-800/50 p-3 rounded-md">
+                        <p className="text-sm text-muted-foreground leading-relaxed min-h-[5rem] overflow-auto max-h-[8rem] border border-gray-200 bg-slate-50 dark:bg-slate-800/50 p-3 rounded-md">
                           {meal.description}
                         </p>
                       </div>
