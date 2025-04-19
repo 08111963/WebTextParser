@@ -799,7 +799,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // === PERPLEXITY AI ROUTES ===
 
-  // Nuova route per i suggerimenti pasti con Perplexity AI
+  // New route for meal suggestions with Perplexity AI
   app.get("/api/perplexity/meal-suggestions", isAuthenticated, async (req, res) => {
     try {
       const { userId, mealType } = req.query;
@@ -813,16 +813,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "userId is required" });
       }
 
-      // Recupera il profilo utente
+      // Retrieve user profile
       const userProfile = await storage.getUserProfile(userId as string);
       if (!userProfile) {
         return res.status(404).json({ message: "User profile not found" });
       }
 
-      // Recupera l'obiettivo attivo dell'utente (se esiste)
+      // Retrieve active nutrition goal (if it exists)
       const activeGoal = await storage.getActiveNutritionGoal(userId as string);
 
-      // Genera suggerimenti con Perplexity
+      // Generate suggestions with Perplexity
       const suggestions = await generateMealSuggestionsWithPerplexity(
         userProfile,
         activeGoal,
@@ -832,15 +832,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       res.json(suggestions);
     } catch (error) {
-      console.error("Errore nella generazione dei suggerimenti pasti con Perplexity:", error);
+      console.error("Error generating meal suggestions with Perplexity:", error);
       res.status(500).json({ 
-        message: "Si è verificato un problema di connessione nella generazione dei suggerimenti. Riprova più tardi.",
+        message: "A connection issue occurred while generating recommendations. Please try again later.",
         error: error instanceof Error ? error.message : String(error)
       });
     }
   });
 
-  // Nuova route per consigli nutrizionali con Perplexity AI
+  // New route for nutritional advice with Perplexity AI
   app.post("/api/perplexity/nutritional-advice", isAuthenticated, async (req, res) => {
     try {
       const { userId, query } = req.body;
@@ -849,13 +849,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "userId and query are required" });
       }
 
-      // Recupera il profilo utente
+      // Retrieve user profile
       const userProfile = await storage.getUserProfile(userId);
       if (!userProfile) {
         return res.status(404).json({ message: "User profile not found" });
       }
 
-      // Genera consigli nutrizionali con Perplexity
+      // Generate nutritional advice with Perplexity
       const advice = await generateNutritionalAdviceWithPerplexity(
         userProfile,
         query
@@ -863,9 +863,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       res.json(advice);
     } catch (error) {
-      console.error("Errore nella generazione dei consigli nutrizionali con Perplexity:", error);
+      console.error("Error generating nutritional advice with Perplexity:", error);
       res.status(500).json({ 
-        message: "Si è verificato un problema di connessione nella generazione dei consigli. Riprova più tardi.",
+        message: "A connection issue occurred while generating recommendations. Please try again later.",
         error: error instanceof Error ? error.message : String(error)
       });
     }
