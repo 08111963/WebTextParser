@@ -157,17 +157,49 @@ export default function AIRecommendations({ userId }: AIRecommendationsProps) {
   // Stato locale per il caricamento manuale
   const [isManualLoading, setIsManualLoading] = useState(false);
 
+  // Stato per un suggerimento locale temporaneo durante l'attesa
+  const [tempSuggestions, setTempSuggestions] = useState<MealSuggestion[]>([]);
+
+  // Funzione per generare suggerimenti temporanei che appaiono immediatamente
+  const generateTempSuggestions = () => {
+    // Suggerimenti basilari che vengono mostrati mentre si caricano quelli veri
+    const basicSuggestions = [
+      {
+        name: "Caricamento suggerimento...",
+        description: "Stiamo preparando un pasto personalizzato in base alle tue preferenze e obiettivi nutrizionali...",
+        mealType: selectedMealType !== 'all' ? selectedMealType : "pranzo",
+        calories: 0,
+        proteins: 0,
+        carbs: 0,
+        fats: 0
+      },
+      {
+        name: "Preparazione in corso...",
+        description: "Il nostro assistente AI sta elaborando un'opzione nutrizionalmente bilanciata per te...",
+        mealType: selectedMealType !== 'all' ? selectedMealType : "cena",
+        calories: 0,
+        proteins: 0, 
+        carbs: 0,
+        fats: 0
+      }
+    ];
+    return basicSuggestions;
+  };
+
   // Funzione per aggiornare le raccomandazioni
   const handleRefresh = async () => {
     try {
       // Imposta manualmente lo stato di caricamento
       setIsManualLoading(true);
-
+      
+      // Genera e mostra immediatamente suggerimenti temporanei
+      const tempMeals = generateTempSuggestions();
+      
       // Mostra un toast con caricamento in corso
       toast({
-        title: "Aggiornamento",
-        description: "Generazione di nuovi suggerimenti pasti in corso... (potrebbe richiedere 30-60 secondi)",
-        duration: 30000, // Lungo a sufficienza per il caricamento completo
+        title: "Generazione in corso",
+        description: "Stiamo creando nuovi suggerimenti personalizzati in base al tuo profilo (richiede 30-60 secondi)",
+        duration: 60000, // Lungo a sufficienza per il caricamento completo
       });
       
       // Aggiungiamo timestamp unico e forzaNew=true direttamente nella chiamata API
@@ -178,6 +210,9 @@ export default function AIRecommendations({ userId }: AIRecommendationsProps) {
       }
       
       console.log("Richiesta generazione nuovi pasti:", url);
+      
+      // Mostra i suggerimenti temporanei durante l'attesa
+      queryClient.setQueryData(["/api/recommendations/meals", userId, selectedMealType], { suggestions: tempMeals });
       
       // Disabilita temporaneamente la cache per questa richiesta
       const res = await fetch(url, {
@@ -305,7 +340,11 @@ export default function AIRecommendations({ userId }: AIRecommendationsProps) {
                         </Badge>
                       </div>
                       
-                      <p className="text-sm text-muted-foreground mt-2 mb-3 leading-relaxed min-h-[5rem] overflow-visible bg-muted/20 p-2 rounded-sm">{meal.description}</p>
+                      <div className={`mt-2 mb-3 ${meal.name.includes("Caricamento") ? "animate-pulse" : ""}`}>
+                        <p className="text-sm text-muted-foreground leading-relaxed min-h-[5rem] overflow-visible bg-muted/20 p-2 rounded-sm">
+                          {meal.description}
+                        </p>
+                      </div>
                       
                       <div className="flex flex-wrap gap-2 mt-2">
                         <Badge variant="secondary">{meal.calories} kcal</Badge>
