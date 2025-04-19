@@ -18,10 +18,12 @@ export default function Header() {
     <>
       <header className="bg-white shadow-md">
         <div className="container mx-auto px-4 py-3 flex justify-between items-center">
-          <div className="flex items-center space-x-2">
-            <Bolt className="h-8 w-8 text-primary" />
-            <h1 className="text-xl font-semibold">NutriEasy</h1>
-          </div>
+          <Link href="/">
+            <div className="flex items-center space-x-2 cursor-pointer">
+              <Bolt className="h-8 w-8 text-primary" />
+              <h1 className="text-xl font-semibold">NutriEasy</h1>
+            </div>
+          </Link>
           
           {/* Mobile menu button */}
           <button 
@@ -35,6 +37,12 @@ export default function Header() {
           
           {/* Desktop navigation */}
           <nav className="hidden md:flex items-center space-x-4">
+            <Link href="/">
+              <Button variant="ghost" size="sm" className="text-sm flex items-center">
+                <Bolt className="h-4 w-4 mr-2" />
+                Home
+              </Button>
+            </Link>
             <Link href="/pricing">
               <Button variant="ghost" size="sm" className="text-sm flex items-center">
                 <CreditCard className="h-4 w-4 mr-2" />
@@ -72,6 +80,12 @@ export default function Header() {
       {isMobileMenuOpen && (
         <div className="bg-white shadow-lg absolute top-14 right-0 w-48 z-10 rounded-md overflow-hidden">
           <div className="py-1">
+            <Link href="/">
+              <button className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center">
+                <Bolt className="h-4 w-4 mr-2" />
+                Home
+              </button>
+            </Link>
             <Link href="/pricing">
               <button className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center">
                 <CreditCard className="h-4 w-4 mr-2" />
