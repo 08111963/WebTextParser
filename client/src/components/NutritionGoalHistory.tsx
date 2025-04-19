@@ -59,7 +59,7 @@ export default function NutritionGoalHistory({ userId }: NutritionGoalHistoryPro
     let aValue = a[sortConfig.key];
     let bValue = b[sortConfig.key];
     
-    // Gestione speciale per le date
+    // Special handling for dates
     if (sortConfig.key === 'createdAt' || sortConfig.key === 'startDate' || sortConfig.key === 'endDate') {
       aValue = aValue ? new Date(aValue as string).getTime() : 0;
       bValue = bValue ? new Date(bValue as string).getTime() : 0;
@@ -77,64 +77,64 @@ export default function NutritionGoalHistory({ userId }: NutritionGoalHistoryPro
     return 0;
   }) : [];
 
-  // Mutazione per eliminare un obiettivo
+  // Mutation to delete a goal
   const deleteGoalMutation = useMutation({
     mutationFn: async (goalId: number) => {
       const res = await apiRequest('DELETE', `/api/nutrition-goals/${goalId}`);
       if (!res.ok) {
         const errorData = await res.json();
-        throw new Error(errorData.message || 'Errore durante l\'eliminazione dell\'obiettivo');
+        throw new Error(errorData.message || 'Error while deleting the goal');
       }
       return res.json();
     },
     onSuccess: () => {
-      // Invalida le query per ricaricare gli obiettivi
+      // Invalidate queries to reload goals
       queryClient.invalidateQueries({ queryKey: ['/api/nutrition-goals'] });
       queryClient.invalidateQueries({ queryKey: ['/api/nutrition-goals/active'] });
       
       toast({
-        title: "Obiettivo eliminato",
-        description: "L'obiettivo nutrizionale è stato eliminato con successo",
+        title: "Goal deleted",
+        description: "The nutrition goal has been successfully deleted",
       });
       
       setDeleteDialogOpen(false);
     },
     onError: (error: Error) => {
       toast({
-        title: "Errore",
-        description: `Impossibile eliminare l'obiettivo: ${error.message}`,
+        title: "Error",
+        description: `Unable to delete the goal: ${error.message}`,
         variant: "destructive",
       });
     }
   });
 
-  // Gestisce il click sul pulsante di modifica
+  // Handles click on the edit button
   const handleEditClick = (goal: NutritionGoal) => {
     setEditingGoal(goal);
     setEditDialogOpen(true);
   };
 
-  // Apre il dialog di conferma eliminazione
+  // Opens the delete confirmation dialog
   const openDeleteDialog = (goal: NutritionGoal) => {
     setGoalToDelete(goal);
     setDeleteDialogOpen(true);
   };
 
-  // Gestisce la conferma di eliminazione
+  // Handles delete confirmation
   const handleDeleteConfirm = () => {
     if (goalToDelete) {
       deleteGoalMutation.mutate(goalToDelete.id);
     }
   };
 
-  // Callback dopo il salvataggio di un obiettivo
+  // Callback after saving a goal
   const handleGoalUpdated = () => {
     setEditDialogOpen(false);
     setEditingGoal(null);
     refetch();
   };
 
-  // Mostra lo stato di caricamento
+  // Show loading state
   if (isLoading) {
     return (
       <Card>
@@ -155,7 +155,7 @@ export default function NutritionGoalHistory({ userId }: NutritionGoalHistoryPro
     );
   }
 
-  // Mostra un messaggio di autenticazione richiesta
+  // Show authentication required message
   if (!isUserAuthenticated) {
     return (
       <Card>
@@ -188,7 +188,7 @@ export default function NutritionGoalHistory({ userId }: NutritionGoalHistoryPro
     );
   }
 
-  // Mostra un messaggio di errore
+  // Show an error message
   if (error) {
     return (
       <Card>
