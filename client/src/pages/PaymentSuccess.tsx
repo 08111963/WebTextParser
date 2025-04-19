@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { CheckCircle } from "lucide-react";
 import { useLocation } from "wouter";
 import { RouteComponentProps } from "wouter";
+import { useAuth } from "@/hooks/use-auth";
 
 export default function PaymentSuccess(props: RouteComponentProps) {
   const [_, navigate] = useLocation();
@@ -19,6 +20,9 @@ export default function PaymentSuccess(props: RouteComponentProps) {
     }
   }, [sessionId]);
   
+  // Determina se l'utente è loggato o meno
+  const { user } = useAuth();
+
   return (
     <div className="container max-w-md mx-auto py-10">
       <Card>
@@ -37,12 +41,23 @@ export default function PaymentSuccess(props: RouteComponentProps) {
           </p>
           
           <div className="flex flex-col gap-2 items-center">
-            <Button 
-              onClick={() => navigate("/home")}
-              className="w-full"
-            >
-              Go to Dashboard
-            </Button>
+            {user ? (
+              // Utente già autenticato
+              <Button 
+                onClick={() => navigate("/home")}
+                className="w-full"
+              >
+                Go to Dashboard
+              </Button>
+            ) : (
+              // Utente non autenticato, invita a registrarsi o accedere
+              <Button 
+                onClick={() => navigate("/auth?redirect=/home")}
+                className="w-full"
+              >
+                Login or Register to Access Dashboard
+              </Button>
+            )}
             
             <Button 
               onClick={() => navigate("/")}
