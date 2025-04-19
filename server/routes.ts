@@ -477,7 +477,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
       }, TIMEOUT_MS);
       
-      // Recupera il profilo utente
+      // Retrieve user profile
       const profile = await storage.getUserProfile(userId);
       
       if (!profile) {
@@ -485,7 +485,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "User profile not found" });
       }
       
-      // Recupera obiettivo nutrizionale attuale se presente
+      // Retrieve current nutritional goal if present
       const currentGoal = await storage.getActiveNutritionGoal(userId);
       
       // Recupera pasti recenti se disponibili
@@ -589,7 +589,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
       }, TIMEOUT_MS);
       
-      // Recupera il profilo utente
+      // Retrieve user profile
       const profile = await storage.getUserProfile(userId);
       
       if (!profile) {
