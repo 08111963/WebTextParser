@@ -170,10 +170,10 @@ export default function NutritionChart({ userId }: NutritionChartProps) {
         <div>
           <CardTitle className="flex items-center gap-2">
             <TrendingUp className="h-5 w-5 text-primary" />
-            Andamento Nutrizionale
+            Nutritional Trends
           </CardTitle>
           <CardDescription>
-            Monitora il tuo consumo nel tempo
+            Monitor your consumption over time
           </CardDescription>
         </div>
         <div className="flex items-center space-x-2">

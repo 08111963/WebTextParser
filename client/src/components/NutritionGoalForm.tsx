@@ -98,7 +98,7 @@ const nutritionProfiles: Record<string, NutritionProfile> = {
     proteins: 110, 
     carbs: 270, 
     fats: 75,
-    description: "Dieta mediterranea tradizionale basata su cibi non processati."
+    description: "Traditional Mediterranean diet based on unprocessed foods."
   },
   custom: { 
     name: "Personalizzato", 
