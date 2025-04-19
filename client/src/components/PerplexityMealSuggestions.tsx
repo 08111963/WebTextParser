@@ -27,7 +27,7 @@ type MealSuggestion = {
 
 export default function PerplexityMealSuggestions({ userId }: PerplexityMealSuggestionsProps) {
   const { toast } = useToast();
-  const [mealType, setMealType] = useState<string>("pranzo");
+  const [mealType, setMealType] = useState<string>("lunch");
   const [isUserAuthenticated, setIsUserAuthenticated] = useState(userId !== "0");
   const [dietaryPreferences, setDietaryPreferences] = useState<string[]>([]);
 
@@ -44,7 +44,7 @@ export default function PerplexityMealSuggestions({ userId }: PerplexityMealSugg
   const { data, isLoading, error, refetch } = useQuery({
     queryKey: ['/api/perplexity/meal-suggestions', userId, mealType, dietaryPreferences],
     queryFn: async () => {
-      // Costruisci i parametri della query
+      // Build query parameters
       const params = new URLSearchParams();
       params.append('userId', userId);
       params.append('mealType', mealType);
@@ -53,14 +53,14 @@ export default function PerplexityMealSuggestions({ userId }: PerplexityMealSugg
       });
 
       const res = await apiRequest('GET', `/api/perplexity/meal-suggestions?${params.toString()}`);
-      if (!res.ok) throw new Error('Impossibile recuperare i suggerimenti');
+      if (!res.ok) throw new Error('Unable to retrieve suggestions');
       return res.json();
     },
-    enabled: !!userId && isUserAuthenticated && false, // Inizialmente disabilitato, verrà attivato dal pulsante "Genera"
+    enabled: !!userId && isUserAuthenticated && false, // Initially disabled, will be activated by the "Generate" button
     refetchOnWindowFocus: false,
   });
 
-  // Mutation per richiedere nuovi suggerimenti
+  // Mutation to request new suggestions
   const generateMutation = useMutation({
     mutationFn: async () => {
       await queryClient.resetQueries({ 
@@ -70,24 +70,24 @@ export default function PerplexityMealSuggestions({ userId }: PerplexityMealSugg
     },
     onError: (error: Error) => {
       toast({
-        title: "Errore",
-        description: "Impossibile generare i suggerimenti. Riprova più tardi.",
+        title: "Error",
+        description: "Unable to generate suggestions. Please try again later.",
         variant: "destructive",
       });
     },
   });
 
-  // Gestisci il cambio di tipo di pasto
+  // Handle meal type change
   const handleMealTypeChange = (value: string) => {
     setMealType(value);
   };
 
-  // Genera nuovi suggerimenti
+  // Generate new suggestions
   const handleGenerate = () => {
     generateMutation.mutate();
   };
 
-  // Verifica se ci sono suggerimenti validi
+  // Check if there are valid suggestions
   const hasSuggestions = data?.meals && Array.isArray(data.meals) && data.meals.length > 0;
 
   return (
@@ -95,50 +95,50 @@ export default function PerplexityMealSuggestions({ userId }: PerplexityMealSugg
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Pizza className="h-5 w-5 text-primary" />
-          <span>Suggerimenti Pasti con Perplexity AI</span>
+          <span>Meal Suggestions with Perplexity AI</span>
         </CardTitle>
         <CardDescription>
-          Suggerimenti personalizzati basati sul tuo profilo e preferenze
+          Personalized suggestions based on your profile and preferences
         </CardDescription>
       </CardHeader>
       <CardContent>
         {!isUserAuthenticated ? (
           <div className="text-center py-10 border rounded-lg">
             <UserCircle2 className="h-12 w-12 text-primary mx-auto mb-4" />
-            <h3 className="text-xl font-medium mb-2">Accedi per Generare Suggerimenti</h3>
+            <h3 className="text-xl font-medium mb-2">Sign In to Generate Suggestions</h3>
             <p className="text-muted-foreground max-w-md mx-auto mb-6">
-              Accedi o registrati per ricevere suggerimenti pasti personalizzati con Perplexity AI.
+              Sign in or register to receive personalized meal suggestions with Perplexity AI.
             </p>
             <Button onClick={() => {
               toast({
-                title: "Autenticazione richiesta",
-                description: "Per utilizzare i suggerimenti pasti personalizzati è necessario accedere o registrarsi.",
+                title: "Authentication Required",
+                description: "To use personalized meal suggestions, you need to sign in or register.",
                 duration: 5000
               });
             }}>
-              Accedi per Sbloccare
+              Sign In to Unlock
             </Button>
           </div>
         ) : (
           <>
             <div className="space-y-4 mb-6">
               <div>
-                <h3 className="text-sm font-medium mb-2">Tipo di Pasto</h3>
+                <h3 className="text-sm font-medium mb-2">Meal Type</h3>
                 <Select value={mealType} onValueChange={handleMealTypeChange}>
                   <SelectTrigger className="w-full md:w-[220px]">
-                    <SelectValue placeholder="Seleziona il tipo di pasto" />
+                    <SelectValue placeholder="Select meal type" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="colazione">Colazione</SelectItem>
-                    <SelectItem value="pranzo">Pranzo</SelectItem>
-                    <SelectItem value="cena">Cena</SelectItem>
-                    <SelectItem value="spuntino">Spuntino</SelectItem>
+                    <SelectItem value="breakfast">Breakfast</SelectItem>
+                    <SelectItem value="lunch">Lunch</SelectItem>
+                    <SelectItem value="dinner">Dinner</SelectItem>
+                    <SelectItem value="snack">Snack</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
 
               <div>
-                <h3 className="text-sm font-medium mb-2">Preferenze Dietetiche</h3>
+                <h3 className="text-sm font-medium mb-2">Dietary Preferences</h3>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
                   <div className="flex items-center space-x-2">
                     <Checkbox 
@@ -146,7 +146,7 @@ export default function PerplexityMealSuggestions({ userId }: PerplexityMealSugg
                       checked={dietaryPreferences.includes('vegetariano')}
                       onCheckedChange={() => togglePreference('vegetariano')}
                     />
-                    <Label htmlFor="vegetariano">Vegetariano</Label>
+                    <Label htmlFor="vegetariano">Vegetarian</Label>
                   </div>
                   <div className="flex items-center space-x-2">
                     <Checkbox 
@@ -154,7 +154,7 @@ export default function PerplexityMealSuggestions({ userId }: PerplexityMealSugg
                       checked={dietaryPreferences.includes('vegano')}
                       onCheckedChange={() => togglePreference('vegano')}
                     />
-                    <Label htmlFor="vegano">Vegano</Label>
+                    <Label htmlFor="vegano">Vegan</Label>
                   </div>
                   <div className="flex items-center space-x-2">
                     <Checkbox 
@@ -162,7 +162,7 @@ export default function PerplexityMealSuggestions({ userId }: PerplexityMealSugg
                       checked={dietaryPreferences.includes('senza-glutine')}
                       onCheckedChange={() => togglePreference('senza-glutine')}
                     />
-                    <Label htmlFor="senza-glutine">Senza Glutine</Label>
+                    <Label htmlFor="senza-glutine">Gluten Free</Label>
                   </div>
                   <div className="flex items-center space-x-2">
                     <Checkbox 
@@ -178,7 +178,7 @@ export default function PerplexityMealSuggestions({ userId }: PerplexityMealSugg
                       checked={dietaryPreferences.includes('proteico')}
                       onCheckedChange={() => togglePreference('proteico')}
                     />
-                    <Label htmlFor="proteico">Alto Proteico</Label>
+                    <Label htmlFor="proteico">High Protein</Label>
                   </div>
                   <div className="flex items-center space-x-2">
                     <Checkbox 
@@ -186,7 +186,7 @@ export default function PerplexityMealSuggestions({ userId }: PerplexityMealSugg
                       checked={dietaryPreferences.includes('mediterraneo')}
                       onCheckedChange={() => togglePreference('mediterraneo')}
                     />
-                    <Label htmlFor="mediterraneo">Mediterraneo</Label>
+                    <Label htmlFor="mediterraneo">Mediterranean</Label>
                   </div>
                 </div>
               </div>
