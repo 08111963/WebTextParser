@@ -24,8 +24,10 @@ import {
   CardHeader,
   CardTitle
 } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Loader2, TrendingUp, BarChart2, AreaChart as AreaChartIcon, Activity } from "lucide-react";
+import { Loader2, TrendingUp, BarChart2, AreaChart as AreaChartIcon, Activity, UserCircle2 } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 type NutritionChartProps = {
   userId: string;
@@ -52,9 +54,11 @@ type ChartData = {
 };
 
 export default function NutritionChart({ userId }: NutritionChartProps) {
+  const { toast } = useToast();
   const [period, setPeriod] = useState<"7" | "14" | "30">("7");
   const [chartData, setChartData] = useState<ChartData[]>([]);
   const [chartType, setChartType] = useState<"line" | "bar" | "area" | "composed">("line");
+  const [isUserAuthenticated, setIsUserAuthenticated] = useState(userId !== "0");
 
   // Calcola la data di inizio in base al periodo selezionato
   const calculateStartDate = () => {
@@ -77,7 +81,7 @@ export default function NutritionChart({ userId }: NutritionChartProps) {
       if (!res.ok) throw new Error('Impossibile recuperare i dati dei pasti');
       return res.json();
     },
-    enabled: !!userId,
+    enabled: !!userId && isUserAuthenticated,
   });
 
   // Prepara i dati per il grafico ogni volta che cambiano i pasti o il periodo
@@ -216,7 +220,24 @@ export default function NutritionChart({ userId }: NutritionChartProps) {
         </div>
       </CardHeader>
       <CardContent>
-        {isLoading ? (
+        {!isUserAuthenticated ? (
+          <div className="text-center py-10 border rounded-lg h-72 flex flex-col items-center justify-center">
+            <UserCircle2 className="h-12 w-12 text-primary mx-auto mb-4" />
+            <h3 className="text-xl font-medium mb-2">Accedi per Visualizzare l'Andamento</h3>
+            <p className="text-muted-foreground max-w-md mx-auto mb-6">
+              Accedi o registrati per visualizzare l'andamento dei tuoi valori nutrizionali nel tempo.
+            </p>
+            <Button onClick={() => {
+              toast({
+                title: "Autenticazione richiesta",
+                description: "Per visualizzare il grafico dell'andamento nutrizionale è necessario accedere o registrarsi.",
+                duration: 5000
+              });
+            }}>
+              Accedi per Sbloccare
+            </Button>
+          </div>
+        ) : isLoading ? (
           <div className="flex justify-center items-center h-72">
             <Loader2 className="h-8 w-8 animate-spin text-primary" />
           </div>
