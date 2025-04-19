@@ -64,7 +64,11 @@ type MealSuggestion = {
 
 // Map meal types in English
 const mealTypeMap: Record<string, string> = {
-  "colazione": "Breakfast",
+  "breakfast": "Breakfast",
+  "lunch": "Lunch",
+  "dinner": "Dinner",
+  "snack": "Snack",
+  "colazione": "Breakfast", // Keep Italian mappings for backward compatibility
   "pranzo": "Lunch",
   "cena": "Dinner",
   "spuntino": "Snack",
@@ -72,7 +76,11 @@ const mealTypeMap: Record<string, string> = {
 
 // Icons for meal types
 const mealTypeIcons: Record<string, React.ReactNode> = {
-  "colazione": <Coffee className="h-4 w-4" />,
+  "breakfast": <Coffee className="h-4 w-4" />,
+  "lunch": <UtensilsCrossed className="h-4 w-4" />,
+  "dinner": <Utensils className="h-4 w-4" />,
+  "snack": <Cookie className="h-4 w-4" />,
+  "colazione": <Coffee className="h-4 w-4" />, // Keep Italian mappings for backward compatibility
   "pranzo": <UtensilsCrossed className="h-4 w-4" />,
   "cena": <Utensils className="h-4 w-4" />,
   "spuntino": <Cookie className="h-4 w-4" />,
@@ -315,10 +323,10 @@ export default function AIRecommendations({ userId }: AIRecommendationsProps) {
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="all">All meals</SelectItem>
-                      <SelectItem value="colazione">Breakfast</SelectItem>
-                      <SelectItem value="pranzo">Lunch</SelectItem>
-                      <SelectItem value="cena">Dinner</SelectItem>
-                      <SelectItem value="spuntino">Snack</SelectItem>
+                      <SelectItem value="breakfast">Breakfast</SelectItem>
+                      <SelectItem value="lunch">Lunch</SelectItem>
+                      <SelectItem value="dinner">Dinner</SelectItem>
+                      <SelectItem value="snack">Snack</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>

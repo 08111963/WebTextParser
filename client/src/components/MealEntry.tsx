@@ -20,37 +20,37 @@ export default function MealEntry({ id, userId, mealType, food, calories, protei
   const { toast } = useToast();
   const queryClient = useQueryClient();
   
-  // Creiamo una mutation per eliminare un pasto
+  // Create a mutation to delete a meal
   const deleteMealMutation = useMutation({
     mutationFn: async () => {
       const res = await apiRequest('DELETE', `/api/meals/${id}`);
       if (!res.ok) {
         const errorData = await res.json();
-        throw new Error(errorData.message || 'Errore durante l\'eliminazione del pasto');
+        throw new Error(errorData.message || 'Error while deleting the meal');
       }
       return res.json();
     },
     onSuccess: () => {
-      // Invalidiamo la query per ricaricare i pasti
+      // Invalidate the query to reload meals
       queryClient.invalidateQueries({ queryKey: ['/api/meals'] });
       
       toast({
-        title: "Successo",
-        description: "Pasto eliminato con successo",
+        title: "Success",
+        description: "Meal successfully deleted",
       });
     },
     onError: (error: Error) => {
-      console.error("Errore durante l'eliminazione del pasto:", error);
+      console.error("Error during meal deletion:", error);
       toast({
-        title: "Errore",
-        description: `Impossibile eliminare il pasto: ${error.message}`,
+        title: "Error",
+        description: `Unable to delete the meal: ${error.message}`,
         variant: "destructive",
       });
     }
   });
 
   const handleDelete = () => {
-    // Eseguiamo la mutation per eliminare il pasto
+    // Execute the mutation to delete the meal
     deleteMealMutation.mutate();
   };
 

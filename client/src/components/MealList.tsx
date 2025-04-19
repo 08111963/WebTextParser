@@ -64,44 +64,44 @@ export default function MealList({ meals, isLoading, userId }: MealListProps) {
   const [mealToDelete, setMealToDelete] = useState<Meal | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 
-  // Mutazione per eliminare un pasto
+  // Mutation to delete a meal
   const deleteMealMutation = useMutation({
     mutationFn: async (mealId: number) => {
       const res = await apiRequest('DELETE', `/api/meals/${mealId}`);
       if (!res.ok) {
         const errorData = await res.json();
-        throw new Error(errorData.message || 'Errore durante l\'eliminazione del pasto');
+        throw new Error(errorData.message || 'Error while deleting the meal');
       }
       return res.json();
     },
     onSuccess: () => {
-      // Invalida la query per ricaricare i pasti
+      // Invalidate the query to reload meals
       queryClient.invalidateQueries({ queryKey: ['/api/meals'] });
       
       toast({
-        title: "Pasto eliminato",
-        description: "Il pasto è stato eliminato con successo",
+        title: "Meal deleted",
+        description: "The meal has been successfully deleted",
       });
       
       setDeleteDialogOpen(false);
     },
     onError: (error: Error) => {
       toast({
-        title: "Errore",
-        description: `Impossibile eliminare il pasto: ${error.message}`,
+        title: "Error",
+        description: `Unable to delete the meal: ${error.message}`,
         variant: "destructive",
       });
     }
   });
 
-  // Gestisce la conferma di eliminazione
+  // Handles deletion confirmation
   const handleDeleteConfirm = () => {
     if (mealToDelete) {
       deleteMealMutation.mutate(mealToDelete.id);
     }
   };
 
-  // Apre il dialog di conferma eliminazione
+  // Opens the delete confirmation dialog
   const openDeleteDialog = (meal: Meal) => {
     setMealToDelete(meal);
     setDeleteDialogOpen(true);
