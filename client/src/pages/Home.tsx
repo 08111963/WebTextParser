@@ -29,19 +29,29 @@ export default function Home() {
   
   // Effetto per resettare la posizione di scroll quando cambia la tab
   useEffect(() => {
-    // Reset lo scroll della pagina intera
+    // Reset lo scroll della pagina intera in una posizione sicura
     window.scrollTo(0, 0);
     
-    // Reset lo scroll dentro il container della tab
+    // Gestione specifica per le schede con contenuto lungo
     const tabContent = document.querySelector(`[data-state="active"][role="tabpanel"]`);
     if (tabContent) {
+      // Forza lo scroll alla posizione 0 in modo che inizi dall'alto
       tabContent.scrollTop = 0;
+      
+      // Ulteriore controllo per assicurarsi che lo scroll sia effettivamente a 0
+      setTimeout(() => {
+        if (tabContent.scrollTop !== 0) {
+          tabContent.scrollTop = 0;
+        }
+      }, 50);
     }
     
-    // Trova lo specifico ancora all'inizio della tab
+    // Assicura che il tab-top sia visibile ma senza saltare ad esso
     const tabTop = document.getElementById(`${activeTab}-tab-top`);
     if (tabTop) {
-      tabTop.scrollIntoView({ behavior: 'instant' });
+      // Usiamo scrollIntoView ma con behavior 'instant' per evitare animazioni
+      // e non renderlo come target primario che potrebbe causare salti
+      tabTop.scrollIntoView({ behavior: 'instant', block: 'start' });
     }
   }, [activeTab]);
   
