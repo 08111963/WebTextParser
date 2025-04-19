@@ -21,8 +21,8 @@ const pricingData = [
     name: "Premium",
     description: "Enhanced features for dedicated health enthusiasts",
     price: {
-      monthly: 9.99,
-      yearly: 99.99,
+      monthly: 3.99,
+      yearly: 39.99,
     },
     highlighted: true,
     badge: "Most Popular",
@@ -35,7 +35,10 @@ const pricingData = [
       { text: "AI nutrition chatbot", included: true },
       { text: "Goal tracking & analytics", included: true },
       { text: "Meal plan export", included: true },
-      { text: "Premium customer support", included: false },
+      { text: "Premium customer support", included: true },
+      { text: "AI Meal Recommendations", included: true },
+      { text: "AI Goal Recommendations", included: true },
+      { text: "API access", included: true },
     ],
   },
   {
