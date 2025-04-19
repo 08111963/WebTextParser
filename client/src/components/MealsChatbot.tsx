@@ -52,7 +52,7 @@ export default function MealsChatbot({ userId }: MealsChatbotProps) {
       const res = await apiRequest("POST", "/api/ai-chat", {
         userId,
         query,
-        chatType: "meals" // Indichiamo che è una richiesta specializzata per pasti
+        chatType: "meals" // Indicate that this is a specialized request for meals
       });
       return await res.json();
     },
@@ -197,7 +197,7 @@ export default function MealsChatbot({ userId }: MealsChatbotProps) {
         
         {messages.length === 1 && (
           <div className="mt-4 mb-1">
-            <p className="text-sm font-medium mb-2">Esempi di domande:</p>
+            <p className="text-sm font-medium mb-2">Example questions:</p>
             <div className="flex flex-wrap gap-2">
               {suggestedQueries.slice(0, 3).map((q, i) => (
                 <Button
@@ -230,7 +230,7 @@ export default function MealsChatbot({ userId }: MealsChatbotProps) {
       <CardFooter className="pt-2 pb-3 px-3 border-t">
         <form className="flex space-x-2 w-full" onSubmit={handleSubmit}>
           <Input
-            placeholder="Fai una domanda su pasti e alimenti..."
+            placeholder="Ask a question about meals and foods..."
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             disabled={aiChatMutation.isPending}

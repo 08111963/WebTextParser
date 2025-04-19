@@ -40,7 +40,7 @@ export default function GoalsChatbot({ userId }: GoalsChatbotProps) {
   const [messages, setMessages] = useState<Message[]>([
     {
       type: "bot",
-      content: "Ciao! Sono l'assistente specializzato in obiettivi nutrizionali. Posso aiutarti a definire e comprendere meglio i tuoi obiettivi nutrizionali. Cosa vorresti sapere?",
+      content: "Hello! I'm the specialist assistant for nutritional goals. I can help you define and better understand your nutritional goals. What would you like to know?",
       timestamp: new Date(),
     },
   ]);
@@ -66,14 +66,14 @@ export default function GoalsChatbot({ userId }: GoalsChatbotProps) {
     onError: (error: Error) => {
       console.error("Failed to get AI response:", error);
       toast({
-        title: "Errore",
-        description: "Non è stato possibile generare una risposta. Riprova più tardi.",
+        title: "Error",
+        description: "Unable to generate a response. Please try again later.",
         variant: "destructive",
       });
       
       setMessages(prev => [...prev, {
         type: "bot",
-        content: "Mi dispiace, si è verificato un errore durante la generazione della risposta. Riprova più tardi.",
+        content: "I'm sorry, an error occurred while generating the response. Please try again later.",
         timestamp: new Date()
       }]);
     }
@@ -106,14 +106,14 @@ export default function GoalsChatbot({ userId }: GoalsChatbotProps) {
     setQuery("");
   };
   
-  // Esempio messaggi suggeriti per obiettivi nutrizionali
+  // Example suggested messages for nutritional goals
   const suggestedQueries = [
-    "Come posso impostare un obiettivo per perdere peso in modo salutare?",
-    "Qual è un buon obiettivo di proteine per la massa muscolare?",
-    "Quali sono i macronutrienti raccomandati per il mio profilo?",
-    "Come bilancio carboidrati e grassi per un obiettivo di energia?",
-    "Posso avere un obiettivo calorico personalizzato in base alla mia attività?",
-    "Quali sono gli obiettivi nutrizionali per un atleta?",
+    "How can I set a goal to lose weight in a healthy way?",
+    "What is a good protein target for muscle gain?",
+    "What are the recommended macronutrients for my profile?",
+    "How do I balance carbs and fats for an energy goal?",
+    "Can I have a personalized calorie goal based on my activity level?",
+    "What are the nutritional goals for an athlete?",
   ];
   
   return (
@@ -121,7 +121,7 @@ export default function GoalsChatbot({ userId }: GoalsChatbotProps) {
       <CardHeader className="pb-2 border-b">
         <CardTitle className="text-base flex items-center gap-2">
           <Target className="h-5 w-5 text-primary" />
-          <span>Consulente Obiettivi Nutrizionali</span>
+          <span>Nutritional Goals Consultant</span>
         </CardTitle>
       </CardHeader>
       
@@ -135,13 +135,13 @@ export default function GoalsChatbot({ userId }: GoalsChatbotProps) {
                 <div className="flex items-center mb-1 text-xs text-muted-foreground">
                   {message.type === "user" ? (
                     <>
-                      <span>Tu</span>
+                      <span>You</span>
                       <User className="h-3 w-3 ml-1" />
                     </>
                   ) : (
                     <>
                       <Target className="h-3 w-3 mr-1" />
-                      <span>Consulente Nutrizionale</span>
+                      <span>Nutritional Consultant</span>
                     </>
                   )}
                 </div>
