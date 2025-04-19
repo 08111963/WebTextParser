@@ -6,24 +6,11 @@ import CheckoutForm from "@/components/CheckoutForm";
 import { Loader2 } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
 import { useLocation } from "wouter";
-
-// Create a function to check if the Stripe key is available
-const checkStripeKey = () => {
-  if (!import.meta.env.VITE_STRIPE_PUBLIC_KEY) {
-    throw new Error("Missing Stripe public key. Please set VITE_STRIPE_PUBLIC_KEY environment variable.");
-  }
-  return import.meta.env.VITE_STRIPE_PUBLIC_KEY;
-};
+import { STRIPE_PUBLIC_KEY } from "@/lib/stripe-config";
 
 // Initialize Stripe outside of the component
-let stripePromise: ReturnType<typeof loadStripe> | null = null;
-try {
-  const key = checkStripeKey();
-  stripePromise = loadStripe(key);
-} catch (e) {
-  console.error(e);
-  // We'll handle this error in the component
-}
+// Nota: Utilizziamo la chiave pubblica (pk_) dal file di configurazione
+const stripePromise = loadStripe(STRIPE_PUBLIC_KEY);
 
 import { RouteComponentProps } from "wouter";
 
