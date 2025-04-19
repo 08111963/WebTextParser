@@ -1,12 +1,13 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Bolt, User, LogOut } from 'lucide-react';
+import { Bolt, User, LogOut, LogIn } from 'lucide-react';
 import { useAuth } from '@/hooks/use-auth';
 import { useToast } from '@/hooks/use-toast';
+import { Link } from 'wouter';
 
 export default function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const { logoutMutation } = useAuth();
+  const { user, logoutMutation } = useAuth();
   const { toast } = useToast();
 
   const handleSignOut = () => {
@@ -34,15 +35,28 @@ export default function Header() {
           
           {/* Desktop navigation */}
           <nav className="hidden md:flex items-center space-x-4">
-            <Button 
-              variant="outline" 
-              size="sm"
-              onClick={handleSignOut}
-              className="text-sm px-4 py-2 rounded transition flex items-center"
-            >
-              <LogOut className="h-4 w-4 mr-2" />
-              Sign Out
-            </Button>
+            {user ? (
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={handleSignOut}
+                className="text-sm px-4 py-2 rounded transition flex items-center"
+              >
+                <LogOut className="h-4 w-4 mr-2" />
+                Sign Out
+              </Button>
+            ) : (
+              <Link href="/auth">
+                <Button 
+                  variant="default" 
+                  size="sm"
+                  className="text-sm px-4 py-2 rounded transition flex items-center"
+                >
+                  <LogIn className="h-4 w-4 mr-2" />
+                  Accedi
+                </Button>
+              </Link>
+            )}
           </nav>
         </div>
       </header>
@@ -51,13 +65,24 @@ export default function Header() {
       {isMobileMenuOpen && (
         <div className="bg-white shadow-lg absolute top-14 right-0 w-48 z-10 rounded-md overflow-hidden">
           <div className="py-1">
-            <button 
-              className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center"
-              onClick={handleSignOut}
-            >
-              <LogOut className="h-4 w-4 mr-2" />
-              Sign Out
-            </button>
+            {user ? (
+              <button 
+                className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center"
+                onClick={handleSignOut}
+              >
+                <LogOut className="h-4 w-4 mr-2" />
+                Sign Out
+              </button>
+            ) : (
+              <Link href="/auth">
+                <button 
+                  className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center"
+                >
+                  <LogIn className="h-4 w-4 mr-2" />
+                  Accedi
+                </button>
+              </Link>
+            )}
           </div>
         </div>
       )}
