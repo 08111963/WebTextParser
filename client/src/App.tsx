@@ -7,6 +7,7 @@ import NotFound from "@/pages/not-found";
 import Home from "@/pages/Home";
 import Welcome from "@/pages/Welcome";
 import Info from "@/pages/Info";
+import Pricing from "@/pages/Pricing";
 import AuthPage from "@/pages/auth-page";
 import { AuthProvider } from "@/hooks/use-auth";
 import { ProtectedRoute } from "./lib/protected-route";
@@ -18,6 +19,7 @@ function Router() {
     <Switch>
       <Route path="/" component={Welcome} />
       <Route path="/info" component={Info} />
+      <Route path="/pricing" component={Pricing} />
       <Route path="/auth" component={AuthPage} />
       <Route path="/home">
         {() => <ViewOnlyRoute component={Home} />}

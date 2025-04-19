@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Bolt, User, LogOut, LogIn } from 'lucide-react';
+import { Bolt, User, LogOut, LogIn, CreditCard } from 'lucide-react';
 import { useAuth } from '@/hooks/use-auth';
 import { useToast } from '@/hooks/use-toast';
 import { Link } from 'wouter';
@@ -20,7 +20,7 @@ export default function Header() {
         <div className="container mx-auto px-4 py-3 flex justify-between items-center">
           <div className="flex items-center space-x-2">
             <Bolt className="h-8 w-8 text-primary" />
-            <h1 className="text-xl font-semibold">NutriFacile</h1>
+            <h1 className="text-xl font-semibold">NutriEasy</h1>
           </div>
           
           {/* Mobile menu button */}
@@ -35,6 +35,13 @@ export default function Header() {
           
           {/* Desktop navigation */}
           <nav className="hidden md:flex items-center space-x-4">
+            <Link href="/pricing">
+              <Button variant="ghost" size="sm" className="text-sm flex items-center">
+                <CreditCard className="h-4 w-4 mr-2" />
+                Pricing
+              </Button>
+            </Link>
+            
             {user ? (
               <Button 
                 variant="outline" 
@@ -53,7 +60,7 @@ export default function Header() {
                   className="text-sm px-4 py-2 rounded transition flex items-center"
                 >
                   <LogIn className="h-4 w-4 mr-2" />
-                  Accedi
+                  Sign In
                 </Button>
               </Link>
             )}
@@ -65,6 +72,13 @@ export default function Header() {
       {isMobileMenuOpen && (
         <div className="bg-white shadow-lg absolute top-14 right-0 w-48 z-10 rounded-md overflow-hidden">
           <div className="py-1">
+            <Link href="/pricing">
+              <button className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center">
+                <CreditCard className="h-4 w-4 mr-2" />
+                Pricing
+              </button>
+            </Link>
+            
             {user ? (
               <button 
                 className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center"
@@ -79,7 +93,7 @@ export default function Header() {
                   className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center"
                 >
                   <LogIn className="h-4 w-4 mr-2" />
-                  Accedi
+                  Sign In
                 </button>
               </Link>
             )}
