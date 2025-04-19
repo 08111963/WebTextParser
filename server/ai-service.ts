@@ -131,69 +131,178 @@ export async function generateNutritionGoalRecommendations(
         : "Nessun pasto registrato recentemente"
     };
     
-    const userPrompt = `
-    Analizza queste informazioni sull'utente e genera 3 obiettivi nutrizionali personalizzati:
+    // Forziamo la creazione di tre obiettivi generando tre prompt separati con stili nutrizionali forzati
+    // Questo evita che l'API ritorni un solo suggerimento
+
+    // Primo prompt: Approccio Mediterraneo/Equilibrato
+    const prompt1 = `
+    Crea UN SOLO obiettivo nutrizionale personalizzato con approccio MEDITERRANEO/EQUILIBRATO per questo utente:
     ${JSON.stringify(userInfo, null, 2)}
     
-    Per ciascun obiettivo nutrizionale, fornisci:
-    1. Un titolo breve e creativo (sii originale, usa termini accattivanti)
-    2. Una breve descrizione che spieghi perché questo obiettivo è adatto all'utente
-    3. Calorie giornaliere raccomandate
+    Devi fornire:
+    1. Un titolo breve e creativo per questo obiettivo MEDITERRANEO (sii originale, usa termini accattivanti)
+    2. Una breve descrizione che spieghi perché l'approccio mediterraneo equilibrato è adatto a questo utente
+    3. Calorie giornaliere raccomandate per questo approccio
     4. Distribuzione di macronutrienti (proteine, carboidrati, grassi) in grammi
     
-    QUERY ID UNICO: ${new Date().getTime().toString()} (ignora questo ID, serve solo a garantire che la tua risposta sia sempre diversa)
+    QUERY ID UNICO: ${new Date().getTime().toString() + "-med"} (genera una risposta completamente nuova)
     
-    REGOLE FONDAMENTALI DA RISPETTARE:
-    - Gli obiettivi DEVONO essere COMPLETAMENTE diversi tra loro, con proposte realmente variegate e originali.
-    - NON usare MAI frasi o formule standardizzate o ripetitive.
-    - Ad ogni chiamata, DEVI fornire titoli e descrizioni MAI utilizzati in precedenza.
-    - Sii ESTREMAMENTE creativo con i nomi degli obiettivi e le descrizioni.
-    - OBBLIGO di variare approcci nutrizionali (mediterranea, plant-based, proteica, paleolirica, ecc.) e obiettivi (perdita peso, energia, massa muscolare, benessere, ecc.).
-    - Assicurati che i valori calorici e macronutrienti dei tre obiettivi siano significativamente DIFFERENTI tra loro.
-    
-    Rispondi con un JSON nel seguente formato:
-    [
-      {
-        "title": "Titolo obiettivo 1",
-        "description": "Descrizione e motivazione",
-        "calories": numero_calorie,
-        "proteins": grammi_proteine,
-        "carbs": grammi_carboidrati,
-        "fats": grammi_grassi
-      },
-      ...
-    ]
-    
-    Assicurati che tutti i valori numerici siano ragionevoli e arrotondati all'intero più vicino, e che ciascun obiettivo sia distinto dagli altri.
-    Usa il contesto e le informazioni disponibili per generare consigli il più possibile personalizzati.
+    Rispondi SOLO con un oggetto JSON nel seguente formato:
+    {
+      "title": "Titolo obiettivo mediterraneo",
+      "description": "Descrizione e motivazione",
+      "calories": numero_calorie,
+      "proteins": grammi_proteine,
+      "carbs": grammi_carboidrati,
+      "fats": grammi_grassi
+    }
     `;
 
-    console.log("Sending nutrition recommendations request to OpenAI...");
+    // Secondo prompt: Approccio Proteico/Energetico
+    const prompt2 = `
+    Crea UN SOLO obiettivo nutrizionale personalizzato con approccio PROTEICO/ENERGETICO per questo utente:
+    ${JSON.stringify(userInfo, null, 2)}
     
-    const response = await openai.chat.completions.create({
-      model: MODEL,
-      messages: [
-        { role: "system", content: systemPrompt },
-        { role: "user", content: userPrompt }
-      ],
-      response_format: { type: "json_object" },
-      temperature: 0.7, // Temperatura più bilanciata per stabilità
-    });
-
-    console.log("OpenAI response received:", response.choices[0].message.content);
+    Devi fornire:
+    1. Un titolo breve e creativo per questo obiettivo PROTEICO (sii originale, usa termini accattivanti)
+    2. Una breve descrizione che spieghi perché un approccio ad alto contenuto proteico è adatto a questo utente
+    3. Calorie giornaliere raccomandate (più alte del normale per favorire l'energia)
+    4. Distribuzione di macronutrienti con PROTEINE ELEVATE (almeno 25-30% delle calorie totali)
     
-    const responseContent = response.choices[0].message.content || '[]';
+    QUERY ID UNICO: ${new Date().getTime().toString() + "-prot"} (genera una risposta completamente nuova)
     
-    // Se la risposta non è un array, crea un array di esempio
-    let recommendations: any;
-    try {
-      recommendations = JSON.parse(responseContent);
-      console.log("Parsed recommendations:", recommendations);
-    } catch (parseError) {
-      console.error("Failed to parse OpenAI response:", parseError);
-      // Restituisci un array vuoto in caso di errore di parsing
-      recommendations = [];
+    Rispondi SOLO con un oggetto JSON nel seguente formato:
+    {
+      "title": "Titolo obiettivo proteico",
+      "description": "Descrizione e motivazione",
+      "calories": numero_calorie,
+      "proteins": grammi_proteine_elevate,
+      "carbs": grammi_carboidrati,
+      "fats": grammi_grassi
     }
+    `;
+
+    // Terzo prompt: Approccio Plant-Based/Low-Carb
+    const prompt3 = `
+    Crea UN SOLO obiettivo nutrizionale personalizzato con approccio PLANT-BASED o LOW-CARB per questo utente:
+    ${JSON.stringify(userInfo, null, 2)}
+    
+    Devi fornire:
+    1. Un titolo breve e creativo per questo obiettivo PLANT-BASED o LOW-CARB (sii originale, usa termini accattivanti)
+    2. Una breve descrizione che spieghi perché questo approccio è adatto a questo utente
+    3. Calorie giornaliere raccomandate (leggermente ridotte rispetto al normale)
+    4. Distribuzione di macronutrienti con CARBOIDRATI RIDOTTI e grassi sani aumentati
+    
+    QUERY ID UNICO: ${new Date().getTime().toString() + "-plant"} (genera una risposta completamente nuova)
+    
+    Rispondi SOLO con un oggetto JSON nel seguente formato:
+    {
+      "title": "Titolo obiettivo plant-based/low-carb",
+      "description": "Descrizione e motivazione",
+      "calories": numero_calorie_ridotte,
+      "proteins": grammi_proteine,
+      "carbs": grammi_carboidrati_ridotti,
+      "fats": grammi_grassi_elevati
+    }
+    `;
+
+    console.log("Sending multiple nutrition recommendations requests to OpenAI...");
+    
+    // Eseguiamo tre chiamate separate in parallelo per generare tre obiettivi diversi
+    const [response1, response2, response3] = await Promise.all([
+      openai.chat.completions.create({
+        model: MODEL,
+        messages: [
+          { role: "system", content: systemPrompt },
+          { role: "user", content: prompt1 }
+        ],
+        response_format: { type: "json_object" },
+        temperature: 0.8,
+      }),
+      openai.chat.completions.create({
+        model: MODEL,
+        messages: [
+          { role: "system", content: systemPrompt },
+          { role: "user", content: prompt2 }
+        ],
+        response_format: { type: "json_object" },
+        temperature: 0.8,
+      }),
+      openai.chat.completions.create({
+        model: MODEL,
+        messages: [
+          { role: "system", content: systemPrompt },
+          { role: "user", content: prompt3 }
+        ],
+        response_format: { type: "json_object" },
+        temperature: 0.8,
+      })
+    ]);
+
+    console.log("All OpenAI responses received for objectives");
+    
+    // Processiamo ogni risposta separatamente
+    let recommendation1: any = {};
+    let recommendation2: any = {};
+    let recommendation3: any = {};
+    
+    try {
+      // Parsing della prima risposta (mediterranea)
+      const responseContent1 = response1.choices[0].message.content || '{}';
+      recommendation1 = JSON.parse(responseContent1);
+      console.log("Parsed recommendation 1 (mediterranea):", recommendation1);
+    } catch (parseError) {
+      console.error("Failed to parse OpenAI response 1:", parseError);
+      recommendation1 = {
+        title: "Mediterranea Equilibrata",
+        description: "Approccio mediterraneo con equilibrio tra tutti i macronutrienti, ideale per sostenere energia e salute in modo bilanciato.",
+        calories: 2200,
+        proteins: 120,
+        carbs: 270,
+        fats: 70
+      };
+    }
+    
+    try {
+      // Parsing della seconda risposta (proteica)
+      const responseContent2 = response2.choices[0].message.content || '{}';
+      recommendation2 = JSON.parse(responseContent2);
+      console.log("Parsed recommendation 2 (proteica):", recommendation2);
+    } catch (parseError) {
+      console.error("Failed to parse OpenAI response 2:", parseError);
+      recommendation2 = {
+        title: "Proteica Potenziata",
+        description: "Un approccio ad alto contenuto proteico per supportare la massa muscolare e migliorare la sazietà durante la giornata.",
+        calories: 2300,
+        proteins: 150,
+        carbs: 250,
+        fats: 75
+      };
+    }
+    
+    try {
+      // Parsing della terza risposta (plant-based/low-carb)
+      const responseContent3 = response3.choices[0].message.content || '{}';
+      recommendation3 = JSON.parse(responseContent3);
+      console.log("Parsed recommendation 3 (plant-based/low-carb):", recommendation3);
+    } catch (parseError) {
+      console.error("Failed to parse OpenAI response 3:", parseError);
+      recommendation3 = {
+        title: "Low-Carb Naturale",
+        description: "Una strategia con carboidrati ridotti e grassi sani aumentati, ideale per stabilizzare i livelli di energia e migliorare il metabolismo.",
+        calories: 2000,
+        proteins: 125,
+        carbs: 180,
+        fats: 100
+      };
+    }
+    
+    // Combiniamo le tre risposte in un array
+    const recommendations = [
+      recommendation1,
+      recommendation2,
+      recommendation3
+    ];
     
     // Assicurati che i valori siano tutti numeri interi
     let processedRecommendations = [];
