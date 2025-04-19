@@ -529,7 +529,24 @@ export default function Home({
                 <Sparkles className="h-5 w-5 mr-2 text-primary" />
                 Suggerimenti Pasti con Perplexity AI
               </h2>
-              <PerplexityMealSuggestions userId={user.id.toString()} />
+              {typeof PerplexityMealSuggestions === 'function' ? (
+                <PerplexityMealSuggestions userId={user.id.toString()} />
+              ) : (
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Suggerimenti Pasti con Perplexity AI</CardTitle>
+                    <CardDescription>Suggerimenti personalizzati basati sul tuo profilo</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-center py-10 border rounded-lg">
+                      <p className="text-xl font-medium mb-2">Componente in caricamento...</p>
+                      <p className="text-muted-foreground mb-6">
+                        Il sistema sta caricando i suggerimenti personalizzati per i pasti.
+                      </p>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
             </div>
 
             {/* Sezione Consigli Nutrizionali con Perplexity AI */}
@@ -538,7 +555,24 @@ export default function Home({
                 <Sparkles className="h-5 w-5 mr-2 text-primary" />
                 Consigli Nutrizionali con Perplexity AI
               </h2>
-              <PerplexityNutritionalAdvice userId={user.id.toString()} />
+              {typeof PerplexityNutritionalAdvice === 'function' ? (
+                <PerplexityNutritionalAdvice userId={user.id.toString()} />
+              ) : (
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Consigli Nutrizionali con Perplexity AI</CardTitle>
+                    <CardDescription>Consigli personalizzati da un esperto nutrizionista AI</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-center py-10 border rounded-lg">
+                      <p className="text-xl font-medium mb-2">Componente in caricamento...</p>
+                      <p className="text-muted-foreground mb-6">
+                        Il sistema sta caricando i consigli nutrizionali personalizzati.
+                      </p>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
             </div>
           </TabsContent>
 
