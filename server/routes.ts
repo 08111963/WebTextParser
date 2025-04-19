@@ -968,6 +968,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Create a Checkout Session instead of a PaymentIntent
       // This redirects the user to the Stripe-hosted checkout page
+      
+      // Ensure we have a valid origin for the success and cancel URLs
+      const origin = req.headers.origin || 'https://nutrieasy.replit.app';
+      
       const session = await stripe.checkout.sessions.create({
         payment_method_types: ['card'],
         line_items: [
@@ -977,8 +981,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
           },
         ],
         mode: 'subscription',
-        success_url: `${req.headers.origin}/payment-success?session_id={CHECKOUT_SESSION_ID}`,
-        cancel_url: `${req.headers.origin}/pricing`,
+        success_url: `${origin}/payment-success?session_id={CHECKOUT_SESSION_ID}`,
+        cancel_url: `${origin}/pricing`,
         metadata: {
           planId
         }
