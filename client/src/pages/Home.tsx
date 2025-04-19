@@ -26,7 +26,8 @@ function createDate(dateString: string): Date {
 export default function Home() {
   const { user } = useAuth();
   const { toast } = useToast();
-  const [, params] = useLocation().search ? useLocation().search.split('?') : ['', ''];
+  const [loc] = useLocation();
+  const params = loc.includes('?') ? loc.split('?')[1] : '';
   const urlParams = new URLSearchParams(params);
   const sectionParam = urlParams.get('section');
   const initialTab = sectionParam && ['dashboard', 'meals', 'goals', 'profile'].includes(sectionParam) 

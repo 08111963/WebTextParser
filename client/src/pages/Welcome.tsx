@@ -9,6 +9,7 @@ export default function Welcome() {
 
   return (
     <div className="flex flex-col min-h-screen">
+      <LoginPrompt />
       {/* Header Section */}
       <div className="flex-grow flex flex-col items-center justify-center p-8 text-center">
         <div className="mb-6">
@@ -197,13 +198,23 @@ export default function Welcome() {
           <p className="text-xl mb-8 max-w-2xl mx-auto">
             Registrati ora e inizia subito a tracciare la tua nutrizione per raggiungere i tuoi obiettivi di salute.
           </p>
-          <Button 
-            onClick={() => navigate('/auth')} 
-            size="lg"
-            className="bg-white text-primary hover:bg-gray-100 font-bold py-3 px-8 rounded-md text-lg"
-          >
-            Inizia Gratis
-          </Button>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Button 
+              onClick={() => navigateTo('dashboard')} 
+              size="lg"
+              className="bg-white text-primary hover:bg-gray-100 font-bold py-3 px-8 rounded-md text-lg"
+            >
+              Esplora Dashboard
+            </Button>
+            <Button 
+              onClick={() => navigate('/auth')} 
+              size="lg"
+              variant="outline"
+              className="border-white text-white hover:bg-white/10 font-bold py-3 px-8 rounded-md text-lg"
+            >
+              Registrati
+            </Button>
+          </div>
         </div>
       </div>
     </div>

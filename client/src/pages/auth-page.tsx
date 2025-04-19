@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/use-auth";
-import { Redirect } from "wouter";
+import { Redirect, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -33,6 +33,19 @@ type RegisterFormValues = z.infer<typeof registerSchema>;
 export default function AuthPage() {
   const { user, isLoading, loginMutation, registerMutation } = useAuth();
   const [activeTab, setActiveTab] = useState<string>("login");
+  const [loc] = useLocation();
+  const [redirectPath, setRedirectPath] = useState<string>("/home");
+  
+  useEffect(() => {
+    // Controlla se c'è un parametro di redirect nell'URL
+    if (loc.includes('?')) {
+      const params = new URLSearchParams(loc.split('?')[1]);
+      const redirectParam = params.get('redirect');
+      if (redirectParam) {
+        setRedirectPath(redirectParam);
+      }
+    }
+  }, [loc]);
 
   const loginForm = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
@@ -67,9 +80,9 @@ export default function AuthPage() {
     });
   };
 
-  // Se l'utente è già autenticato, reindirizza alla home page protetta
+  // Se l'utente è già autenticato, reindirizza al percorso specificato o alla home protetta
   if (user) {
-    return <Redirect to="/home" />;
+    return <Redirect to={redirectPath} />;
   }
 
   return (
