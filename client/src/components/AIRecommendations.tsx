@@ -284,9 +284,14 @@ export default function AIRecommendations({ userId }: AIRecommendationsProps) {
             </div>
             
             <div className="space-y-4">
-              {isLoadingMeals ? (
-                <div className="flex justify-center py-8">
-                  <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+              {isLoadingMeals || isManualLoading ? (
+                <div className="flex flex-col items-center justify-center py-12">
+                  <Loader2 className="h-12 w-12 animate-spin text-primary mb-4" />
+                  <p className="text-muted-foreground text-center max-w-md">
+                    Generazione di nuovi suggerimenti in corso...
+                    <br />
+                    <span className="text-sm">Questo processo può richiedere fino a un minuto</span>
+                  </p>
                 </div>
               ) : mealSuggestions?.suggestions && mealSuggestions.suggestions.length > 0 ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -300,7 +305,7 @@ export default function AIRecommendations({ userId }: AIRecommendationsProps) {
                         </Badge>
                       </div>
                       
-                      <p className="text-sm text-muted-foreground mt-2 mb-3 leading-relaxed min-h-[5rem] overflow-visible">{meal.description}</p>
+                      <p className="text-sm text-muted-foreground mt-2 mb-3 leading-relaxed min-h-[5rem] overflow-visible bg-muted/20 p-2 rounded-sm">{meal.description}</p>
                       
                       <div className="flex flex-wrap gap-2 mt-2">
                         <Badge variant="secondary">{meal.calories} kcal</Badge>
