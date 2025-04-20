@@ -112,7 +112,16 @@ export function SubscriptionProvider({ children }: { children: ReactNode }) {
     if (!authLoading) {
       setIsLoading(false);
       
-      // Utilizziamo i dati provenienti dal server per lo stato del trial
+      // Se l'utente non è autenticato, disattiva tutte le funzionalità premium
+      if (!user) {
+        setTrialActive(false);
+        setTrialDaysLeft(0);
+        setTrialEndDate(null);
+        setPlan("trial");
+        return; // Esci dall'effetto
+      }
+      
+      // Se l'utente è autenticato, utilizza i dati provenienti dal server per lo stato del trial
       if (trialStatus) {
         // Impostiamo lo stato della prova gratuita
         setTrialActive(trialStatus.trialActive);

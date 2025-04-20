@@ -1,8 +1,9 @@
 import { ReactNode } from "react";
 import { useSubscription } from "@/hooks/use-subscription";
+import { useAuth } from "@/hooks/use-auth";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Lock, Sparkles, Clock } from "lucide-react";
+import { Lock, Sparkles, Clock, UserRound } from "lucide-react";
 import { useLocation } from "wouter";
 
 // Durata del periodo di prova in giorni
@@ -22,15 +23,23 @@ export default function PremiumFeature({
   description 
 }: PremiumFeatureProps) {
   const { canAccess, trialActive, trialDaysLeft, isPremium } = useSubscription();
+  const { user, isLoading: authLoading } = useAuth();
   const [_, navigate] = useLocation();
 
-  // Verifica se l'utente può accedere alla funzionalità 
+  // Verifica se l'utente è autenticato e può accedere alla funzionalità
   // basandosi sul suo stato di abbonamento o trial
   // Consentiamo l'accesso solo se:
-  // 1. Il periodo di prova è attivo OPPURE
-  // 2. L'utente ha un abbonamento premium attivo
-  if (trialActive || isPremium) {
+  // 1. L'utente è autenticato E
+  // 2. (Il periodo di prova è attivo OPPURE ha un abbonamento premium attivo)
+  if (user && (trialActive || isPremium)) {
     return <>{children}</>;
+  }
+  
+  // Se siamo ancora in attesa dell'autenticazione, non mostriamo nulla
+  if (authLoading) {
+    return <div className="p-6 flex justify-center">
+      <div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full"></div>
+    </div>;
   }
 
   return (
@@ -71,7 +80,22 @@ export default function PremiumFeature({
         </div>
       </CardContent>
       <CardFooter className="bg-slate-50">
-        {trialActive ? (
+        {!user ? (
+          // Se l'utente non è autenticato, mostra il bottone per il login
+          <div className="w-full">
+            <p className="text-sm text-center mb-2 text-muted-foreground">
+              Register or login to access the {TRIAL_PERIOD_DAYS}-day free trial!
+            </p>
+            <Button 
+              className="w-full bg-primary hover:bg-primary/90" 
+              onClick={() => navigate("/auth?redirect=/")}
+            >
+              <UserRound className="w-4 h-4 mr-2" />
+              Login or Register
+            </Button>
+          </div>
+        ) : trialActive ? (
+          // Se l'utente è autenticato e il trial è attivo (ma non può accedere per altri motivi)
           <div className="w-full">
             <p className="text-sm text-center mb-2 text-muted-foreground">
               Enjoy this premium feature free during your {TRIAL_PERIOD_DAYS}-day trial!
@@ -84,6 +108,7 @@ export default function PremiumFeature({
             </Button>
           </div>
         ) : (
+          // Se il trial è scaduto, mostra l'opzione per sbloccare le funzionalità premium
           <Button 
             className="w-full bg-primary hover:bg-primary/90" 
             onClick={() => navigate("/pricing")}
