@@ -11,6 +11,9 @@ import Pricing from "@/pages/Pricing";
 import Checkout from "@/pages/Checkout";
 import PaymentSuccess from "@/pages/PaymentSuccess";
 import AuthPage from "@/pages/auth-page";
+import PrivacyPolicy from "@/pages/PrivacyPolicy";
+import TermsOfService from "@/pages/TermsOfService";
+import Footer from "./components/Footer";
 import { AuthProvider } from "@/hooks/use-auth";
 import { SubscriptionProvider } from "@/hooks/use-subscription";
 import { ProtectedRoute } from "./lib/protected-route";
@@ -25,6 +28,8 @@ function Router() {
       <Route path="/info" component={Info} />
       <Route path="/pricing" component={Pricing} />
       <Route path="/auth" component={AuthPage} />
+      <Route path="/privacy-policy" component={PrivacyPolicy} />
+      <Route path="/terms-of-service" component={TermsOfService} />
       
       {/* Proteggiamo le pagine che richiedono autenticazione */}
       <Route path="/home">
@@ -50,8 +55,13 @@ function App() {
         <AuthProvider>
           <SubscriptionProvider>
             <ConditionalNavigationProvider>
-              <Toaster />
-              <Router />
+              <div className="flex flex-col min-h-screen">
+                <main className="flex-grow">
+                  <Toaster />
+                  <Router />
+                </main>
+                <Footer />
+              </div>
             </ConditionalNavigationProvider>
           </SubscriptionProvider>
         </AuthProvider>
