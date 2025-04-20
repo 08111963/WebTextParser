@@ -5,7 +5,7 @@ import session from "express-session";
 import { scrypt, randomBytes, timingSafeEqual } from "crypto";
 import { promisify } from "util";
 import { db } from "./db";
-import { users } from "@shared/schema";
+import { users, insertUserProfileSchema } from "@shared/schema";
 import { eq } from "drizzle-orm";
 import connectPg from "connect-pg-simple";
 
@@ -196,6 +196,31 @@ export function setupAuth(app: Express) {
 
       req.login(user, async (err) => {
         if (err) return next(err);
+        
+        try {
+          // Crea un profilo utente predefinito
+          await storage.createUserProfile({
+            userId: user.id.toString(),
+            firstName: '',
+            lastName: '',
+            birthDate: new Date(),
+            gender: 'altro',
+            height: 170,
+            weight: 70,
+            activityLevel: 'moderata',
+            dietaryPreferences: [],
+            allergies: [],
+            healthConditions: [],
+            weeklyGoal: 'mantenere',
+            weightGoal: 0,
+            createdAt: new Date(),
+            updatedAt: new Date()
+          });
+          
+          console.log(`[Auth] Profilo utente creato per l'utente ${user.id}`);
+        } catch (profileError) {
+          console.error('[Auth] Errore durante la creazione del profilo utente:', profileError);
+        }
         
         // Invia email di benvenuto
         if (user.email) {
