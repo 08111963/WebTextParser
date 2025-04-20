@@ -26,7 +26,7 @@ import Stripe from "stripe";
 
 // Inizializza Stripe con la tua chiave API segreta
 const stripe = process.env.STRIPE_SECRET_KEY 
-  ? new Stripe(process.env.STRIPE_SECRET_KEY, { apiVersion: "2025-03-31.basil" }) 
+  ? new Stripe(process.env.STRIPE_SECRET_KEY) 
   : null;
 
 // Middleware to protect routes that require authentication
