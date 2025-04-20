@@ -1,11 +1,5 @@
 // Import del modulo Brevo (ex Sendinblue)
-console.log('Inizializzazione del modulo Brevo...');
-try {
-  const SibApiV3Sdk = require('sib-api-v3-sdk');
-  console.log('Modulo Brevo importato con successo');
-} catch (error) {
-  console.error('Errore durante l\'importazione del modulo Brevo:', error);
-}
+console.log('[Brevo Helper] Inizializzazione del modulo Brevo...');
 const SibApiV3Sdk = require('sib-api-v3-sdk');
 
 // Email di default per l'invio

@@ -200,22 +200,15 @@ export function setupAuth(app: Express) {
         // Invia email di benvenuto
         if (user.email) {
           try {
-            // Utilizziamo import() dinamico invece di require
-            import('./brevo-helper.js')
-              .then(brevoHelper => {
-                brevoHelper.sendWelcomeEmail(user.email, user.username)
-                  .then(success => {
-                    console.log(`Email di benvenuto ${success ? 'inviata' : 'non inviata'} a ${user.email}`);
-                  })
-                  .catch(err => {
-                    console.error('Errore durante l\'invio dell\'email di benvenuto:', err);
-                  });
-              })
-              .catch(error => {
-                console.error('Errore durante l\'importazione del servizio email:', error);
-              });
+            // Importa direttamente il servizio email TypeScript
+            const { sendWelcomeEmail, emailServiceStatus } = await import('./email-service');
+            
+            console.log(`[Auth] Stato servizio email: ${JSON.stringify(emailServiceStatus)}`);
+            
+            const success = await sendWelcomeEmail(user.email, user.username);
+            console.log(`[Auth] Email di benvenuto ${success ? 'inviata' : 'non inviata'} a ${user.email}`);
           } catch (emailError) {
-            console.error('Errore durante l\'invio dell\'email:', emailError);
+            console.error('[Auth] Errore durante l\'invio dell\'email:', emailError);
           }
         }
         

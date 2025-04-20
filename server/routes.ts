@@ -129,16 +129,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
                 const user = await storage.getUser(parseInt(userId));
                 
                 if (user && user.email) {
-                  // Importazione dinamica del modulo brevo-helper
-                  const brevoHelperModule = await import('./brevo-helper.js');
-                  const brevoHelper = brevoHelperModule.default || brevoHelperModule;
+                  // Importa direttamente il servizio email TypeScript
+                  const { sendPaymentConfirmationEmail, emailServiceStatus } = await import('./email-service');
+                  console.log(`[Routes] Stato servizio email: ${JSON.stringify(emailServiceStatus)}`);
                   
                   // Calcola la data di fine abbonamento
                   const endDateStr = endDate.toISOString().split('T')[0];
                   const planName = planId === 'premium-yearly' ? 'Yearly Premium Plan' : 'Monthly Premium Plan';
                   const amount = planId === 'premium-yearly' ? '$39.99/year' : '$3.99/month';
                   
-                  brevoHelper.sendPaymentConfirmationEmail(user.email, user.username, planName, amount, endDateStr)
+                  sendPaymentConfirmationEmail(user.email, user.username, planName, amount, endDateStr)
                     .then(success => {
                       console.log(`Email di conferma pagamento ${success ? 'inviata' : 'non inviata'} a ${user.email}`);
                     })
@@ -285,11 +285,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
             const user = await storage.getUser(parseInt(userId));
             
             if (user && user.email) {
-              // Importazione dinamica del modulo brevo-helper
-              const brevoHelperModule = await import('./brevo-helper.js');
-              const brevoHelper = brevoHelperModule.default || brevoHelperModule;
+              // Importa direttamente il servizio email TypeScript
+              const { sendTrialExpiringEmail, emailServiceStatus } = await import('./email-service');
+              console.log(`[Routes/Trial] Stato servizio email: ${JSON.stringify(emailServiceStatus)}`);
               
-              brevoHelper.sendTrialExpiringEmail(user.email, user.username, daysLeft)
+              sendTrialExpiringEmail(user.email, user.username, daysLeft)
                 .then(success => {
                   console.log(`Email di avviso scadenza trial ${success ? 'inviata' : 'non inviata'} a ${user.email}`);
                 })
@@ -334,11 +334,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
           const user = await storage.getUser(parseInt(userId));
           
           if (user && user.email) {
-            // Importazione dinamica del modulo brevo-helper
-            const brevoHelperModule = await import('./brevo-helper.js');
-            const brevoHelper = brevoHelperModule.default || brevoHelperModule;
+            // Importa direttamente il servizio email TypeScript
+            const { sendSubscriptionEndedEmail, emailServiceStatus } = await import('./email-service');
+            console.log(`[Routes/Expired] Stato servizio email: ${JSON.stringify(emailServiceStatus)}`);
             
-            brevoHelper.sendSubscriptionEndedEmail(user.email, user.username)
+            sendSubscriptionEndedEmail(user.email, user.username)
               .then(success => {
                 console.log(`Email di notifica scadenza trial ${success ? 'inviata' : 'non inviata'} a ${user.email}`);
               })
