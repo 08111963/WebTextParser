@@ -21,14 +21,25 @@ export default function Welcome() {
           <p className="text-xl text-gray-600 mt-2 max-w-md mx-auto">
             Track your nutrition, achieve your goals, and maintain a healthy lifestyle.
           </p>
-          <div className="mt-6">
-            <Button 
-              onClick={() => navigate('/auth')} 
-              size="lg"
-              className="bg-primary border-2 border-primary text-white hover:bg-primary/90 font-bold px-8 py-2 rounded-md"
-            >
-              Register Now
-            </Button>
+          <div className="mt-6 space-y-3">
+            <div>
+              <Button 
+                onClick={() => navigate('/auth')} 
+                size="lg"
+                className="bg-primary border-2 border-primary text-white hover:bg-primary/90 font-bold px-8 py-2 rounded-md"
+              >
+                Register Now
+              </Button>
+            </div>
+            <div>
+              <Button 
+                onClick={() => navigate('/guide')} 
+                variant="outline"
+                className="font-medium"
+              >
+                Read User Guide
+              </Button>
+            </div>
           </div>
         </div>
 

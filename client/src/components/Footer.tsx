@@ -14,6 +14,9 @@ export default function Footer() {
           </div>
           
           <div className="flex space-x-6">
+            <Link href="/guide" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+              User Guide
+            </Link>
             <Link href="/privacy-policy" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
               Privacy Policy
             </Link>
