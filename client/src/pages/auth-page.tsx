@@ -35,6 +35,8 @@ export default function AuthPage() {
   const [activeTab, setActiveTab] = useState<string>("login");
   const [loc] = useLocation();
   const [redirectPath, setRedirectPath] = useState<string>("/home");
+  const [loginError, setLoginError] = useState<string | null>(null);
+  const [registerError, setRegisterError] = useState<string | null>(null);
   
   useEffect(() => {
     // Check if there's a redirect parameter in the URL
@@ -46,6 +48,23 @@ export default function AuthPage() {
       }
     }
   }, [loc]);
+  
+  // Update error states when mutation state changes
+  useEffect(() => {
+    if (loginMutation.isError) {
+      setLoginError(loginMutation.error?.message || "Authentication failed. Please check your credentials.");
+    } else {
+      setLoginError(null);
+    }
+  }, [loginMutation.isError, loginMutation.error]);
+  
+  useEffect(() => {
+    if (registerMutation.isError) {
+      setRegisterError(registerMutation.error?.message || "Registration failed. Please try again.");
+    } else {
+      setRegisterError(null);
+    }
+  }, [registerMutation.isError, registerMutation.error]);
 
   const loginForm = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
@@ -112,6 +131,16 @@ export default function AuthPage() {
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
+                  {loginError && (
+                    <div className="mb-4 p-3 bg-destructive/15 border border-destructive text-destructive rounded-md flex items-start">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-2 h-5 w-5 shrink-0">
+                        <circle cx="12" cy="12" r="10" />
+                        <line x1="12" x2="12" y1="8" y2="12" />
+                        <line x1="12" x2="12.01" y1="16" y2="16" />
+                      </svg>
+                      <span>{loginError}</span>
+                    </div>
+                  )}
                   <Form {...loginForm}>
                     <form onSubmit={loginForm.handleSubmit(onLoginSubmit)} className="space-y-4">
                       <FormField
@@ -176,6 +205,16 @@ export default function AuthPage() {
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
+                  {registerError && (
+                    <div className="mb-4 p-3 bg-destructive/15 border border-destructive text-destructive rounded-md flex items-start">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-2 h-5 w-5 shrink-0">
+                        <circle cx="12" cy="12" r="10" />
+                        <line x1="12" x2="12" y1="8" y2="12" />
+                        <line x1="12" x2="12.01" y1="16" y2="16" />
+                      </svg>
+                      <span>{registerError}</span>
+                    </div>
+                  )}
                   <Form {...registerForm}>
                     <form onSubmit={registerForm.handleSubmit(onRegisterSubmit)} className="space-y-4">
                       <FormField
