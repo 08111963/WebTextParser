@@ -8,6 +8,7 @@ import { useAuth } from '@/hooks/use-auth';
 export default function Welcome() {
   const [, navigate] = useLocation();
   const { navigateTo, LoginDialog } = useConditionalNavigation();
+  const { user } = useAuth();
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -184,31 +185,37 @@ export default function Welcome() {
                 <span className="text-gray-700">Analyze weekly and monthly trends</span>
               </div>
             </div>
-            <div className="md:w-1/2 p-6 bg-white rounded-lg shadow-lg mt-6 md:mt-0">
-              {/* Mock Progress Charts */}
-              <div className="border border-gray-200 rounded-md p-4">
-                <div className="flex justify-between items-center mb-4">
-                  <h4 className="font-semibold">Weekly Statistics</h4>
-                  <div className="flex space-x-2">
-                    <span className="px-2 py-1 bg-primary/10 text-primary text-xs rounded-md">Calories</span>
-                    <span className="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded-md">Protein</span>
+            <div className="md:w-1/2 p-6 mt-6 md:mt-0">
+              <PremiumFeature
+                feature="progress-tracking"
+                title="Progress Tracking"
+                description="Track your nutritional progress over time with detailed charts and statistics"
+              >
+                {/* Mock Progress Charts */}
+                <div className="border border-gray-200 rounded-md p-4 bg-white">
+                  <div className="flex justify-between items-center mb-4">
+                    <h4 className="font-semibold">Weekly Statistics</h4>
+                    <div className="flex space-x-2">
+                      <span className="px-2 py-1 bg-primary/10 text-primary text-xs rounded-md">Calories</span>
+                      <span className="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded-md">Protein</span>
+                    </div>
+                  </div>
+                  <div className="h-48 flex items-end space-x-1">
+                    {[60, 75, 45, 90, 65, 80, 70].map((height, index) => (
+                      <div key={index} className="flex-1 flex flex-col items-center">
+                        <div 
+                          className="w-full bg-primary/80 rounded-t-sm" 
+                          style={{height: `${height}%`}}
+                        ></div>
+                        <div className="text-xs mt-1">{['M', 'T', 'W', 'T', 'F', 'S', 'S'][index]}</div>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="mt-4 text-center text-sm text-gray-500">
+                    Weekly average: 1820 calories
                   </div>
                 </div>
-                <div className="h-48 flex items-end space-x-1">
-                  {[60, 75, 45, 90, 65, 80, 70].map((height, index) => (
-                    <div key={index} className="flex-1 flex flex-col items-center">
-                      <div 
-                        className="w-full bg-primary/80 rounded-t-sm" 
-                        style={{height: `${height}%`}}
-                      ></div>
-                      <div className="text-xs mt-1">{['M', 'T', 'W', 'T', 'F', 'S', 'S'][index]}</div>
-                    </div>
-                  ))}
-                </div>
-                <div className="mt-4 text-center text-sm text-gray-500">
-                  Weekly average: 1820 calories
-                </div>
-              </div>
+              </PremiumFeature>
             </div>
           </div>
         </div>
@@ -234,7 +241,7 @@ export default function Welcome() {
               size="lg"
               className="bg-white border-2 border-white text-primary hover:bg-gray-100 font-bold py-3 px-8 rounded-md text-lg"
             >
-              Explore Demo
+              {user ? "Explore Demo" : "Try with Free Account"}
             </Button>
           </div>
         </div>

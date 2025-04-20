@@ -28,13 +28,13 @@ function Router() {
       
       {/* Proteggiamo le pagine che richiedono autenticazione */}
       <Route path="/home">
-        {() => <ProtectedRoute component={Home} />}
+        <ProtectedRoute component={Home} />
       </Route>
       <Route path="/checkout">
-        {() => <ProtectedRoute component={Checkout} />}
+        <ProtectedRoute component={Checkout} />
       </Route>
       <Route path="/payment-success">
-        {() => <ProtectedRoute component={PaymentSuccess} />}
+        <ProtectedRoute component={PaymentSuccess} />
       </Route>
       
       {/* Fallback to 404 */}

@@ -26,10 +26,18 @@ export function ConditionalNavigationProvider({ children }: { children: React.Re
   const [, navigate] = useLocation();
   const [showLoginPrompt, setShowLoginPrompt] = useState(false);
   const [pendingSection, setPendingSection] = useState<string | null>(null);
+  const { user } = useAuth();
 
-  // Naviga direttamente alla sezione in modalità visualizzazione
+  // Verifica se l'utente è autenticato prima di navigare
   const navigateTo = (section: string) => {
-    navigate(`/home?section=${section}`);
+    // Se l'utente è autenticato, naviga direttamente
+    if (user) {
+      navigate(`/home?section=${section}`);
+    } else {
+      // Altrimenti, mostra il prompt di login e salva la sezione per il reindirizzamento successivo
+      setShowLoginPrompt(true);
+      setPendingSection(section);
+    }
   };
 
   const handleCancel = () => {
