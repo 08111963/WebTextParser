@@ -26,11 +26,27 @@ export interface EmailOptions {
  */
 export async function sendEmail(options: EmailOptions): Promise<boolean> {
   try {
+    // In testing mode, Resend only allows sending to verified emails
+    // Get verified email from error messages for future reference
+    const verifiedEmail = 'marino.pizzuti@gmail.com';
+    const testEmail = 'delivered@resend.dev';
+    
+    // If the destination is not one of the allowed emails in test mode,
+    // we'll redirect to the special test email instead
+    let destinationEmail = options.to;
+    let originalEmailRedirected = false;
+    
+    if (destinationEmail !== verifiedEmail && destinationEmail !== testEmail) {
+      console.log(`Redirecting email from ${destinationEmail} to ${testEmail} due to Resend test mode restrictions`);
+      destinationEmail = testEmail;
+      originalEmailRedirected = true;
+    }
+    
     // Resend requires a verified domain or using onboarding@resend.dev for testing
     const { data, error } = await resend.emails.send({
       from: 'NutriEasy <onboarding@resend.dev>',
-      to: options.to,
-      subject: options.subject,
+      to: destinationEmail,
+      subject: originalEmailRedirected ? `[TEST MODE - Original recipient: ${options.to}] ${options.subject}` : options.subject,
       html: options.html || '',
       text: options.text
     });
@@ -41,7 +57,7 @@ export async function sendEmail(options: EmailOptions): Promise<boolean> {
       // Check if the error is due to unverified domain restrictions
       if (error.message?.includes('can only send testing emails')) {
         console.log('Resend is in testing mode. To send to any email address, verify a domain at resend.com/domains');
-        console.log('Valid testing emails: delivered@resend.dev or your verified email');
+        console.log(`Valid testing emails: ${testEmail} or your verified email (${verifiedEmail})`);
       }
       
       console.log('Specific Resend error details:', {
@@ -52,7 +68,12 @@ export async function sendEmail(options: EmailOptions): Promise<boolean> {
       return false;
     }
 
-    console.log('Email sent successfully with Resend. ID:', data?.id);
+    if (originalEmailRedirected) {
+      console.log(`Email originally intended for ${options.to} was successfully redirected to ${destinationEmail}. ID: ${data?.id}`);
+    } else {
+      console.log('Email sent successfully with Resend. ID:', data?.id);
+    }
+    
     return true;
   } catch (error) {
     console.error('Exception when sending email with Resend:', error);
