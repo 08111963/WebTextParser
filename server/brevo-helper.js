@@ -1,4 +1,11 @@
 // Import del modulo Brevo (ex Sendinblue)
+console.log('Inizializzazione del modulo Brevo...');
+try {
+  const SibApiV3Sdk = require('sib-api-v3-sdk');
+  console.log('Modulo Brevo importato con successo');
+} catch (error) {
+  console.error('Errore durante l\'importazione del modulo Brevo:', error);
+}
 const SibApiV3Sdk = require('sib-api-v3-sdk');
 
 // Email di default per l'invio
@@ -12,14 +19,18 @@ let apiInstance = null;
 
 // Configurazione di Brevo
 if (process.env.BREVO_API_KEY) {
-  // Configurazione dell'API key
-  const defaultClient = SibApiV3Sdk.ApiClient.instance;
-  const apiKey = defaultClient.authentications['api-key'];
-  apiKey.apiKey = process.env.BREVO_API_KEY;
-  
-  // Creazione dell'istanza dell'API
-  apiInstance = new SibApiV3Sdk.TransactionalEmailsApi();
-  console.log('Brevo API key configurata');
+  try {
+    // Configurazione dell'API key
+    const defaultClient = SibApiV3Sdk.ApiClient.instance;
+    const apiKey = defaultClient.authentications['api-key'];
+    apiKey.apiKey = process.env.BREVO_API_KEY;
+    
+    // Creazione dell'istanza dell'API
+    apiInstance = new SibApiV3Sdk.TransactionalEmailsApi();
+    console.log('✓ Brevo API key configurata correttamente');
+  } catch (error) {
+    console.error('Errore durante la configurazione di Brevo:', error);
+  }
 } else {
   console.log('Brevo API key non configurata. Le email verranno solo simulate nei log.');
 }

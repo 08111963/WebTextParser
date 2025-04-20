@@ -129,7 +129,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
                 const user = await storage.getUser(parseInt(userId));
                 
                 if (user && user.email) {
-                  const brevoHelper = require('./brevo-helper');
+                  // Importazione dinamica del modulo brevo-helper
+                  const brevoHelperModule = await import('./brevo-helper.js');
+                  const brevoHelper = brevoHelperModule.default || brevoHelperModule;
                   
                   // Calcola la data di fine abbonamento
                   const endDateStr = endDate.toISOString().split('T')[0];
@@ -283,7 +285,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
             const user = await storage.getUser(parseInt(userId));
             
             if (user && user.email) {
-              const brevoHelper = require('./brevo-helper');
+              // Importazione dinamica del modulo brevo-helper
+              const brevoHelperModule = await import('./brevo-helper.js');
+              const brevoHelper = brevoHelperModule.default || brevoHelperModule;
               
               brevoHelper.sendTrialExpiringEmail(user.email, user.username, daysLeft)
                 .then(success => {
@@ -330,7 +334,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
           const user = await storage.getUser(parseInt(userId));
           
           if (user && user.email) {
-            const brevoHelper = require('./brevo-helper');
+            // Importazione dinamica del modulo brevo-helper
+            const brevoHelperModule = await import('./brevo-helper.js');
+            const brevoHelper = brevoHelperModule.default || brevoHelperModule;
             
             brevoHelper.sendSubscriptionEndedEmail(user.email, user.username)
               .then(success => {
