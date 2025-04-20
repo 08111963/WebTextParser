@@ -119,13 +119,27 @@ export function setupAuth(app: Express) {
   // Registrazione nuovo utente
   app.post("/api/register", async (req, res, next) => {
     try {
+      // Validazione dei dati di input
+      if (!req.body.username || !req.body.email || !req.body.password) {
+        return res.status(400).send("All fields (username, email, and password) are required.");
+      }
+      
       // Verifica se l'utente esiste già
-      const [existingUser] = await db.select()
+      const [existingUserByUsername] = await db.select()
         .from(users)
         .where(eq(users.username, req.body.username));
       
-      if (existingUser) {
-        return res.status(400).send("Username already exists");
+      if (existingUserByUsername) {
+        return res.status(400).send("This username is already taken. Please choose another one.");
+      }
+      
+      // Verifica se l'email esiste già
+      const [existingUserByEmail] = await db.select()
+        .from(users)
+        .where(eq(users.email, req.body.email));
+      
+      if (existingUserByEmail) {
+        return res.status(400).send("This email is already registered. Please use another email or try to login.");
       }
 
       // Crea nuovo utente
@@ -141,14 +155,53 @@ export function setupAuth(app: Express) {
         if (err) return next(err);
         res.status(201).json(user);
       });
-    } catch (error) {
+    } catch (error: any) {
+      console.error("Registration error:", error);
+      if (error.message?.includes("violates unique constraint")) {
+        return res.status(400).send("An account with this username or email already exists.");
+      }
       next(error);
     }
   });
 
-  // Login
-  app.post("/api/login", passport.authenticate("local"), (req, res) => {
-    res.status(200).json(req.user);
+  // Login with custom callback to handle authentication errors
+  app.post("/api/login", (req, res, next) => {
+    passport.authenticate("local", (err: any, user: Express.User | false, info: any) => {
+      if (err) {
+        return next(err);
+      }
+      
+      if (!user) {
+        // Return specific error message instead of generic 401
+        if (req.body.username) {
+          // Check if user exists
+          db.select()
+            .from(users)
+            .where(eq(users.username, req.body.username))
+            .then(([existingUser]) => {
+              if (!existingUser) {
+                return res.status(401).send("User not found. Please check your username or register a new account.");
+              } else {
+                return res.status(401).send("Incorrect password. Please try again.");
+              }
+            })
+            .catch(error => {
+              next(error);
+            });
+        } else {
+          return res.status(401).send("Username and password are required.");
+        }
+        return;
+      }
+      
+      // If we reach here, authentication was successful
+      req.login(user, (err) => {
+        if (err) {
+          return next(err);
+        }
+        return res.status(200).json(user);
+      });
+    })(req, res, next);
   });
 
   // Logout
