@@ -200,8 +200,8 @@ export function setupAuth(app: Express) {
         // Invia email di benvenuto
         if (user.email) {
           try {
-            const { sendWelcomeEmail } = await import('./email-service');
-            sendWelcomeEmail(user.email, user.username)
+            const brevoHelper = require('./brevo-helper');
+            brevoHelper.sendWelcomeEmail(user.email, user.username)
               .then(success => {
                 console.log(`Email di benvenuto ${success ? 'inviata' : 'non inviata'} a ${user.email}`);
               })

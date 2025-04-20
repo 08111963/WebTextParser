@@ -129,14 +129,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
                 const user = await storage.getUser(parseInt(userId));
                 
                 if (user && user.email) {
-                  const { sendPaymentConfirmationEmail } = await import('./email-service');
+                  const brevoHelper = require('./brevo-helper');
                   
                   // Calcola la data di fine abbonamento
                   const endDateStr = endDate.toISOString().split('T')[0];
                   const planName = planId === 'premium-yearly' ? 'Yearly Premium Plan' : 'Monthly Premium Plan';
                   const amount = planId === 'premium-yearly' ? '$39.99/year' : '$3.99/month';
                   
-                  sendPaymentConfirmationEmail(user.email, user.username, planName, amount, endDateStr)
+                  brevoHelper.sendPaymentConfirmationEmail(user.email, user.username, planName, amount, endDateStr)
                     .then(success => {
                       console.log(`Email di conferma pagamento ${success ? 'inviata' : 'non inviata'} a ${user.email}`);
                     })
@@ -283,9 +283,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
             const user = await storage.getUser(parseInt(userId));
             
             if (user && user.email) {
-              const { sendTrialExpiringEmail } = await import('./email-service');
+              const brevoHelper = require('./brevo-helper');
               
-              sendTrialExpiringEmail(user.email, user.username, daysLeft)
+              brevoHelper.sendTrialExpiringEmail(user.email, user.username, daysLeft)
                 .then(success => {
                   console.log(`Email di avviso scadenza trial ${success ? 'inviata' : 'non inviata'} a ${user.email}`);
                 })
@@ -330,9 +330,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
           const user = await storage.getUser(parseInt(userId));
           
           if (user && user.email) {
-            const { sendSubscriptionEndedEmail } = await import('./email-service');
+            const brevoHelper = require('./brevo-helper');
             
-            sendSubscriptionEndedEmail(user.email, user.username)
+            brevoHelper.sendSubscriptionEndedEmail(user.email, user.username)
               .then(success => {
                 console.log(`Email di notifica scadenza trial ${success ? 'inviata' : 'non inviata'} a ${user.email}`);
               })

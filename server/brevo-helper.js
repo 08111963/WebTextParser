@@ -1,32 +1,5 @@
-// Dichiarazione per il modulo sib-api-v3-sdk
-declare module 'sib-api-v3-sdk' {
-  export default {
-    ApiClient: {
-      instance: {
-        authentications: {
-          'api-key': { apiKey: string }
-        }
-      }
-    },
-    TransactionalEmailsApi: new () => {
-      sendTransacEmail(email: any): Promise<any>;
-    },
-    SendSmtpEmail: new () => {
-      sender?: { name: string, email: string };
-      to?: Array<{ email: string, name?: string }>;
-      subject?: string;
-      htmlContent?: string;
-      textContent?: string;
-    }
-  };
-}
-
 // Import del modulo Brevo (ex Sendinblue)
-import SibApiV3Sdk from 'sib-api-v3-sdk';
-
-// Configurazione dell'SDK di Brevo
-let apiInstance: any = null;
-const defaultClient = SibApiV3Sdk.ApiClient.instance;
+const SibApiV3Sdk = require('sib-api-v3-sdk');
 
 // Email di default per l'invio
 const DEFAULT_SENDER = {
@@ -34,9 +7,13 @@ const DEFAULT_SENDER = {
   name: 'NutriEasy'
 };
 
+// Configurazione dell'SDK di Brevo
+let apiInstance = null;
+
 // Configurazione di Brevo
 if (process.env.BREVO_API_KEY) {
   // Configurazione dell'API key
+  const defaultClient = SibApiV3Sdk.ApiClient.instance;
   const apiKey = defaultClient.authentications['api-key'];
   apiKey.apiKey = process.env.BREVO_API_KEY;
   
@@ -47,19 +24,11 @@ if (process.env.BREVO_API_KEY) {
   console.log('Brevo API key non configurata. Le email verranno solo simulate nei log.');
 }
 
-interface EmailOptions {
-  to: string;
-  subject: string;
-  text?: string;
-  html?: string;
-  from?: string;
-}
-
 /**
  * Invia un'email utilizzando Brevo (ex Sendinblue)
  * Se la chiave API non è configurata, simula l'invio nei log
  */
-export async function sendEmail(options: EmailOptions): Promise<boolean> {
+async function sendEmail(options) {
   const { to, subject, text, html, from } = options;
   
   // Verifica i parametri
@@ -115,7 +84,7 @@ export async function sendEmail(options: EmailOptions): Promise<boolean> {
 /**
  * Invia un'email di benvenuto all'utente
  */
-export async function sendWelcomeEmail(email: string, username: string): Promise<boolean> {
+async function sendWelcomeEmail(email, username) {
   const subject = 'Benvenuto in NutriEasy!';
   const html = `
     <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
@@ -146,13 +115,7 @@ export async function sendWelcomeEmail(email: string, username: string): Promise
 /**
  * Invia una notifica di pagamento completato
  */
-export async function sendPaymentConfirmationEmail(
-  email: string, 
-  username: string, 
-  planName: string, 
-  amount: string,
-  endDate: string
-): Promise<boolean> {
+async function sendPaymentConfirmationEmail(email, username, planName, amount, endDate) {
   const subject = 'Conferma Abbonamento NutriEasy';
   const html = `
     <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
@@ -182,11 +145,7 @@ export async function sendPaymentConfirmationEmail(
 /**
  * Invia un avviso di scadenza del trial
  */
-export async function sendTrialExpiringEmail(
-  email: string, 
-  username: string, 
-  daysLeft: number
-): Promise<boolean> {
+async function sendTrialExpiringEmail(email, username, daysLeft) {
   const subject = `Il tuo periodo di prova scade tra ${daysLeft} giorn${daysLeft === 1 ? 'o' : 'i'}`;
   const html = `
     <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
@@ -213,10 +172,7 @@ export async function sendTrialExpiringEmail(
 /**
  * Invia una notifica di scadenza dell'abbonamento
  */
-export async function sendSubscriptionEndedEmail(
-  email: string, 
-  username: string
-): Promise<boolean> {
+async function sendSubscriptionEndedEmail(email, username) {
   const subject = 'Il tuo abbonamento a NutriEasy è scaduto';
   const html = `
     <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
@@ -244,11 +200,7 @@ export async function sendSubscriptionEndedEmail(
 /**
  * Invia una email per il recupero password
  */
-export async function sendPasswordResetEmail(
-  email: string, 
-  username: string,
-  resetToken: string
-): Promise<boolean> {
+async function sendPasswordResetEmail(email, username, resetToken) {
   const resetLink = `https://web-text-parser-timetraker.replit.app/reset-password?token=${resetToken}`;
   const subject = 'Recupero Password NutriEasy';
   const html = `
@@ -273,3 +225,12 @@ export async function sendPasswordResetEmail(
     html
   });
 }
+
+module.exports = {
+  sendEmail,
+  sendWelcomeEmail,
+  sendPaymentConfirmationEmail,
+  sendTrialExpiringEmail,
+  sendSubscriptionEndedEmail,
+  sendPasswordResetEmail
+};
