@@ -48,7 +48,7 @@ import {
   SheetClose
 } from "@/components/ui/sheet";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { UserRound, Edit, Save, Loader2 } from "lucide-react";
+import { UserRound, Edit, Save, Loader2, Download } from "lucide-react";
 
 // Form validation schema
 const profileFormSchema = z.object({
@@ -85,6 +85,60 @@ export default function UserProfile() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [isOpen, setIsOpen] = useState(false);
+  const [isExporting, setIsExporting] = useState(false);
+  
+  // Function to export user data
+  const exportUserData = async () => {
+    if (!user) return;
+    
+    try {
+      setIsExporting(true);
+      
+      // Fetch user data export
+      const response = await fetch('/api/export-data', {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        credentials: 'include'
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to export data');
+      }
+      
+      const data = await response.json();
+      
+      // Create a JSON file for download
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      
+      // Create a temporary link and trigger download
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = 'nutrieasy-data-export.json';
+      document.body.appendChild(link);
+      link.click();
+      
+      // Clean up
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+      
+      toast({
+        title: "Data exported",
+        description: "Your data has been successfully exported.",
+      });
+    } catch (error) {
+      console.error('Error exporting data:', error);
+      toast({
+        title: "Export failed",
+        description: error instanceof Error ? error.message : "Failed to export your data.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsExporting(false);
+    }
+  };
 
   // Get user profile
   const {
@@ -305,7 +359,21 @@ export default function UserProfile() {
               </PremiumFeature>
             </div>
             
-            <div className="pt-2">
+            <div className="pt-2 flex space-x-2">
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="mt-2" 
+                onClick={exportUserData} 
+                disabled={isExporting}
+              >
+                {isExporting ? (
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                ) : (
+                  <Download className="h-4 w-4 mr-2" />
+                )}
+                Export Data
+              </Button>
               <Sheet open={isOpen} onOpenChange={setIsOpen}>
                 <SheetTrigger asChild>
                   <Button variant="outline" size="sm" className="mt-2">
