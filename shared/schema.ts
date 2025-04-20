@@ -69,6 +69,40 @@ export const progressEntries = pgTable("progress_entries", {
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
+// Schema per tracciare i registri dei tentativi di registrazione
+export const registrationLogs = pgTable("registration_logs", {
+  id: serial("id").primaryKey(),
+  ipAddress: text("ip_address").notNull(),
+  userAgent: text("user_agent").notNull(),
+  email: text("email").notNull(),
+  username: text("username").notNull(),
+  registeredAt: timestamp("registered_at").notNull().defaultNow(),
+  trialEndDate: timestamp("trial_end_date").notNull(),
+});
+
+// Schema per le notifiche all'utente
+export const userNotifications = pgTable("user_notifications", {
+  id: serial("id").primaryKey(),
+  userId: text("user_id").notNull(),
+  title: text("title").notNull(),
+  message: text("message").notNull(),
+  isRead: boolean("is_read").notNull().default(false),
+  type: text("type").notNull(), // "trial_expiring", "trial_expired", "subscription_success", ecc.
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  actionUrl: text("action_url"),
+  expiresAt: timestamp("expires_at"),
+});
+
+// Schema per tenere traccia dei periodi di grazia
+export const userGracePeriods = pgTable("user_grace_periods", {
+  id: serial("id").primaryKey(),
+  userId: text("user_id").notNull().unique(),
+  expiresAt: timestamp("expires_at").notNull(),
+  active: boolean("active").notNull().default(true),
+  dataRetention: boolean("data_retention").notNull().default(true),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
 export const insertUserSchema = createInsertSchema(users)
   .pick({
     username: true,
@@ -169,5 +203,38 @@ export type MealPlan = typeof mealPlans.$inferSelect;
 export type InsertNutritionGoal = z.infer<typeof insertNutritionGoalSchema>;
 export type NutritionGoal = typeof nutritionGoals.$inferSelect;
 
+export const insertRegistrationLogSchema = createInsertSchema(registrationLogs).pick({
+  ipAddress: true,
+  userAgent: true,
+  email: true,
+  username: true,
+  trialEndDate: true,
+});
+
+export const insertUserNotificationSchema = createInsertSchema(userNotifications).pick({
+  userId: true,
+  title: true,
+  message: true,
+  type: true,
+  actionUrl: true,
+  expiresAt: true,
+});
+
+export const insertUserGracePeriodSchema = createInsertSchema(userGracePeriods).pick({
+  userId: true,
+  expiresAt: true,
+  active: true,
+  dataRetention: true,
+});
+
 export type InsertProgressEntry = z.infer<typeof insertProgressEntrySchema>;
 export type ProgressEntry = typeof progressEntries.$inferSelect;
+
+export type InsertRegistrationLog = z.infer<typeof insertRegistrationLogSchema>;
+export type RegistrationLog = typeof registrationLogs.$inferSelect;
+
+export type InsertUserNotification = z.infer<typeof insertUserNotificationSchema>;
+export type UserNotification = typeof userNotifications.$inferSelect;
+
+export type InsertUserGracePeriod = z.infer<typeof insertUserGracePeriodSchema>;
+export type UserGracePeriod = typeof userGracePeriods.$inferSelect;

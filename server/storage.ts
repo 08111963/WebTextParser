@@ -40,6 +40,24 @@ export interface IStorage {
   createProgressEntry(entry: InsertProgressEntry): Promise<ProgressEntry>;
   updateProgressEntry(id: number, entry: Partial<InsertProgressEntry>): Promise<ProgressEntry | undefined>;
   deleteProgressEntry(id: number): Promise<boolean>;
+  
+  // Funzioni per il registro delle registrazioni
+  createRegistrationLog(log: InsertRegistrationLog): Promise<RegistrationLog>;
+  getRegistrationLogsByEmail(email: string): Promise<RegistrationLog[]>;
+  getRegistrationLogsByIpAddress(ipAddress: string): Promise<RegistrationLog[]>;
+  
+  // Funzioni per le notifiche utente
+  createUserNotification(notification: InsertUserNotification): Promise<UserNotification>;
+  getUserNotificationsByUserId(userId: string): Promise<UserNotification[]>;
+  getUserUnreadNotifications(userId: string): Promise<UserNotification[]>;
+  markUserNotificationAsRead(id: number): Promise<UserNotification | undefined>;
+  deleteUserNotification(id: number): Promise<boolean>;
+  
+  // Funzioni per i periodi di grazia
+  createUserGracePeriod(gracePeriod: InsertUserGracePeriod): Promise<UserGracePeriod>;
+  getUserGracePeriodByUserId(userId: string): Promise<UserGracePeriod | undefined>;
+  updateUserGracePeriod(userId: string, updates: Partial<InsertUserGracePeriod>): Promise<UserGracePeriod | undefined>;
+  deleteUserGracePeriod(userId: string): Promise<boolean>;
 }
 
 export class MemStorage implements IStorage {
