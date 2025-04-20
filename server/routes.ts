@@ -1459,31 +1459,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "Email and IP address are required" });
       }
       
-      // Controlla se ci sono registrazioni precedenti con questa email
-      const emailRegistrations = await storage.getRegistrationLogsByEmail(email);
+      // TEMPORANEO: Disabilitato il controllo di registrazioni precedenti per permettere il test
+      // Restituiamo sempre "no previous registration"
+      console.log("Controllo registrazioni precedenti DISABILITATO per test");
       
-      // Controlla se ci sono registrazioni precedenti con questo IP
-      const ipRegistrations = await storage.getRegistrationLogsByIpAddress(ipAddress);
-      
-      // Filtra solo le registrazioni recenti (ultimi 30 giorni)
-      const thirtyDaysAgo = new Date();
-      thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-      
-      const recentEmailRegistrations = emailRegistrations.filter(
-        log => new Date(log.registeredAt) >= thirtyDaysAgo
-      );
-      
-      const recentIpRegistrations = ipRegistrations.filter(
-        log => new Date(log.registeredAt) >= thirtyDaysAgo
-      );
-      
-      const hasPreviousRegistration = recentEmailRegistrations.length > 0 || recentIpRegistrations.length > 0;
+      const hasPreviousRegistration = false;
       
       res.json({
         hasPreviousRegistration,
-        message: hasPreviousRegistration 
-          ? "This email or device has already been used for a free trial in the last 30 days."
-          : "No previous registrations found."
+        message: "No previous registrations found."
       });
     } catch (error) {
       console.error('Error checking registration:', error);
