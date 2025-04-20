@@ -41,6 +41,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Configure authentication
   setupAuth(app);
   
+  // Endpoint di test per il servizio email
+  app.get('/api/test-email-service', async (req, res) => {
+    try {
+      const { emailServiceStatus, sendWelcomeEmail } = await import('./email-service');
+      
+      console.log('Stato del servizio email:', emailServiceStatus);
+      
+      // Solo per test, invia un'email di prova a un indirizzo fittizio
+      const testResult = await sendWelcomeEmail('test@example.com', 'Test User');
+      
+      res.json({
+        status: emailServiceStatus,
+        testResult
+      });
+    } catch (error) {
+      console.error('Errore durante il test del servizio email:', error);
+      res.status(500).json({ 
+        error: error instanceof Error ? error.message : String(error) 
+      });
+    }
+  });
+  
   // Configura Express per ricevere i dati raw per i webhook di Stripe
   app.use('/api/stripe-webhook', express.raw({ type: 'application/json' }));
   
