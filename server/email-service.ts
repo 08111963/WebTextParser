@@ -1,16 +1,28 @@
-import { MailService } from '@sendgrid/mail';
+// Import del modulo Brevo (ex Sendinblue)
+import SibApiV3Sdk from 'sib-api-v3-sdk';
 
-// Inizializza il servizio di mail
-const mailService = new MailService();
-if (process.env.SENDGRID_API_KEY) {
-  mailService.setApiKey(process.env.SENDGRID_API_KEY);
-  console.log('SendGrid API key configurata');
+// Configurazione dell'SDK di Brevo
+let apiInstance: any = null;
+const defaultClient = SibApiV3Sdk.ApiClient.instance;
+
+// Email di default per l'invio
+const DEFAULT_SENDER = {
+  email: 'noreply@nutrieasy.com',
+  name: 'NutriEasy'
+};
+
+// Configurazione di Brevo
+if (process.env.BREVO_API_KEY) {
+  // Configurazione dell'API key
+  const apiKey = defaultClient.authentications['api-key'];
+  apiKey.apiKey = process.env.BREVO_API_KEY;
+  
+  // Creazione dell'istanza dell'API
+  apiInstance = new SibApiV3Sdk.TransactionalEmailsApi();
+  console.log('Brevo API key configurata');
 } else {
-  console.log('SendGrid API key non configurata. Le email verranno solo simulate nei log.');
+  console.log('Brevo API key non configurata. Le email verranno solo simulate nei log.');
 }
-
-// Email di default per l'invio (dovrebbe essere un dominio verificato in SendGrid)
-const DEFAULT_SENDER = 'noreply@nutrieasy.com';
 
 interface EmailOptions {
   to: string;
@@ -21,11 +33,11 @@ interface EmailOptions {
 }
 
 /**
- * Invia un'email utilizzando SendGrid
+ * Invia un'email utilizzando Brevo (ex Sendinblue)
  * Se la chiave API non è configurata, simula l'invio nei log
  */
 export async function sendEmail(options: EmailOptions): Promise<boolean> {
-  const { to, subject, text, html, from = DEFAULT_SENDER } = options;
+  const { to, subject, text, html, from } = options;
   
   // Verifica i parametri
   if (!to || !subject || (!text && !html)) {
@@ -34,23 +46,36 @@ export async function sendEmail(options: EmailOptions): Promise<boolean> {
   }
   
   try {
-    // Se la chiave API è configurata, invia l'email con SendGrid
-    if (process.env.SENDGRID_API_KEY) {
-      const message = {
-        to,
-        from,
-        subject,
-        text: text || '',
-        html: html || ''
+    // Se la chiave API è configurata, invia l'email con Brevo
+    if (apiInstance && process.env.BREVO_API_KEY) {
+      // Crea il messaggio in formato Brevo/Sendinblue
+      const sendSmtpEmail = new SibApiV3Sdk.SendSmtpEmail();
+      
+      // Imposta il mittente
+      sendSmtpEmail.sender = {
+        name: typeof from === 'string' ? 'NutriEasy' : DEFAULT_SENDER.name,
+        email: typeof from === 'string' ? from : DEFAULT_SENDER.email
       };
       
-      await mailService.send(message);
-      console.log(`Email inviata con successo a ${to}`);
+      // Imposta il destinatario
+      sendSmtpEmail.to = [{ email: to }];
+      sendSmtpEmail.subject = subject;
+      
+      // Imposta il contenuto (HTML ha priorità su testo)
+      if (html) {
+        sendSmtpEmail.htmlContent = html;
+      } else if (text) {
+        sendSmtpEmail.textContent = text;
+      }
+      
+      // Invia l'email
+      const data = await apiInstance.sendTransacEmail(sendSmtpEmail);
+      console.log(`Email inviata con successo a ${to} tramite Brevo`);
       return true;
     } else {
       // Altrimenti, simula l'invio nei log
       console.log('========== SIMULAZIONE EMAIL ==========');
-      console.log(`Da: ${from}`);
+      console.log(`Da: ${typeof from === 'string' ? from : DEFAULT_SENDER.email}`);
       console.log(`A: ${to}`);
       console.log(`Oggetto: ${subject}`);
       console.log('Contenuto:');
