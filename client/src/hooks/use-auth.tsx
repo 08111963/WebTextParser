@@ -70,12 +70,32 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const res = await apiRequest("POST", "/api/register", userData);
       return await res.json();
     },
-    onSuccess: (user: User) => {
+    onSuccess: async (user: User) => {
       queryClient.setQueryData(["/api/user"], user);
       toast({
         title: "Registration completed",
         description: `Welcome, ${user.username}!`,
       });
+      
+      // Registra la nuova registrazione per il tracciamento del periodo di prova
+      try {
+        // Ottiene informazioni sul client per il logging
+        const ipResponse = await fetch('https://api.ipify.org?format=json');
+        const ipData = await ipResponse.json();
+        const ipAddress = ipData.ip;
+        const userAgent = window.navigator.userAgent;
+        
+        // Registra la nuova registrazione
+        await apiRequest("POST", "/api/log-registration", {
+          ipAddress,
+          userAgent
+        });
+        
+        console.log("Registration logged successfully");
+      } catch (error) {
+        console.error("Error logging registration:", error);
+        // Non mostra errori all'utente in caso di fallimento del logging
+      }
     },
     onError: (error: Error) => {
       toast({
