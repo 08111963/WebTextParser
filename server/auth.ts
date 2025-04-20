@@ -201,20 +201,12 @@ export function setupAuth(app: Express) {
           // Crea un profilo utente predefinito
           await storage.createUserProfile({
             userId: user.id.toString(),
-            firstName: '',
-            lastName: '',
-            birthDate: new Date(),
+            name: user.username, // Usiamo lo username come nome
+            age: 30, // Età predefinita
             gender: 'altro',
             height: 170,
             weight: 70,
-            activityLevel: 'moderata',
-            dietaryPreferences: [],
-            allergies: [],
-            healthConditions: [],
-            weeklyGoal: 'mantenere',
-            weightGoal: 0,
-            createdAt: new Date(),
-            updatedAt: new Date()
+            activityLevel: 'moderata'
           });
           
           console.log(`[Auth] Profilo utente creato per l'utente ${user.id}`);

@@ -272,8 +272,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
       
-      // Logica normale del periodo di prova
-      const registrationDate = userProfile.createdAt ? new Date(userProfile.createdAt) : new Date();
+      // Logica normale del periodo di prova - utilizziamo la data attuale come fallback
+      // Se non possiamo determinare la data di creazione del profilo
+      const registrationDate = new Date();
       const trialPeriodDays = 5; // Durata del periodo di prova in giorni
       const trialEndDate = new Date(registrationDate);
       trialEndDate.setDate(trialEndDate.getDate() + trialPeriodDays);
