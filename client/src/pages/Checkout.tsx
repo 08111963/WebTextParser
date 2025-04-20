@@ -34,6 +34,7 @@ export default function Checkout(props: RouteComponentProps) {
         
         const response = await apiRequest("POST", "/api/create-payment-intent", {
           planId,
+          userId: user?.id.toString()
         });
         
         console.log("Server response status:", response.status);
