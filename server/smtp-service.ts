@@ -14,6 +14,14 @@ const transporter = nodemailer.createTransport({
     user: process.env.SMTP_USER,
     pass: process.env.SMTP_PASSWORD,
   },
+  // Aggiungi debug per individuare eventuali problemi
+  logger: true,
+  debug: true, // include SMTP traffic in the logs
+  // Imposta le opzioni TLS
+  tls: {
+    // Non fallire su certificati invalidi
+    rejectUnauthorized: false
+  }
 });
 
 // Interfaccia per i parametri dell'email
@@ -35,7 +43,7 @@ export async function sendEmail(options: EmailOptions): Promise<boolean> {
     }
 
     const mailOptions = {
-      from: process.env.SMTP_USER,
+      from: `"NutriEasy App" <${process.env.SMTP_USER}>`,
       to: options.to,
       subject: options.subject,
       text: options.text,
