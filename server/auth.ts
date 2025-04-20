@@ -214,7 +214,7 @@ export function setupAuth(app: Express) {
           console.error('[Auth] Errore durante la creazione del profilo utente:', profileError);
         }
         
-        // Invia email di benvenuto
+        // Invia email di benvenuto con retry
         if (user.email) {
           try {
             // Importa direttamente il servizio email TypeScript
@@ -222,8 +222,40 @@ export function setupAuth(app: Express) {
             
             console.log(`[Auth] Stato servizio email: ${JSON.stringify(emailServiceStatus)}`);
             
-            const success = await sendWelcomeEmail(user.email, user.username);
-            console.log(`[Auth] Email di benvenuto ${success ? 'inviata' : 'non inviata'} a ${user.email}`);
+            // Implementazione di un retry per l'invio email
+            let emailSent = false;
+            const maxRetries = 3;
+            let retryCount = 0;
+            
+            while (!emailSent && retryCount < maxRetries) {
+              console.log(`[Auth] Tentativo di invio email ${retryCount + 1}/${maxRetries} a ${user.email}`);
+              
+              try {
+                emailSent = await sendWelcomeEmail(user.email, user.username);
+                if (emailSent) {
+                  console.log(`[Auth] Email di benvenuto inviata a ${user.email}`);
+                } else {
+                  console.log(`[Auth] Invio email fallito, tentativo ${retryCount + 1}`);
+                  retryCount++;
+                  // Aspetta prima di riprovare (500ms, 1s, 2s)
+                  if (retryCount < maxRetries) {
+                    await new Promise(resolve => setTimeout(resolve, 500 * Math.pow(2, retryCount)));
+                  }
+                }
+              } catch (retryError) {
+                console.error(`[Auth] Errore durante il tentativo ${retryCount + 1}: ${retryError}`);
+                retryCount++;
+                // Aspetta prima di riprovare
+                if (retryCount < maxRetries) {
+                  await new Promise(resolve => setTimeout(resolve, 500 * Math.pow(2, retryCount)));
+                }
+              }
+            }
+            
+            if (!emailSent) {
+              console.error(`[Auth] Tutti i tentativi di invio email a ${user.email} sono falliti`);
+              // Non interrompiamo la registrazione se l'invio dell'email fallisce
+            }
           } catch (emailError) {
             console.error('[Auth] Errore durante l\'invio dell\'email:', emailError);
           }

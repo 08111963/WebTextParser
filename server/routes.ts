@@ -63,6 +63,41 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
+  // Nuovo endpoint per testare l'invio di email a un indirizzo specifico
+  app.post('/api/send-test-email', async (req, res) => {
+    try {
+      const { email } = req.body;
+      
+      if (!email) {
+        return res.status(400).json({ 
+          error: "Email address is required" 
+        });
+      }
+      
+      const { emailServiceStatus, sendWelcomeEmail } = await import('./email-service');
+      console.log(`Tentativo di invio email di test a: ${email}`);
+      
+      // Invia un'email di test all'indirizzo specificato
+      const testResult = await sendWelcomeEmail(email, 'Test User');
+      
+      console.log(`Risultato invio email a ${email}: ${testResult ? 'Successo' : 'Fallito'}`);
+      
+      res.json({
+        status: emailServiceStatus,
+        emailSent: testResult,
+        sentTo: email,
+        message: testResult 
+          ? "Email di test inviata con successo!" 
+          : "Impossibile inviare l'email di test."
+      });
+    } catch (error) {
+      console.error('Errore durante l\'invio dell\'email di test:', error);
+      res.status(500).json({ 
+        error: error instanceof Error ? error.message : String(error) 
+      });
+    }
+  });
+  
   // Configura Express per ricevere i dati raw per i webhook di Stripe
   app.use('/api/stripe-webhook', express.raw({ type: 'application/json' }));
   
