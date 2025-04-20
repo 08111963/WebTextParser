@@ -14,15 +14,11 @@ export default function Footer() {
           </div>
           
           <div className="flex space-x-6">
-            <Link href="/privacy-policy">
-              <a className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-                Privacy Policy
-              </a>
+            <Link href="/privacy-policy" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+              Privacy Policy
             </Link>
-            <Link href="/terms-of-service">
-              <a className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-                Terms of Service
-              </a>
+            <Link href="/terms-of-service" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+              Terms of Service
             </Link>
             <a 
               href="mailto:contact@nutrieasy.com" 

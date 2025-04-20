@@ -22,6 +22,9 @@ const registerSchema = z.object({
   email: z.string().email("Please enter a valid email address"),
   password: z.string().min(6, "Password must be at least 6 characters"),
   confirmPassword: z.string().min(6, "Please confirm your password"),
+  acceptTerms: z.boolean().refine(val => val === true, {
+    message: "You must accept the Terms of Service and Privacy Policy",
+  }),
 }).refine((data) => data.password === data.confirmPassword, {
   message: "Passwords do not match",
   path: ["confirmPassword"],
@@ -84,6 +87,7 @@ export default function AuthPage() {
       email: "",
       password: "",
       confirmPassword: "",
+      acceptTerms: false,
     },
   });
 
@@ -326,6 +330,28 @@ export default function AuthPage() {
                               </Button>
                             </div>
                             <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={registerForm.control}
+                        name="acceptTerms"
+                        render={({ field }) => (
+                          <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
+                            <FormControl>
+                              <input
+                                type="checkbox"
+                                className="h-4 w-4 mt-1"
+                                checked={field.value}
+                                onChange={field.onChange}
+                              />
+                            </FormControl>
+                            <div className="space-y-1 leading-none">
+                              <FormLabel>
+                                I agree to the <Link href="/terms-of-service" className="text-primary hover:underline" target="_blank">Terms of Service</Link> and <Link href="/privacy-policy" className="text-primary hover:underline" target="_blank">Privacy Policy</Link>
+                              </FormLabel>
+                              <FormMessage />
+                            </div>
                           </FormItem>
                         )}
                       />
