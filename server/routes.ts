@@ -1185,6 +1185,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           userId
         },
         client_reference_id: userId, // Utile per identificare l'utente anche nei webhook Stripe
+        locale: 'en', // Forza la lingua inglese
       });
       
       console.log("Created Stripe session with success URL:", `${origin}/payment-success?session_id={CHECKOUT_SESSION_ID}`);
