@@ -1,4 +1,4 @@
-import type { Express, Request, Response, NextFunction } from "express";
+import express, { type Express, type Request, type Response, type NextFunction } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { 
@@ -35,6 +35,155 @@ function isAuthenticated(req: Request, res: Response, next: NextFunction) {
 export async function registerRoutes(app: Express): Promise<Server> {
   // Configure authentication
   setupAuth(app);
+  
+  // Configura Express per ricevere i dati raw per i webhook di Stripe
+  app.use('/api/stripe-webhook', express.raw({ type: 'application/json' }));
+  
+  // Endpoint per gestire i webhook di Stripe
+  app.post('/api/stripe-webhook', async (req, res) => {
+    // Verifica che la richiesta provenga da Stripe
+    const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
+    
+    let event;
+    
+    // Verifica la firma solo se il segreto del webhook è impostato
+    if (webhookSecret) {
+      const signature = req.headers['stripe-signature'] as string;
+      
+      try {
+        if (!stripe) {
+          throw new Error('Stripe is not configured');
+        }
+        
+        event = stripe.webhooks.constructEvent(
+          req.body,
+          signature,
+          webhookSecret
+        );
+      } catch (err) {
+        console.error(`Webhook signature verification failed: ${err instanceof Error ? err.message : 'Unknown error'}`);
+        return res.status(400).send(`Webhook Error: ${err instanceof Error ? err.message : 'Unknown error'}`);
+      }
+    } else {
+      // Se il segreto non è impostato, presumiamo che la richiesta sia valida (solo per test/sviluppo)
+      try {
+        event = JSON.parse(req.body.toString());
+      } catch (err) {
+        console.error(`Error parsing webhook payload: ${err instanceof Error ? err.message : 'Unknown error'}`);
+        return res.status(400).send(`Webhook Error: Invalid payload`);
+      }
+    }
+    
+    // Gestisci gli eventi in base al tipo
+    try {
+      switch (event.type) {
+        case 'checkout.session.completed': {
+          const session = event.data.object;
+          
+          // Ricava l'ID utente dai metadati della sessione
+          const userId = session.client_reference_id || session.metadata?.userId;
+          const planId = session.metadata?.planId || 'premium-monthly';
+          
+          console.log(`Checkout completed for user ${userId}, plan ${planId}`);
+          
+          if (userId) {
+            // Aggiorna lo stato dell'abbonamento nella sessione utente
+            // (Questo è un approccio semplificato, in un ambiente di produzione dovresti
+            // memorizzare questi dati nel database)
+            
+            // Trova le sessioni attive per l'utente
+            // Nota: questo è solo un esempio e non funzionerà in un ambiente scalabile
+            // In un'applicazione reale, dovresti memorizzare lo stato dell'abbonamento nel database
+            
+            // Imposta la data di scadenza in base al piano (mensile o annuale)
+            const now = new Date();
+            let endDate = new Date();
+            
+            if (planId === 'premium-yearly') {
+              endDate.setFullYear(now.getFullYear() + 1);
+            } else {
+              endDate.setMonth(now.getMonth() + 1);
+            }
+            
+            // Crea una notifica per informare l'utente dell'attivazione dell'abbonamento
+            try {
+              await storage.createUserNotification({
+                userId: userId,
+                title: "Subscription Activated",
+                message: `Your ${planId === 'premium-yearly' ? 'yearly' : 'monthly'} subscription has been successfully activated. Enjoy all premium features!`,
+                type: "subscription_activated",
+                actionUrl: "/home",
+                expiresAt: new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000) // Scade tra 30 giorni
+              });
+              
+              console.log(`Created subscription activation notification for user ${userId}`);
+            } catch (error) {
+              console.error(`Failed to create notification for user ${userId}:`, error);
+            }
+          }
+          
+          break;
+        }
+          
+        case 'customer.subscription.created':
+        case 'customer.subscription.updated': {
+          const subscription = event.data.object;
+          console.log(`Subscription ${subscription.id} ${event.type === 'customer.subscription.created' ? 'created' : 'updated'}`);
+          
+          // Puoi aggiornare i dati dell'abbonamento nel database qui
+          break;
+        }
+          
+        case 'customer.subscription.deleted': {
+          const subscription = event.data.object;
+          console.log(`Subscription ${subscription.id} cancelled/deleted`);
+          
+          // Qui puoi gestire la cancellazione dell'abbonamento
+          // Ad esempio, aggiornare lo stato dell'utente o inviare una notifica
+          
+          // Ricava l'ID del cliente
+          const customerId = subscription.customer;
+          
+          // In uno scenario reale, dovresti cercare l'utente associato a questo cliente nel database
+          // e aggiornare il suo stato di abbonamento
+          
+          console.log(`Subscription ended for customer ${customerId}`);
+          break;
+        }
+          
+        case 'invoice.payment_succeeded': {
+          const invoice = event.data.object;
+          console.log(`Payment succeeded for invoice ${invoice.id}`);
+          
+          // Qui puoi gestire il pagamento riuscito, ad esempio estendendo la data di scadenza dell'abbonamento
+          break;
+        }
+          
+        case 'invoice.payment_failed': {
+          const invoice = event.data.object;
+          const customerId = invoice.customer;
+          
+          console.log(`Payment failed for invoice ${invoice.id}, customer ${customerId}`);
+          
+          // Qui puoi inviare una notifica all'utente riguardo al pagamento fallito
+          
+          // In uno scenario reale, dovresti cercare l'utente associato a questo cliente nel database
+          // e inviare una notifica appropriata
+          break;
+        }
+          
+        default:
+          // Eventi non gestiti
+          console.log(`Unhandled event type: ${event.type}`);
+      }
+      
+      // Conferma a Stripe che abbiamo ricevuto l'evento
+      res.status(200).send({ received: true });
+    } catch (err) {
+      console.error(`Error processing webhook: ${err instanceof Error ? err.message : 'Unknown error'}`);
+      res.status(500).send(`Webhook processing error: ${err instanceof Error ? err.message : 'Unknown error'}`);
+    }
+  });
   
   // Endpoint per verificare la scadenza del periodo di prova dal database
   // e lo stato dell'abbonamento dell'utente
