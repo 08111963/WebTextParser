@@ -59,71 +59,11 @@ const isSmtpConfigured = !!(
 // Verifica se la chiave API Brevo è configurata
 const isBrevoConfigured = !!process.env.BREVO_API_KEY;
 
-// Priorità: SMTP prima, poi Brevo API, infine fallback
-if (isSmtpConfigured) {
+// Priorità: Brevo API prima, poi SMTP, infine fallback
+if (isBrevoConfigured) {
+  // Usa Brevo API come servizio principale
   try {
-    console.log('[Email Service] Configurazione SMTP trovata, utilizzo del servizio SMTP...');
-    
-    // Verifica che il modulo SMTP contenga le funzioni necessarie
-    if (
-      typeof smtpService.sendWelcomeEmail === 'function' &&
-      typeof smtpService.sendPaymentConfirmationEmail === 'function' &&
-      typeof smtpService.sendTrialExpiringEmail === 'function' &&
-      typeof smtpService.sendSubscriptionEndedEmail === 'function' &&
-      typeof smtpService.sendPasswordResetEmail === 'function'
-    ) {
-      // Assegna il modulo SMTP al servizio email
-      emailService = smtpService;
-      isEmailServiceAvailable = true;
-      emailServiceProvider = 'smtp';
-      console.log('[Email Service] Servizio SMTP configurato con successo!');
-    } else {
-      throw new Error('Il modulo SMTP non contiene tutte le funzioni richieste');
-    }
-  } catch (error: any) {
-    emailServiceError = error;
-    console.error('[Email Service] Errore durante la configurazione del servizio SMTP:', error);
-    console.log('[Email Service] Tentativo di utilizzare Brevo API come fallback...');
-    
-    // Se SMTP fallisce, prova con Brevo API
-    if (isBrevoConfigured) {
-      try {
-        // Verifica se il file esiste
-        const brevoHelperPath = path.join(__dirname, 'brevo-helper.js');
-        if (fs.existsSync(brevoHelperPath)) {
-          // Importa il modulo direttamente con require
-          const brevoModule = require('./brevo-helper.js');
-          
-          // Verifica che il modulo contenga le funzioni necessarie
-          if (
-            typeof brevoModule.sendWelcomeEmail === 'function' &&
-            typeof brevoModule.sendPaymentConfirmationEmail === 'function' &&
-            typeof brevoModule.sendTrialExpiringEmail === 'function' &&
-            typeof brevoModule.sendSubscriptionEndedEmail === 'function' &&
-            typeof brevoModule.sendPasswordResetEmail === 'function'
-          ) {
-            // Assegna il modulo Brevo al servizio email
-            emailService = brevoModule;
-            isEmailServiceAvailable = true;
-            emailServiceProvider = 'brevo';
-            console.log('[Email Service] Modulo brevo-helper configurato come fallback!');
-          } else {
-            throw new Error('Il modulo brevo-helper non contiene tutte le funzioni richieste');
-          }
-        } else {
-          throw new Error(`File brevo-helper.js non trovato in: ${brevoHelperPath}`);
-        }
-      } catch (error: any) {
-        emailServiceError = error;
-        console.error('[Email Service] Errore durante la configurazione di Brevo:', error);
-        console.log('[Email Service] Utilizzo del servizio email di simulazione');
-      }
-    }
-  }
-} else if (isBrevoConfigured) {
-  // Se SMTP non è configurato ma Brevo sì, usa Brevo direttamente
-  try {
-    console.log('[Email Service] Tentativo di importare il modulo brevo-helper...');
+    console.log('[Email Service] PRIORITÀ CAMBIATA: Tentativo di utilizzare Brevo API come principale...');
     
     // Verifica se il file esiste
     const brevoHelperPath = path.join(__dirname, 'brevo-helper.js');
@@ -145,7 +85,7 @@ if (isSmtpConfigured) {
         emailService = brevoModule;
         isEmailServiceAvailable = true;
         emailServiceProvider = 'brevo';
-        console.log('[Email Service] Modulo brevo-helper importato con successo!');
+        console.log('[Email Service] Modulo brevo-helper configurato come servizio principale!');
       } else {
         throw new Error('Il modulo brevo-helper non contiene tutte le funzioni richieste');
       }
@@ -154,8 +94,62 @@ if (isSmtpConfigured) {
     }
   } catch (error: any) {
     emailServiceError = error;
-    console.error('[Email Service] Errore durante l\'importazione del modulo brevo-helper:', error);
-    console.log('[Email Service] Utilizzo del servizio email di fallback');
+    console.error('[Email Service] Errore durante la configurazione di Brevo:', error);
+    console.log('[Email Service] Tentativo di utilizzare SMTP come fallback...');
+    
+    // Se Brevo fallisce, prova con SMTP
+    if (isSmtpConfigured) {
+      try {
+        console.log('[Email Service] Configurazione SMTP trovata, utilizzo del servizio SMTP come fallback...');
+        
+        // Verifica che il modulo SMTP contenga le funzioni necessarie
+        if (
+          typeof smtpService.sendWelcomeEmail === 'function' &&
+          typeof smtpService.sendPaymentConfirmationEmail === 'function' &&
+          typeof smtpService.sendTrialExpiringEmail === 'function' &&
+          typeof smtpService.sendSubscriptionEndedEmail === 'function' &&
+          typeof smtpService.sendPasswordResetEmail === 'function'
+        ) {
+          // Assegna il modulo SMTP al servizio email
+          emailService = smtpService;
+          isEmailServiceAvailable = true;
+          emailServiceProvider = 'smtp';
+          console.log('[Email Service] Servizio SMTP configurato come fallback!');
+        } else {
+          throw new Error('Il modulo SMTP non contiene tutte le funzioni richieste');
+        }
+      } catch (error: any) {
+        emailServiceError = error;
+        console.error('[Email Service] Anche il fallback SMTP è fallito:', error);
+        console.log('[Email Service] Utilizzo del servizio email di simulazione');
+      }
+    }
+  }
+} else if (isSmtpConfigured) {
+  // Se Brevo non è configurato ma SMTP sì, usa SMTP direttamente
+  try {
+    console.log('[Email Service] Brevo non disponibile, utilizzo del servizio SMTP...');
+    
+    // Verifica che il modulo SMTP contenga le funzioni necessarie
+    if (
+      typeof smtpService.sendWelcomeEmail === 'function' &&
+      typeof smtpService.sendPaymentConfirmationEmail === 'function' &&
+      typeof smtpService.sendTrialExpiringEmail === 'function' &&
+      typeof smtpService.sendSubscriptionEndedEmail === 'function' &&
+      typeof smtpService.sendPasswordResetEmail === 'function'
+    ) {
+      // Assegna il modulo SMTP al servizio email
+      emailService = smtpService;
+      isEmailServiceAvailable = true;
+      emailServiceProvider = 'smtp';
+      console.log('[Email Service] Servizio SMTP configurato con successo!');
+    } else {
+      throw new Error('Il modulo SMTP non contiene tutte le funzioni richieste');
+    }
+  } catch (error: any) {
+    emailServiceError = error;
+    console.error('[Email Service] Errore durante la configurazione del servizio SMTP:', error);
+    console.log('[Email Service] Utilizzo del servizio email di simulazione');
   }
 } else {
   console.log('[Email Service] Nessuna configurazione email trovata, utilizzo del servizio email di simulazione');

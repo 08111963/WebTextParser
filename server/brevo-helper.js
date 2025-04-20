@@ -90,25 +90,29 @@ async function sendEmail(options) {
  * Invia un'email di benvenuto all'utente
  */
 async function sendWelcomeEmail(email, username) {
-  const subject = 'Benvenuto in NutriEasy!';
+  const subject = 'Welcome to NutriEasy!';
   const html = `
-    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
-      <h1 style="color: #4CAF50; text-align: center;">Benvenuto in NutriEasy!</h1>
-      <p>Ciao ${username},</p>
-      <p>Grazie per esserti registrato a NutriEasy! Siamo entusiasti di averti a bordo.</p>
-      <p>Con NutriEasy, puoi:</p>
+    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 5px;">
+      <h1 style="color: #4f46e5; text-align: center;">Welcome to NutriEasy!</h1>
+      <p>Hello ${username},</p>
+      <p>Thank you for joining NutriEasy! We're excited to help you on your nutrition journey.</p>
+      <p>With NutriEasy, you can:</p>
       <ul>
-        <li>Tracciare i tuoi pasti e il consumo di nutrienti</li>
-        <li>Ricevere consigli nutrizionali personalizzati con l'aiuto dell'AI</li>
-        <li>Monitorare i tuoi progressi verso i tuoi obiettivi</li>
-        <li>Generare piani alimentari basati sulle tue preferenze</li>
+        <li>Track your daily meals and nutritional intake</li>
+        <li>Get personalized AI-powered nutrition advice</li>
+        <li>Monitor your progress toward your goals</li>
+        <li>Generate meal plans based on your preferences</li>
       </ul>
-      <p>Il tuo periodo di prova gratuito di 5 giorni è ora attivo. Puoi accedere a tutte le funzionalità premium.</p>
-      <p>Se hai domande o hai bisogno di assistenza, non esitare a contattarci.</p>
-      <p>Buon appetito!</p>
-      <p>Il team di NutriEasy</p>
+      <p>Your 5-day free trial with full access to premium features is now active.</p>
+      <p>If you have any questions or need assistance, please don't hesitate to contact our support team.</p>
+      <div style="margin-top: 20px; padding: 15px; background-color: #f9fafb; border-radius: 4px;">
+        <p style="margin: 0;">Happy healthy eating!</p>
+        <p style="margin: 5px 0 0; font-weight: bold;">The NutriEasy Team</p>
+      </div>
     </div>
   `;
+  
+  console.log(`[Brevo] Sending email to ${email} using Brevo API`);
   
   return sendEmail({
     to: email,
