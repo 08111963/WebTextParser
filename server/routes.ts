@@ -1200,6 +1200,177 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
     }
   });
+  
+  // Endpoint per verificare se l'utente ha già registrazioni o trial precedenti
+  app.post('/api/check-registration', async (req, res) => {
+    try {
+      const { email, ipAddress } = req.body;
+      
+      if (!email || !ipAddress) {
+        return res.status(400).json({ message: "Email and IP address are required" });
+      }
+      
+      // Controlla se ci sono registrazioni precedenti con questa email
+      const emailRegistrations = await storage.getRegistrationLogsByEmail(email);
+      
+      // Controlla se ci sono registrazioni precedenti con questo IP
+      const ipRegistrations = await storage.getRegistrationLogsByIpAddress(ipAddress);
+      
+      // Filtra solo le registrazioni recenti (ultimi 30 giorni)
+      const thirtyDaysAgo = new Date();
+      thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+      
+      const recentEmailRegistrations = emailRegistrations.filter(
+        log => new Date(log.registeredAt) >= thirtyDaysAgo
+      );
+      
+      const recentIpRegistrations = ipRegistrations.filter(
+        log => new Date(log.registeredAt) >= thirtyDaysAgo
+      );
+      
+      const hasPreviousRegistration = recentEmailRegistrations.length > 0 || recentIpRegistrations.length > 0;
+      
+      res.json({
+        hasPreviousRegistration,
+        message: hasPreviousRegistration 
+          ? "This email or device has already been used for a free trial in the last 30 days."
+          : "No previous registrations found."
+      });
+    } catch (error) {
+      console.error('Error checking registration:', error);
+      res.status(500).json({ message: "Error checking registration" });
+    }
+  });
+  
+  // Endpoint per registrare un nuovo utente nel log delle registrazioni
+  app.post('/api/log-registration', isAuthenticated, async (req, res) => {
+    try {
+      const { ipAddress, userAgent } = req.body;
+      
+      if (!ipAddress || !userAgent) {
+        return res.status(400).json({ message: "IP address and user agent are required" });
+      }
+      
+      const userId = req.user!.id.toString();
+      
+      // Calcola la data di fine del periodo di prova (5 giorni da oggi)
+      const trialEndDate = new Date();
+      trialEndDate.setDate(trialEndDate.getDate() + 5);
+      
+      // Registra la nuova registrazione
+      await storage.createRegistrationLog({
+        ipAddress,
+        userAgent,
+        email: req.user!.email,
+        username: req.user!.username,
+        trialEndDate
+      });
+      
+      res.json({ success: true, message: "Registration logged successfully" });
+    } catch (error) {
+      console.error('Error logging registration:', error);
+      res.status(500).json({ message: "Error logging registration" });
+    }
+  });
+  
+  // Endpoint per esportare i dati utente
+  app.get('/api/export-data', isAuthenticated, async (req, res) => {
+    try {
+      const userId = req.user!.id.toString();
+      
+      // Raccogli tutti i dati dell'utente
+      const userProfile = await storage.getUserProfile(userId);
+      const meals = await storage.getMealsByUserId(userId);
+      const mealPlans = await storage.getMealPlansByUserId(userId);
+      const nutritionGoals = await storage.getNutritionGoalsByUserId(userId);
+      const progressEntries = await storage.getProgressEntriesByUserId(userId);
+      
+      // Prepara il pacchetto dati in formato JSON
+      const userData = {
+        user: {
+          id: req.user!.id,
+          username: req.user!.username,
+          email: req.user!.email,
+        },
+        profile: userProfile,
+        meals,
+        mealPlans,
+        nutritionGoals,
+        progressEntries,
+        exportDate: new Date().toISOString()
+      };
+      
+      // Imposta gli header per il download del file
+      res.setHeader('Content-Disposition', 'attachment; filename=nutrieasy-data-export.json');
+      res.setHeader('Content-Type', 'application/json');
+      
+      // Invia i dati come file JSON
+      res.json(userData);
+    } catch (error) {
+      console.error('Error exporting user data:', error);
+      res.status(500).json({ message: "Error exporting user data" });
+    }
+  });
+  
+  // Endpoint per ottenere le notifiche dell'utente
+  app.get('/api/notifications', isAuthenticated, async (req, res) => {
+    try {
+      const userId = req.user!.id.toString();
+      
+      // Ottieni le notifiche reali dal database
+      const userNotifications = await storage.getUserNotificationsByUserId(userId);
+      
+      // Trasforma le notifiche nel formato atteso dal frontend
+      const notifications = userNotifications.map(notification => ({
+        id: notification.id,
+        title: notification.title,
+        message: notification.message,
+        date: notification.createdAt,
+        read: notification.isRead,
+        type: notification.type,
+        actionUrl: notification.actionUrl
+      }));
+      
+      // Se non ci sono notifiche, restituisci alcune notifiche di benvenuto predefinite
+      if (notifications.length === 0) {
+        notifications.push({
+          id: 1,
+          title: "Welcome to NutriEasy!",
+          message: "Start tracking your daily nutrition to reach your goals.",
+          date: new Date(),
+          read: false,
+          type: "welcome",
+          actionUrl: null
+        });
+      }
+      
+      res.json(notifications);
+    } catch (error) {
+      console.error('Error fetching notifications:', error);
+      res.status(500).json({ message: "Error fetching notifications" });
+    }
+  });
+  
+  // Endpoint per segnare una notifica come letta
+  app.post('/api/notifications/:id/read', isAuthenticated, async (req, res) => {
+    try {
+      const notificationId = parseInt(req.params.id);
+      if (isNaN(notificationId)) {
+        return res.status(400).json({ message: "Invalid notification ID" });
+      }
+      
+      const updatedNotification = await storage.markUserNotificationAsRead(notificationId);
+      
+      if (!updatedNotification) {
+        return res.status(404).json({ message: "Notification not found" });
+      }
+      
+      res.json({ success: true });
+    } catch (error) {
+      console.error('Error marking notification as read:', error);
+      res.status(500).json({ message: "Error marking notification as read" });
+    }
+  });
 
   const httpServer = createServer(app);
   return httpServer;

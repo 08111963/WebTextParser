@@ -142,6 +142,36 @@ export function setupAuth(app: Express) {
         return res.status(400).send("This email is already registered. Please use another email or try to login.");
       }
 
+      // Otteniamo i dati IP e user agent dalla richiesta
+      const ipAddress = req.headers['x-forwarded-for'] || req.socket.remoteAddress || 'unknown';
+      const userAgent = req.headers['user-agent'] || 'unknown';
+      
+      // Importiamo storage per il registro delle registrazioni
+      const { storage } = await import('./storage');
+      
+      // Verifica preliminare di registrazioni recenti con la stessa email o IP
+      const emailRegistrations = await storage.getRegistrationLogsByEmail(req.body.email);
+      const ipRegistrations = Array.isArray(ipAddress) 
+        ? await storage.getRegistrationLogsByIpAddress(ipAddress[0])
+        : await storage.getRegistrationLogsByIpAddress(ipAddress as string);
+      
+      // Verifica se ci sono stati tentativi di registrazione recenti (ultimi 30 giorni)
+      const thirtyDaysAgo = new Date();
+      thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+      
+      const recentEmailRegistrations = emailRegistrations.filter(
+        log => new Date(log.registeredAt) >= thirtyDaysAgo
+      );
+      
+      const recentIpRegistrations = ipRegistrations.filter(
+        log => new Date(log.registeredAt) >= thirtyDaysAgo
+      );
+      
+      // Impostiamo un limite massimo di 2 registrazioni per email o IP in 30 giorni
+      if (recentEmailRegistrations.length >= 2 || recentIpRegistrations.length >= 2) {
+        return res.status(400).send("Too many registration attempts. Please try again later or contact support.");
+      }
+
       // Crea nuovo utente
       const hashedPassword = await hashPassword(req.body.password);
       const [user] = await db.insert(users)
@@ -150,6 +180,19 @@ export function setupAuth(app: Express) {
           password: hashedPassword
         })
         .returning();
+        
+      // Calcola la data di fine del periodo di prova (5 giorni da oggi)
+      const trialEndDate = new Date();
+      trialEndDate.setDate(trialEndDate.getDate() + 5);
+        
+      // Registra il nuovo utente nel log delle registrazioni
+      await storage.createRegistrationLog({
+        ipAddress: Array.isArray(ipAddress) ? ipAddress[0] : ipAddress as string,
+        userAgent: userAgent as string,
+        email: req.body.email,
+        username: req.body.username,
+        trialEndDate
+      });
 
       req.login(user, (err) => {
         if (err) return next(err);
