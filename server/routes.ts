@@ -48,8 +48,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "User profile not found" });
       }
       
-      // Controlla se ci sono pagamenti nell'URL o nella sessione
-      // In una versione reale, verificheremmo lo stato dell'abbonamento nel database
+      // Controlla eventuali periodi di grazia attivi per l'utente
+      const gracePeriod = await storage.getUserGracePeriodByUserId(userId);
       
       // Verifica se l'utente ha recentemente completato un pagamento
       // (simuliamo questa verifica controllando i cookie della sessione)
@@ -64,27 +64,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
           trialStartDate: new Date().toISOString(),
           message: null,
           isPremium: true,
+          hasGracePeriod: false,
           subscriptionPlan: req.session.subscription?.plan || "premium-monthly" 
         });
       }
       
-      // Se non ha abbonamento, forzare la scadenza del trial per il test
-      const forceTrialExpired = true;
-      
-      if (forceTrialExpired) {
-        // Restituisci un periodo di prova scaduto
-        return res.json({
-          trialActive: false,
-          trialDaysLeft: 0,
-          trialEndDate: new Date().toISOString(), // La data di fine è oggi
-          trialStartDate: new Date(new Date().setDate(new Date().getDate() - 5)).toISOString(), // Data fittizia 5 giorni fa
-          message: "Il tuo periodo di prova è scaduto. Passa a premium per continuare a usare tutte le funzionalità.",
-          isPremium: false,
-          subscriptionPlan: "trial"
-        });
-      }
-      
-      // Questa parte non verrà mai eseguita durante il test, ma la lasciamo per riferimento futuro
       // Logica normale del periodo di prova
       const registrationDate = userProfile.createdAt ? new Date(userProfile.createdAt) : new Date();
       const trialPeriodDays = 5; // Durata del periodo di prova in giorni
@@ -95,12 +79,109 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const daysLeft = Math.max(0, Math.ceil((trialEndDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24)));
       const isTrialActive = daysLeft > 0;
       
+      // Se il periodo di prova sta per scadere (2 giorni o meno), crea una notifica per l'utente
+      if (isTrialActive && daysLeft <= 2) {
+        // Verifica se esiste già una notifica per la scadenza del trial
+        const existingNotifications = await storage.getUserNotificationsByUserId(userId);
+        const hasTrialExpiringNotification = existingNotifications.some(
+          notification => notification.type === 'trial_expiring' && !notification.isRead
+        );
+        
+        // Crea una notifica solo se non esiste già
+        if (!hasTrialExpiringNotification) {
+          await storage.createUserNotification({
+            userId: userId,
+            title: "Trial Period Expiring Soon",
+            message: `Your free trial will expire in ${daysLeft} day${daysLeft !== 1 ? 's' : ''}. Upgrade to a premium plan to continue enjoying all features.`,
+            type: "trial_expiring",
+            actionUrl: "/pricing",
+            expiresAt: trialEndDate
+          });
+        }
+      }
+      
+      // Se il periodo di prova è scaduto, verifica se bisogna creare un periodo di grazia
+      if (!isTrialActive && !gracePeriod && !hasPaidSubscription) {
+        // Il trial è scaduto e non c'è periodo di grazia attivo
+        // Creiamo un periodo di grazia di 7 giorni per l'utente
+        const gracePeriodDays = 7;
+        const gracePeriodEndDate = new Date();
+        gracePeriodEndDate.setDate(gracePeriodEndDate.getDate() + gracePeriodDays);
+        
+        await storage.createUserGracePeriod({
+          userId: userId,
+          expiresAt: gracePeriodEndDate,
+          active: true,
+          dataRetention: true
+        });
+        
+        // Crea anche una notifica per informare l'utente del periodo di grazia
+        await storage.createUserNotification({
+          userId: userId,
+          title: "Trial Period Expired",
+          message: `Your free trial has expired. Your data will be retained for ${gracePeriodDays} more days. Upgrade to a premium plan to continue using all features.`,
+          type: "trial_expired",
+          actionUrl: "/pricing",
+          expiresAt: gracePeriodEndDate
+        });
+      }
+      
+      // Se non ha abbonamento, forzare la scadenza del trial per il test (solo per demo)
+      const forceTrialExpired = true;
+      
+      if (forceTrialExpired) {
+        // Se c'è un periodo di grazia attivo, includiamo queste informazioni nella risposta
+        if (gracePeriod && gracePeriod.active) {
+          const daysUntilGraceExpires = Math.max(0, Math.ceil(
+            (new Date(gracePeriod.expiresAt).getTime() - today.getTime()) / (1000 * 60 * 60 * 24)
+          ));
+          
+          return res.json({
+            trialActive: false,
+            trialDaysLeft: 0,
+            trialEndDate: new Date().toISOString(),
+            trialStartDate: new Date(new Date().setDate(new Date().getDate() - 5)).toISOString(),
+            message: `Your trial period has expired. Your data will be retained for ${daysUntilGraceExpires} more days. Upgrade to premium to keep access to all features.`,
+            isPremium: false,
+            hasGracePeriod: true,
+            gracePeriodDaysLeft: daysUntilGraceExpires,
+            gracePeriodEndDate: gracePeriod.expiresAt.toISOString(),
+            subscriptionPlan: "trial"
+          });
+        }
+        
+        // Restituisci un periodo di prova scaduto senza periodo di grazia
+        return res.json({
+          trialActive: false,
+          trialDaysLeft: 0,
+          trialEndDate: new Date().toISOString(), // La data di fine è oggi
+          trialStartDate: new Date(new Date().setDate(new Date().getDate() - 5)).toISOString(), // Data fittizia 5 giorni fa
+          message: "Your trial period has expired. Upgrade to premium to continue using all features.",
+          isPremium: false,
+          hasGracePeriod: false,
+          subscriptionPlan: "trial"
+        });
+      }
+      
+      // Questo codice non verrà mai eseguito durante il test, ma lo lasciamo per riferimento futuro
       // Notifica di scadenza del periodo di prova
       const message = isTrialActive 
         ? daysLeft <= 2 
-          ? `Il tuo periodo di prova scadrà tra ${daysLeft} giorni. Passa a premium per continuare a usare tutte le funzionalità.`
+          ? `Your trial will expire in ${daysLeft} day${daysLeft !== 1 ? 's' : ''}. Upgrade to premium to continue using all features.`
           : null
-        : "Il tuo periodo di prova è scaduto. Passa a premium per continuare a usare tutte le funzionalità.";
+        : "Your trial period has expired. Upgrade to premium to continue using all features.";
+      
+      // Includi informazioni sul periodo di grazia se presente
+      const hasGracePeriod = gracePeriod && gracePeriod.active;
+      let gracePeriodDaysLeft = 0;
+      let gracePeriodEndDate = null;
+      
+      if (hasGracePeriod) {
+        gracePeriodDaysLeft = Math.max(0, Math.ceil(
+          (new Date(gracePeriod.expiresAt).getTime() - today.getTime()) / (1000 * 60 * 60 * 24)
+        ));
+        gracePeriodEndDate = gracePeriod.expiresAt.toISOString();
+      }
       
       res.json({
         trialActive: isTrialActive,
@@ -109,6 +190,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         trialStartDate: registrationDate.toISOString(),
         message: message,
         isPremium: false,
+        hasGracePeriod: hasGracePeriod,
+        gracePeriodDaysLeft: gracePeriodDaysLeft,
+        gracePeriodEndDate: gracePeriodEndDate,
         subscriptionPlan: "trial"
       });
     } catch (error) {

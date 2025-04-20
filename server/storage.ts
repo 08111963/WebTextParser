@@ -4,7 +4,10 @@ import {
   meals, type Meal, type InsertMeal, 
   mealPlans, type MealPlan, type InsertMealPlan,
   nutritionGoals, type NutritionGoal, type InsertNutritionGoal,
-  progressEntries, type ProgressEntry, type InsertProgressEntry 
+  progressEntries, type ProgressEntry, type InsertProgressEntry,
+  registrationLogs, type RegistrationLog, type InsertRegistrationLog,
+  userNotifications, type UserNotification, type InsertUserNotification,
+  userGracePeriods, type UserGracePeriod, type InsertUserGracePeriod 
 } from "@shared/schema";
 import { eq, and, gte, lte, desc, isNull, or } from "drizzle-orm";
 import { db } from "./db";
@@ -67,12 +70,18 @@ export class MemStorage implements IStorage {
   private mealPlans: Map<number, MealPlan>;
   private nutritionGoals: Map<number, NutritionGoal>;
   private progressEntries: Map<number, ProgressEntry>;
+  private registrationLogs: Map<number, RegistrationLog>;
+  private userNotifications: Map<number, UserNotification>;
+  private userGracePeriods: Map<string, UserGracePeriod>;
   private currentUserId: number;
   private currentUserProfileId: number;
   private currentMealId: number;
   private currentMealPlanId: number;
   private currentNutritionGoalId: number;
   private currentProgressEntryId: number;
+  private currentRegistrationLogId: number;
+  private currentUserNotificationId: number;
+  private currentUserGracePeriodId: number;
 
   constructor() {
     this.users = new Map();
@@ -81,12 +90,18 @@ export class MemStorage implements IStorage {
     this.mealPlans = new Map();
     this.nutritionGoals = new Map();
     this.progressEntries = new Map();
+    this.registrationLogs = new Map();
+    this.userNotifications = new Map();
+    this.userGracePeriods = new Map();
     this.currentUserId = 1;
     this.currentUserProfileId = 1;
     this.currentMealId = 1;
     this.currentMealPlanId = 1;
     this.currentNutritionGoalId = 1;
     this.currentProgressEntryId = 1;
+    this.currentRegistrationLogId = 1;
+    this.currentUserNotificationId = 1;
+    this.currentUserGracePeriodId = 1;
   }
 
   async getUser(id: number): Promise<User | undefined> {
@@ -323,6 +338,118 @@ export class MemStorage implements IStorage {
   
   async deleteProgressEntry(id: number): Promise<boolean> {
     return this.progressEntries.delete(id);
+  }
+  
+  // Implementazione dei metodi per i registri delle registrazioni
+  async createRegistrationLog(insertLog: InsertRegistrationLog): Promise<RegistrationLog> {
+    const id = this.currentRegistrationLogId++;
+    const registeredAt = new Date();
+    
+    const log: RegistrationLog = {
+      id,
+      ipAddress: insertLog.ipAddress,
+      userAgent: insertLog.userAgent,
+      email: insertLog.email,
+      username: insertLog.username,
+      registeredAt,
+      trialEndDate: insertLog.trialEndDate
+    };
+    
+    this.registrationLogs.set(id, log);
+    return log;
+  }
+  
+  async getRegistrationLogsByEmail(email: string): Promise<RegistrationLog[]> {
+    return Array.from(this.registrationLogs.values())
+      .filter(log => log.email.toLowerCase() === email.toLowerCase())
+      .sort((a, b) => b.registeredAt.getTime() - a.registeredAt.getTime());
+  }
+  
+  async getRegistrationLogsByIpAddress(ipAddress: string): Promise<RegistrationLog[]> {
+    return Array.from(this.registrationLogs.values())
+      .filter(log => log.ipAddress === ipAddress)
+      .sort((a, b) => b.registeredAt.getTime() - a.registeredAt.getTime());
+  }
+  
+  // Implementazione dei metodi per le notifiche utente
+  async createUserNotification(insertNotification: InsertUserNotification): Promise<UserNotification> {
+    const id = this.currentUserNotificationId++;
+    const createdAt = new Date();
+    
+    const notification: UserNotification = {
+      id,
+      userId: insertNotification.userId,
+      title: insertNotification.title,
+      message: insertNotification.message,
+      isRead: false,
+      type: insertNotification.type,
+      createdAt,
+      actionUrl: insertNotification.actionUrl || null,
+      expiresAt: insertNotification.expiresAt || null
+    };
+    
+    this.userNotifications.set(id, notification);
+    return notification;
+  }
+  
+  async getUserNotificationsByUserId(userId: string): Promise<UserNotification[]> {
+    return Array.from(this.userNotifications.values())
+      .filter(notification => notification.userId === userId)
+      .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+  }
+  
+  async getUserUnreadNotifications(userId: string): Promise<UserNotification[]> {
+    return Array.from(this.userNotifications.values())
+      .filter(notification => notification.userId === userId && !notification.isRead)
+      .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+  }
+  
+  async markUserNotificationAsRead(id: number): Promise<UserNotification | undefined> {
+    const notification = this.userNotifications.get(id);
+    if (!notification) return undefined;
+    
+    notification.isRead = true;
+    this.userNotifications.set(id, notification);
+    return notification;
+  }
+  
+  async deleteUserNotification(id: number): Promise<boolean> {
+    return this.userNotifications.delete(id);
+  }
+  
+  // Implementazione dei metodi per i periodi di grazia
+  async createUserGracePeriod(insertGracePeriod: InsertUserGracePeriod): Promise<UserGracePeriod> {
+    const id = this.currentUserGracePeriodId++;
+    const createdAt = new Date();
+    
+    const gracePeriod: UserGracePeriod = {
+      id,
+      userId: insertGracePeriod.userId,
+      expiresAt: insertGracePeriod.expiresAt,
+      active: insertGracePeriod.active !== undefined ? insertGracePeriod.active : true,
+      dataRetention: insertGracePeriod.dataRetention !== undefined ? insertGracePeriod.dataRetention : true,
+      createdAt
+    };
+    
+    this.userGracePeriods.set(insertGracePeriod.userId, gracePeriod);
+    return gracePeriod;
+  }
+  
+  async getUserGracePeriodByUserId(userId: string): Promise<UserGracePeriod | undefined> {
+    return this.userGracePeriods.get(userId);
+  }
+  
+  async updateUserGracePeriod(userId: string, updates: Partial<InsertUserGracePeriod>): Promise<UserGracePeriod | undefined> {
+    const gracePeriod = this.userGracePeriods.get(userId);
+    if (!gracePeriod) return undefined;
+    
+    const updatedGracePeriod: UserGracePeriod = { ...gracePeriod, ...updates };
+    this.userGracePeriods.set(userId, updatedGracePeriod);
+    return updatedGracePeriod;
+  }
+  
+  async deleteUserGracePeriod(userId: string): Promise<boolean> {
+    return this.userGracePeriods.delete(userId);
   }
 }
 
@@ -583,6 +710,129 @@ export class DatabaseStorage implements IStorage {
       .delete(progressEntries)
       .where(eq(progressEntries.id, id))
       .returning({ id: progressEntries.id });
+    
+    return result.length > 0;
+  }
+  
+  // Implementazione dei metodi per i registri delle registrazioni
+  async createRegistrationLog(insertLog: InsertRegistrationLog): Promise<RegistrationLog> {
+    const [log] = await db
+      .insert(registrationLogs)
+      .values(insertLog)
+      .returning();
+    
+    return log;
+  }
+  
+  async getRegistrationLogsByEmail(email: string): Promise<RegistrationLog[]> {
+    return await db
+      .select()
+      .from(registrationLogs)
+      .where(eq(registrationLogs.email, email.toLowerCase()))
+      .orderBy(desc(registrationLogs.registeredAt));
+  }
+  
+  async getRegistrationLogsByIpAddress(ipAddress: string): Promise<RegistrationLog[]> {
+    return await db
+      .select()
+      .from(registrationLogs)
+      .where(eq(registrationLogs.ipAddress, ipAddress))
+      .orderBy(desc(registrationLogs.registeredAt));
+  }
+  
+  // Implementazione dei metodi per le notifiche utente
+  async createUserNotification(insertNotification: InsertUserNotification): Promise<UserNotification> {
+    const [notification] = await db
+      .insert(userNotifications)
+      .values(insertNotification)
+      .returning();
+    
+    return notification;
+  }
+  
+  async getUserNotificationsByUserId(userId: string): Promise<UserNotification[]> {
+    return await db
+      .select()
+      .from(userNotifications)
+      .where(eq(userNotifications.userId, userId))
+      .orderBy(desc(userNotifications.createdAt));
+  }
+  
+  async getUserUnreadNotifications(userId: string): Promise<UserNotification[]> {
+    return await db
+      .select()
+      .from(userNotifications)
+      .where(
+        and(
+          eq(userNotifications.userId, userId),
+          eq(userNotifications.isRead, false)
+        )
+      )
+      .orderBy(desc(userNotifications.createdAt));
+  }
+  
+  async markUserNotificationAsRead(id: number): Promise<UserNotification | undefined> {
+    const [notification] = await db
+      .update(userNotifications)
+      .set({ isRead: true })
+      .where(eq(userNotifications.id, id))
+      .returning();
+    
+    return notification;
+  }
+  
+  async deleteUserNotification(id: number): Promise<boolean> {
+    const result = await db
+      .delete(userNotifications)
+      .where(eq(userNotifications.id, id))
+      .returning({ id: userNotifications.id });
+    
+    return result.length > 0;
+  }
+  
+  // Implementazione dei metodi per i periodi di grazia
+  async createUserGracePeriod(insertGracePeriod: InsertUserGracePeriod): Promise<UserGracePeriod> {
+    // Prima controlla se esiste già un periodo di grazia per questo utente
+    const existingGracePeriod = await this.getUserGracePeriodByUserId(insertGracePeriod.userId);
+    
+    if (existingGracePeriod) {
+      // Se esiste già, aggiorna i valori
+      return this.updateUserGracePeriod(insertGracePeriod.userId, insertGracePeriod);
+    }
+    
+    // Altrimenti crea un nuovo periodo di grazia
+    const [gracePeriod] = await db
+      .insert(userGracePeriods)
+      .values(insertGracePeriod)
+      .returning();
+    
+    return gracePeriod;
+  }
+  
+  async getUserGracePeriodByUserId(userId: string): Promise<UserGracePeriod | undefined> {
+    const [gracePeriod] = await db
+      .select()
+      .from(userGracePeriods)
+      .where(eq(userGracePeriods.userId, userId));
+    
+    return gracePeriod;
+  }
+  
+  async updateUserGracePeriod(userId: string, updates: Partial<InsertUserGracePeriod>): Promise<UserGracePeriod | undefined> {
+    const [updatedGracePeriod] = await db
+      .update(userGracePeriods)
+      .set(updates)
+      .where(eq(userGracePeriods.userId, userId))
+      .returning();
+    
+    return updatedGracePeriod;
+  }
+  
+  async deleteUserGracePeriod(userId: string): Promise<boolean> {
+    const result = await db
+      .delete(userGracePeriods)
+      .where(eq(userGracePeriods.userId, userId))
+      .returning({ id: userGracePeriods.id });
     
     return result.length > 0;
   }
