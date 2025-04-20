@@ -1,6 +1,6 @@
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, ArrowDown, Hash } from "lucide-react";
 import {
   Card,
   CardContent,
@@ -8,6 +8,13 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb";
 
 export default function Guide() {
   return (
@@ -31,14 +38,53 @@ export default function Guide() {
         <h1 className="text-4xl font-bold mb-2 bg-gradient-to-r from-primary to-purple-600 bg-clip-text text-transparent">
           NutriEasy User Guide
         </h1>
-        <p className="text-xl text-muted-foreground mb-8">
+        <p className="text-xl text-muted-foreground mb-4">
           Your complete guide to nutrition tracking and healthy eating
         </p>
 
+        {/* Quick navigation */}
+        <div className="mb-8 border rounded-md p-4 bg-muted/10">
+          <h3 className="text-lg font-medium mb-2 flex items-center">
+            <Hash className="h-4 w-4 mr-2" />
+            Quick Navigation
+          </h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+            <a href="#welcome" className="text-sm text-primary hover:underline flex items-center">
+              <ArrowDown className="h-3 w-3 mr-1" />
+              Introduction
+            </a>
+            <a href="#features" className="text-sm text-primary hover:underline flex items-center">
+              <ArrowDown className="h-3 w-3 mr-1" />
+              Key Features
+            </a>
+            <a href="#trial" className="text-sm text-primary hover:underline flex items-center">
+              <ArrowDown className="h-3 w-3 mr-1" />
+              Free Trial Information
+            </a>
+            <a href="#getting-started" className="text-sm text-primary hover:underline flex items-center">
+              <ArrowDown className="h-3 w-3 mr-1" />
+              Getting Started
+            </a>
+            <a href="#support" className="text-sm text-primary hover:underline flex items-center">
+              <ArrowDown className="h-3 w-3 mr-1" />
+              Support
+            </a>
+            <Link href="/pricing" className="text-sm text-primary hover:underline flex items-center">
+              <ArrowDown className="h-3 w-3 mr-1" />
+              Pricing Plans
+            </Link>
+          </div>
+        </div>
+
         <div className="space-y-10">
           {/* Introduction */}
-          <section>
-            <h2 className="text-3xl font-bold mb-4">Welcome to NutriEasy</h2>
+          <section id="welcome">
+            <h2 className="text-3xl font-bold mb-4 group flex items-center">
+              Welcome to NutriEasy
+              <a href="#welcome" className="ml-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                <Hash className="h-4 w-4 text-muted-foreground" />
+              </a>
+            </h2>
             <p className="mb-4">
               NutriEasy is a comprehensive nutrition and wellness platform designed to help you track your meals, 
               set nutritional goals, and improve your overall health through personalized recommendations and 
@@ -51,8 +97,13 @@ export default function Guide() {
           </section>
 
           {/* Key Features */}
-          <section>
-            <h2 className="text-3xl font-bold mb-4">Key Features</h2>
+          <section id="features">
+            <h2 className="text-3xl font-bold mb-4 group flex items-center">
+              Key Features
+              <a href="#features" className="ml-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                <Hash className="h-4 w-4 text-muted-foreground" />
+              </a>
+            </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <Card>
                 <CardHeader>
@@ -141,8 +192,13 @@ export default function Guide() {
           </section>
 
           {/* Trial Period Information */}
-          <section className="bg-primary/5 p-6 rounded-lg border">
-            <h2 className="text-3xl font-bold mb-4">Free Trial Information</h2>
+          <section id="trial" className="bg-primary/5 p-6 rounded-lg border">
+            <h2 className="text-3xl font-bold mb-4 group flex items-center">
+              Free Trial Information
+              <a href="#trial" className="ml-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                <Hash className="h-4 w-4 text-muted-foreground" />
+              </a>
+            </h2>
             <div className="space-y-4">
               <div>
                 <h3 className="text-xl font-semibold mb-2">5-Day Free Trial</h3>
@@ -219,8 +275,13 @@ export default function Guide() {
           </section>
 
           {/* Getting Started */}
-          <section>
-            <h2 className="text-3xl font-bold mb-4">Getting Started</h2>
+          <section id="getting-started">
+            <h2 className="text-3xl font-bold mb-4 group flex items-center">
+              Getting Started
+              <a href="#getting-started" className="ml-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                <Hash className="h-4 w-4 text-muted-foreground" />
+              </a>
+            </h2>
             <div className="space-y-4">
               <div>
                 <h3 className="text-xl font-semibold mb-2">Step 1: Create Your Account</h3>
@@ -273,8 +334,13 @@ export default function Guide() {
           </section>
           
           {/* Customer Support */}
-          <section>
-            <h2 className="text-3xl font-bold mb-4">Need Help?</h2>
+          <section id="support">
+            <h2 className="text-3xl font-bold mb-4 group flex items-center">
+              Need Help?
+              <a href="#support" className="ml-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                <Hash className="h-4 w-4 text-muted-foreground" />
+              </a>
+            </h2>
             <p className="mb-4">
               Our customer support team is here to assist you with any questions or issues you may encounter.
               We're committed to ensuring you have the best possible experience with NutriEasy.
