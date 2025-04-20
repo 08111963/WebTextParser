@@ -36,12 +36,19 @@ export async function sendEmail(options: EmailOptions): Promise<boolean> {
     });
 
     if (error) {
-      console.error('Error sending email with Resend:', error);
+      console.error('Error sending email with Resend:', JSON.stringify(error, null, 2));
       
       // Check if the error is due to unverified domain restrictions
-      if (error.statusCode === 403 && error.message?.includes('can only send testing emails')) {
+      if (error.message?.includes('can only send testing emails')) {
         console.log('Resend is in testing mode. To send to any email address, verify a domain at resend.com/domains');
+        console.log('Valid testing emails: delivered@resend.dev or your verified email');
       }
+      
+      console.log('Specific Resend error details:', {
+        message: error.message,
+        name: error.name,
+        statusCode: error.statusCode,
+      });
       
       return false;
     }

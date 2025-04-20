@@ -127,13 +127,31 @@ async function checkAndConfigureSMTP(): Promise<boolean> {
 // Initial configuration
 (async function initializeService() {
   try {
-    // First try to configure Resend since it has better deliverability
-    const resendConfigured = await checkAndConfigureResend();
-    
-    // Then try to configure SMTP as primary or backup
+    // First try to configure SMTP since it has less restrictions in test mode
     const smtpConfigured = await checkAndConfigureSMTP();
     
-    if (!resendConfigured && !smtpConfigured) {
+    // Then try to configure Resend as backup if available
+    if (smtpConfigured && isResendConfigured) {
+      try {
+        console.log('[Email Service] Testing Resend API connection as backup...');
+        const testResult = await resendService.testResendConnection();
+        resendTestResult = testResult;
+        
+        if (testResult) {
+          backupEmailService = resendService;
+          console.log('[Email Service] Resend service configured as backup!');
+        }
+      } catch (error) {
+        console.error('[Email Service] Error configuring Resend as backup:', error);
+      }
+    } else if (!smtpConfigured && isResendConfigured) {
+      // If SMTP fails but Resend is available, try Resend as primary
+      const resendConfigured = await checkAndConfigureResend();
+      
+      if (!resendConfigured) {
+        console.log('[Email Service] No email services available, using simulation');
+      }
+    } else if (!smtpConfigured) {
       console.log('[Email Service] No email services available, using simulation');
     }
   } catch (error) {
@@ -141,7 +159,7 @@ async function checkAndConfigureSMTP(): Promise<boolean> {
   } finally {
     // Log current service status
     console.log(`[Email Service] Primary provider: ${emailServiceProvider}`);
-    console.log(`[Email Service] Backup provider: ${backupEmailService ? 'smtp' : 'none'}`);
+    console.log(`[Email Service] Backup provider: ${backupEmailService ? (backupEmailService === resendService ? 'resend' : 'smtp') : 'none'}`);
     console.log(`[Email Service] Service available: ${isEmailServiceAvailable ? 'Yes' : 'No'}`);
   }
 })().catch(error => {
@@ -152,7 +170,7 @@ async function checkAndConfigureSMTP(): Promise<boolean> {
 export const emailServiceStatus = {
   get isAvailable() { return isEmailServiceAvailable; },
   get provider() { return emailServiceProvider; },
-  get backupProvider() { return backupEmailService ? 'smtp' : 'none'; },
+  get backupProvider() { return backupEmailService ? (backupEmailService === resendService ? 'resend' : 'smtp') : 'none'; },
   get isSmtpConfigured() { return isSmtpConfigured; },
   get isResendConfigured() { return isResendConfigured; },
   get resendTestResult() { return resendTestResult; },
@@ -166,23 +184,29 @@ async function sendWithRetry(
   maxRetries: number = 2
 ): Promise<boolean> {
   // Try with primary service first
+  console.log(`[Email Service] Trying primary service (${emailServiceProvider})...`);
   try {
     const result = await sendFn(emailService);
     if (result) {
+      console.log(`[Email Service] Primary service (${emailServiceProvider}) succeeded!`);
       return true;
+    } else {
+      console.log(`[Email Service] Primary service (${emailServiceProvider}) failed with false result`);
     }
   } catch (error) {
-    console.error('[Email Service] Error sending with primary service:', error);
+    console.error(`[Email Service] Error sending with primary service (${emailServiceProvider}):`, error);
   }
   
   // If primary failed and we have a backup, try with backup
   if (backupEmailService) {
-    console.log('[Email Service] Primary service failed, trying backup service...');
+    console.log(`[Email Service] Primary service (${emailServiceProvider}) failed, trying backup service...`);
     try {
       const result = await sendFn(backupEmailService);
       if (result) {
         console.log('[Email Service] Backup service succeeded!');
         return true;
+      } else {
+        console.log('[Email Service] Backup service failed with false result');
       }
     } catch (error) {
       console.error('[Email Service] Error sending with backup service:', error);
