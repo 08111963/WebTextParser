@@ -26,16 +26,16 @@ export default function PremiumFeature({
   const { user, isLoading: authLoading } = useAuth();
   const [_, navigate] = useLocation();
 
-  // Verifica se l'utente è autenticato e può accedere alla funzionalità
-  // basandosi sul suo stato di abbonamento o trial
-  // Consentiamo l'accesso solo se:
-  // 1. L'utente è autenticato E
-  // 2. (Il periodo di prova è attivo OPPURE ha un abbonamento premium attivo)
+  // Check if user is authenticated and can access the feature
+  // based on their subscription or trial status
+  // We allow access only if:
+  // 1. User is authenticated AND
+  // 2. (Trial period is active OR user has an active premium subscription)
   if (user && (trialActive || isPremium)) {
     return <>{children}</>;
   }
   
-  // Se siamo ancora in attesa dell'autenticazione, non mostriamo nulla
+  // If we're still waiting for authentication, don't show anything
   if (authLoading) {
     return <div className="p-6 flex justify-center">
       <div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full"></div>
@@ -81,7 +81,7 @@ export default function PremiumFeature({
       </CardContent>
       <CardFooter className="bg-slate-50">
         {!user ? (
-          // Se l'utente non è autenticato, mostra il bottone per il login
+          // If user is not authenticated, show login button
           <div className="w-full">
             <p className="text-sm text-center mb-2 text-muted-foreground">
               Register or login to access the {TRIAL_PERIOD_DAYS}-day free trial!
@@ -95,7 +95,7 @@ export default function PremiumFeature({
             </Button>
           </div>
         ) : trialActive ? (
-          // Se l'utente è autenticato e il trial è attivo (ma non può accedere per altri motivi)
+          // If user is authenticated and trial is active (but can't access for other reasons)
           <div className="w-full">
             <p className="text-sm text-center mb-2 text-muted-foreground">
               Enjoy this premium feature free during your {TRIAL_PERIOD_DAYS}-day trial!
@@ -108,7 +108,7 @@ export default function PremiumFeature({
             </Button>
           </div>
         ) : (
-          // Se il trial è scaduto, mostra l'opzione per sbloccare le funzionalità premium
+          // If trial has expired, show option to unlock premium features
           <Button 
             className="w-full bg-primary hover:bg-primary/90" 
             onClick={() => navigate("/pricing")}

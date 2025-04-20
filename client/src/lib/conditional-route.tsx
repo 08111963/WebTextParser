@@ -56,14 +56,14 @@ export function ConditionalNavigationProvider({ children }: { children: React.Re
     <AlertDialog open={showLoginPrompt} onOpenChange={setShowLoginPrompt}>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>Accedi per continuare</AlertDialogTitle>
+          <AlertDialogTitle>Login Required</AlertDialogTitle>
           <AlertDialogDescription>
-            Per accedere a questa funzionalità è necessario effettuare l'accesso o registrarsi.
+            You need to login or register to access this feature.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel onClick={handleCancel}>Annulla</AlertDialogCancel>
-          <AlertDialogAction onClick={handleConfirm}>Accedi o Registrati</AlertDialogAction>
+          <AlertDialogCancel onClick={handleCancel}>Cancel</AlertDialogCancel>
+          <AlertDialogAction onClick={handleConfirm}>Login or Register</AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>
