@@ -46,9 +46,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { emailServiceStatus, sendWelcomeEmail } = await import('./email-service');
       
-      console.log('Stato del servizio email:', emailServiceStatus);
+      console.log('Email service status:', emailServiceStatus);
       
-      // Solo per test, invia un'email di prova a un indirizzo fittizio
+      // For testing only, send a test email to a dummy address
       const testResult = await sendWelcomeEmail('test@example.com', 'Test User');
       
       res.json({
@@ -56,7 +56,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         testResult
       });
     } catch (error) {
-      console.error('Errore durante il test del servizio email:', error);
+      console.error('Error testing email service:', error);
       res.status(500).json({ 
         error: error instanceof Error ? error.message : String(error) 
       });

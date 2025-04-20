@@ -1,16 +1,17 @@
 /**
- * Email Service - Gestore centralizzato per l'invio di email
+ * Email Service - Central manager for sending emails
  * 
- * Supporta sia il servizio SMTP che il fallback di sviluppo
+ * Supports Resend API, SMTP service and development fallback
  */
 import fs from 'fs';
 import path from 'path';
 import * as smtpService from './smtp-service';
+import * as resendService from './resend-service';
 
-// Definizione dei tipi per le funzioni di invio email
+// Type definition for email sending functions
 type EmailFunction = (email: string, username: string, ...args: any[]) => Promise<boolean>;
 
-// Interfaccia per il servizio email
+// Interface for email service
 interface EmailService {
   sendWelcomeEmail: (email: string, username: string) => Promise<boolean>;
   sendPaymentConfirmationEmail: (email: string, username: string, planName: string, amount: string, endDate: string) => Promise<boolean>;
@@ -19,15 +20,15 @@ interface EmailService {
   sendPasswordResetEmail: (email: string, username: string, resetToken: string) => Promise<boolean>;
 }
 
-// Flag per verificare se il servizio email è disponibile
+// Flags for checking if email service is available
 let isEmailServiceAvailable = false;
 let emailServiceError: Error | null = null;
 let emailServiceProvider = 'fallback';
 
-// Funzione per creare una funzione di fallback che simula l'invio di un'email
+// Function to create a fallback function that simulates sending an email
 function createFallbackEmailFunction(emailType: string): EmailFunction {
   return async (email: string, username: string, ...args: any[]): Promise<boolean> => {
-    console.log(`========== SIMULAZIONE EMAIL (${emailType}) ==========`);
+    console.log(`========== EMAIL SIMULATION (${emailType}) ==========`);
     console.log(`Email: ${email}`);
     console.log(`Username: ${username}`);
     console.log(`Args:`, args);
@@ -36,7 +37,7 @@ function createFallbackEmailFunction(emailType: string): EmailFunction {
   };
 }
 
-// Servizio email predefinito con funzioni di fallback
+// Default email service with fallback functions
 const fallbackEmailService: EmailService = {
   sendWelcomeEmail: createFallbackEmailFunction('welcome'),
   sendPaymentConfirmationEmail: createFallbackEmailFunction('payment'),
@@ -45,10 +46,10 @@ const fallbackEmailService: EmailService = {
   sendPasswordResetEmail: createFallbackEmailFunction('password'),
 };
 
-// Variabile che conterrà il servizio email (o il fallback)
+// Variable that will contain the email service (or fallback)
 let emailService: EmailService = fallbackEmailService;
 
-// Verifica se le configurazioni SMTP sono disponibili
+// Check if SMTP configurations are available
 const isSmtpConfigured = !!(
   process.env.SMTP_HOST && 
   process.env.SMTP_PORT && 
@@ -56,81 +57,78 @@ const isSmtpConfigured = !!(
   process.env.SMTP_PASSWORD
 );
 
-// Verifica se la chiave API Brevo è configurata
-const isBrevoConfigured = !!process.env.BREVO_API_KEY;
+// Check if Resend API key is configured
+const isResendConfigured = !!process.env.RESEND_API_KEY;
 
-// Priorità: Brevo API prima, poi SMTP, infine fallback
-if (isBrevoConfigured) {
-  // Usa Brevo API come servizio principale
-  try {
-    console.log('[Email Service] PRIORITÀ CAMBIATA: Tentativo di utilizzare Brevo API come principale...');
-    
-    // Verifica se il file esiste
-    const brevoHelperPath = path.join(__dirname, 'brevo-helper.js');
-    if (fs.existsSync(brevoHelperPath)) {
-      console.log(`[Email Service] File brevo-helper.js trovato in: ${brevoHelperPath}`);
+// Initialize email service with async function to avoid top-level await
+async function initializeEmailService() {
+  // Priority: Resend API first, then SMTP, then fallback
+  if (isResendConfigured) {
+    // Use Resend API as main service
+    try {
+      console.log('[Email Service] Using Resend API as primary email service...');
       
-      // Importa il modulo direttamente con require
-      const brevoModule = require('./brevo-helper.js');
-      
-      // Verifica che il modulo contenga le funzioni necessarie
+      // Verify that the Resend module contains the necessary functions
       if (
-        typeof brevoModule.sendWelcomeEmail === 'function' &&
-        typeof brevoModule.sendPaymentConfirmationEmail === 'function' &&
-        typeof brevoModule.sendTrialExpiringEmail === 'function' &&
-        typeof brevoModule.sendSubscriptionEndedEmail === 'function' &&
-        typeof brevoModule.sendPasswordResetEmail === 'function'
+        typeof resendService.sendWelcomeEmail === 'function' &&
+        typeof resendService.sendPaymentConfirmationEmail === 'function' &&
+        typeof resendService.sendTrialExpiringEmail === 'function' &&
+        typeof resendService.sendSubscriptionEndedEmail === 'function' &&
+        typeof resendService.sendPasswordResetEmail === 'function'
       ) {
-        // Assegna il modulo Brevo al servizio email
-        emailService = brevoModule;
-        isEmailServiceAvailable = true;
-        emailServiceProvider = 'brevo';
-        console.log('[Email Service] Modulo brevo-helper configurato come servizio principale!');
-      } else {
-        throw new Error('Il modulo brevo-helper non contiene tutte le funzioni richieste');
-      }
-    } else {
-      throw new Error(`File brevo-helper.js non trovato in: ${brevoHelperPath}`);
-    }
-  } catch (error: any) {
-    emailServiceError = error;
-    console.error('[Email Service] Errore durante la configurazione di Brevo:', error);
-    console.log('[Email Service] Tentativo di utilizzare SMTP come fallback...');
-    
-    // Se Brevo fallisce, prova con SMTP
-    if (isSmtpConfigured) {
-      try {
-        console.log('[Email Service] Configurazione SMTP trovata, utilizzo del servizio SMTP come fallback...');
-        
-        // Verifica che il modulo SMTP contenga le funzioni necessarie
-        if (
-          typeof smtpService.sendWelcomeEmail === 'function' &&
-          typeof smtpService.sendPaymentConfirmationEmail === 'function' &&
-          typeof smtpService.sendTrialExpiringEmail === 'function' &&
-          typeof smtpService.sendSubscriptionEndedEmail === 'function' &&
-          typeof smtpService.sendPasswordResetEmail === 'function'
-        ) {
-          // Assegna il modulo SMTP al servizio email
-          emailService = smtpService;
+        // Test Resend connection
+        const testResult = await resendService.testResendConnection();
+        if (testResult) {
+          // Assign the Resend module to the email service
+          emailService = resendService;
           isEmailServiceAvailable = true;
-          emailServiceProvider = 'smtp';
-          console.log('[Email Service] Servizio SMTP configurato come fallback!');
+          emailServiceProvider = 'resend';
+          console.log('[Email Service] Resend service configured successfully!');
         } else {
-          throw new Error('Il modulo SMTP non contiene tutte le funzioni richieste');
+          throw new Error('Resend connection test failed');
         }
-      } catch (error: any) {
-        emailServiceError = error;
-        console.error('[Email Service] Anche il fallback SMTP è fallito:', error);
-        console.log('[Email Service] Utilizzo del servizio email di simulazione');
+      } else {
+        throw new Error('The Resend module does not contain all required functions');
+      }
+    } catch (error: any) {
+      emailServiceError = error;
+      console.error('[Email Service] Error configuring Resend:', error);
+      console.log('[Email Service] Attempting to use SMTP as fallback...');
+      
+      // If Resend fails, try SMTP
+      if (isSmtpConfigured) {
+        try {
+          console.log('[Email Service] SMTP configuration found, using SMTP service as fallback...');
+          
+          // Verify that the SMTP module contains the necessary functions
+          if (
+            typeof smtpService.sendWelcomeEmail === 'function' &&
+            typeof smtpService.sendPaymentConfirmationEmail === 'function' &&
+            typeof smtpService.sendTrialExpiringEmail === 'function' &&
+            typeof smtpService.sendSubscriptionEndedEmail === 'function' &&
+            typeof smtpService.sendPasswordResetEmail === 'function'
+          ) {
+            // Assign the SMTP module to the email service
+            emailService = smtpService;
+            isEmailServiceAvailable = true;
+            emailServiceProvider = 'smtp';
+            console.log('[Email Service] SMTP service configured as fallback!');
+          } else {
+            throw new Error('The SMTP module does not contain all required functions');
+          }
+        } catch (error: any) {
+          emailServiceError = error;
+          console.error('[Email Service] SMTP fallback also failed:', error);
+          console.log('[Email Service] Using email simulation service');
+        }
       }
     }
-  }
-} else if (isSmtpConfigured) {
-  // Se Brevo non è configurato ma SMTP sì, usa SMTP direttamente
+  } else if (isSmtpConfigured) {
+  // If Resend is not configured but SMTP is, use SMTP directly
   try {
-    console.log('[Email Service] Brevo non disponibile, utilizzo del servizio SMTP...');
+    console.log('[Email Service] Resend not available, using SMTP service...');
     
-    // Verifica che il modulo SMTP contenga le funzioni necessarie
+    // Verify that the SMTP module contains the necessary functions
     if (
       typeof smtpService.sendWelcomeEmail === 'function' &&
       typeof smtpService.sendPaymentConfirmationEmail === 'function' &&
@@ -138,37 +136,49 @@ if (isBrevoConfigured) {
       typeof smtpService.sendSubscriptionEndedEmail === 'function' &&
       typeof smtpService.sendPasswordResetEmail === 'function'
     ) {
-      // Assegna il modulo SMTP al servizio email
+      // Assign the SMTP module to the email service
       emailService = smtpService;
       isEmailServiceAvailable = true;
       emailServiceProvider = 'smtp';
-      console.log('[Email Service] Servizio SMTP configurato con successo!');
+      console.log('[Email Service] SMTP service configured successfully!');
     } else {
-      throw new Error('Il modulo SMTP non contiene tutte le funzioni richieste');
+      throw new Error('The SMTP module does not contain all required functions');
     }
   } catch (error: any) {
     emailServiceError = error;
-    console.error('[Email Service] Errore durante la configurazione del servizio SMTP:', error);
-    console.log('[Email Service] Utilizzo del servizio email di simulazione');
+    console.error('[Email Service] Error configuring SMTP service:', error);
+    console.log('[Email Service] Using email simulation service');
   }
 } else {
-  console.log('[Email Service] Nessuna configurazione email trovata, utilizzo del servizio email di simulazione');
+  console.log('[Email Service] No email configuration found, using email simulation service');
 }
 
-// Stato corrente del servizio
-console.log(`[Email Service] Provider configurato: ${emailServiceProvider}`);
-console.log(`[Email Service] Servizio disponibile: ${isEmailServiceAvailable ? 'Sì' : 'No'}`);
+  // Current service status
+  console.log(`[Email Service] Configured provider: ${emailServiceProvider}`);
+  console.log(`[Email Service] Service available: ${isEmailServiceAvailable ? 'Yes' : 'No'}`);
+  
+  // Return the current status for later use
+  return {
+    isAvailable: isEmailServiceAvailable,
+    provider: emailServiceProvider
+  };
+}
 
-// Esporta lo stato del servizio email e le funzioni
+// Call the initialization function immediately
+initializeEmailService().catch(error => {
+  console.error('[Email Service] Initialization failed:', error);
+});
+
+// Export email service status and functions
 export const emailServiceStatus = {
-  isAvailable: isEmailServiceAvailable,
-  provider: emailServiceProvider,
-  isSmtpConfigured,
-  isBrevoConfigured,
-  error: emailServiceError
+  get isAvailable() { return isEmailServiceAvailable; },
+  get provider() { return emailServiceProvider; },
+  get isSmtpConfigured() { return isSmtpConfigured; },
+  get isResendConfigured() { return isResendConfigured; },
+  get error() { return emailServiceError; }
 };
 
-// Esporta le funzioni del servizio email
+// Export email service functions
 export const {
   sendWelcomeEmail,
   sendPaymentConfirmationEmail,
