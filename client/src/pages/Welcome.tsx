@@ -1,7 +1,9 @@
 import { useLocation } from 'wouter';
 import { Button } from '@/components/ui/button';
-import { Bolt, PieChart, Calendar, Plus, BarChart3, User } from 'lucide-react';
+import { Bolt, PieChart, Calendar, Plus, BarChart3, User, Lock, UserRound } from 'lucide-react';
 import { useConditionalNavigation } from '@/lib/conditional-route';
+import PremiumFeature from '@/components/PremiumFeature';
+import { useAuth } from '@/hooks/use-auth';
 
 export default function Welcome() {
   const [, navigate] = useLocation();
@@ -73,38 +75,44 @@ export default function Welcome() {
                 <span className="text-gray-700">Detailed analysis of proteins, carbohydrates, and fats</span>
               </div>
             </div>
-            <div className="md:w-1/2 p-6 bg-white rounded-lg shadow-lg mt-6 md:mt-0">
-              {/* Mock Dashboard UI */}
-              <div className="border border-gray-200 rounded-md p-4">
-                <div className="flex justify-between items-center mb-4">
-                  <h4 className="font-semibold">Nutrient Summary</h4>
-                  <span className="text-sm text-gray-500">Today</span>
+            <div className="md:w-1/2 p-6 mt-6 md:mt-0">
+              <PremiumFeature
+                feature="nutritional-dashboard"
+                title="Nutritional Dashboard"
+                description="View detailed nutritional insights and track your diet with comprehensive analytics"
+              >
+                {/* Mock Dashboard UI */}
+                <div className="border border-gray-200 rounded-md p-4 bg-white">
+                  <div className="flex justify-between items-center mb-4">
+                    <h4 className="font-semibold">Nutrient Summary</h4>
+                    <span className="text-sm text-gray-500">Today</span>
+                  </div>
+                  <div className="grid grid-cols-2 gap-4 mb-4">
+                    <div className="bg-blue-50 p-3 rounded-lg text-center">
+                      <div className="text-2xl font-bold text-blue-600">1450</div>
+                      <div className="text-sm text-gray-600">Calories</div>
+                    </div>
+                    <div className="bg-green-50 p-3 rounded-lg text-center">
+                      <div className="text-2xl font-bold text-green-600">85g</div>
+                      <div className="text-sm text-gray-600">Protein</div>
+                    </div>
+                    <div className="bg-yellow-50 p-3 rounded-lg text-center">
+                      <div className="text-2xl font-bold text-yellow-600">120g</div>
+                      <div className="text-sm text-gray-600">Carbs</div>
+                    </div>
+                    <div className="bg-red-50 p-3 rounded-lg text-center">
+                      <div className="text-2xl font-bold text-red-600">45g</div>
+                      <div className="text-sm text-gray-600">Fat</div>
+                    </div>
+                  </div>
+                  <div className="h-36 flex items-end">
+                    <div className="w-1/4 h-24 bg-green-200 rounded-t-md mx-1"></div>
+                    <div className="w-1/4 h-32 bg-green-300 rounded-t-md mx-1"></div>
+                    <div className="w-1/4 h-16 bg-green-400 rounded-t-md mx-1"></div>
+                    <div className="w-1/4 h-28 bg-green-500 rounded-t-md mx-1"></div>
+                  </div>
                 </div>
-                <div className="grid grid-cols-2 gap-4 mb-4">
-                  <div className="bg-blue-50 p-3 rounded-lg text-center">
-                    <div className="text-2xl font-bold text-blue-600">1450</div>
-                    <div className="text-sm text-gray-600">Calories</div>
-                  </div>
-                  <div className="bg-green-50 p-3 rounded-lg text-center">
-                    <div className="text-2xl font-bold text-green-600">85g</div>
-                    <div className="text-sm text-gray-600">Protein</div>
-                  </div>
-                  <div className="bg-yellow-50 p-3 rounded-lg text-center">
-                    <div className="text-2xl font-bold text-yellow-600">120g</div>
-                    <div className="text-sm text-gray-600">Carbs</div>
-                  </div>
-                  <div className="bg-red-50 p-3 rounded-lg text-center">
-                    <div className="text-2xl font-bold text-red-600">45g</div>
-                    <div className="text-sm text-gray-600">Fat</div>
-                  </div>
-                </div>
-                <div className="h-36 flex items-end">
-                  <div className="w-1/4 h-24 bg-green-200 rounded-t-md mx-1"></div>
-                  <div className="w-1/4 h-32 bg-green-300 rounded-t-md mx-1"></div>
-                  <div className="w-1/4 h-16 bg-green-400 rounded-t-md mx-1"></div>
-                  <div className="w-1/4 h-28 bg-green-500 rounded-t-md mx-1"></div>
-                </div>
-              </div>
+              </PremiumFeature>
             </div>
           </div>
           
@@ -122,37 +130,43 @@ export default function Welcome() {
                 <span className="text-gray-700">Record breakfast, lunch, dinner, and snacks</span>
               </div>
             </div>
-            <div className="md:w-1/2 p-6 bg-white rounded-lg shadow-lg mt-6 md:mt-0">
-              {/* Mock Meal Entry UI */}
-              <div className="border border-gray-200 rounded-md p-4">
-                <div className="flex justify-between items-center mb-4">
-                  <h4 className="font-semibold">Add Meal</h4>
-                  <span className="text-sm text-primary">Lunch</span>
-                </div>
-                <div className="space-y-3 mb-4">
-                  <div className="p-2 border border-gray-200 rounded-md">
-                    <div className="font-medium">Chicken salad</div>
-                    <div className="text-sm text-gray-600 flex justify-between">
-                      <span>320 kcal</span>
-                      <span>32g protein</span>
-                      <span>12g fat</span>
+            <div className="md:w-1/2 p-6 mt-6 md:mt-0">
+              <PremiumFeature
+                feature="meal-tracking"
+                title="Meal Tracking"
+                description="Easily log your meals and track nutritional content with our intuitive meal tracker"
+              >
+                {/* Mock Meal Entry UI */}
+                <div className="border border-gray-200 rounded-md p-4 bg-white">
+                  <div className="flex justify-between items-center mb-4">
+                    <h4 className="font-semibold">Add Meal</h4>
+                    <span className="text-sm text-primary">Lunch</span>
+                  </div>
+                  <div className="space-y-3 mb-4">
+                    <div className="p-2 border border-gray-200 rounded-md">
+                      <div className="font-medium">Chicken salad</div>
+                      <div className="text-sm text-gray-600 flex justify-between">
+                        <span>320 kcal</span>
+                        <span>32g protein</span>
+                        <span>12g fat</span>
+                      </div>
+                    </div>
+                    <div className="p-2 border border-gray-200 rounded-md">
+                      <div className="font-medium">Whole grain bread</div>
+                      <div className="text-sm text-gray-600 flex justify-between">
+                        <span>80 kcal</span>
+                        <span>3g protein</span>
+                        <span>15g carbs</span>
+                      </div>
+                    </div>
+                    <div className="p-2 border border-gray-200 rounded-md bg-gray-50 flex items-center justify-center text-primary">
+                      <Plus className="h-4 w-4 mr-2" />
+                      <span>Add food</span>
                     </div>
                   </div>
-                  <div className="p-2 border border-gray-200 rounded-md">
-                    <div className="font-medium">Whole grain bread</div>
-                    <div className="text-sm text-gray-600 flex justify-between">
-                      <span>80 kcal</span>
-                      <span>3g protein</span>
-                      <span>15g carbs</span>
-                    </div>
-                  </div>
-                  <div className="p-2 border border-gray-200 rounded-md bg-gray-50 flex items-center justify-center text-primary">
-                    <Plus className="h-4 w-4 mr-2" />
-                    <span>Add food</span>
-                  </div>
+                  <button className="w-full bg-primary text-white py-2 rounded-md">Save Meal</button>
                 </div>
-                <button className="w-full bg-primary text-white py-2 rounded-md">Save Meal</button>
-              </div>
+              </PremiumFeature>
             </div>
           </div>
           

@@ -20,15 +20,23 @@ import { ConditionalNavigationProvider } from "./lib/conditional-route";
 function Router() {
   return (
     <Switch>
+      {/* La pagina di benvenuto è visibile a tutti */}
       <Route path="/" component={Welcome} />
       <Route path="/info" component={Info} />
       <Route path="/pricing" component={Pricing} />
-      <Route path="/checkout" component={Checkout} />
-      <Route path="/payment-success" component={PaymentSuccess} />
       <Route path="/auth" component={AuthPage} />
+      
+      {/* Proteggiamo le pagine che richiedono autenticazione */}
       <Route path="/home">
-        {() => <ViewOnlyRoute component={Home} />}
+        {() => <ProtectedRoute component={Home} />}
       </Route>
+      <Route path="/checkout">
+        {() => <ProtectedRoute component={Checkout} />}
+      </Route>
+      <Route path="/payment-success">
+        {() => <ProtectedRoute component={PaymentSuccess} />}
+      </Route>
+      
       {/* Fallback to 404 */}
       <Route component={NotFound} />
     </Switch>
