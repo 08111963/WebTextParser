@@ -180,16 +180,16 @@ export function setupAuth(app: Express) {
             .where(eq(users.username, req.body.username))
             .then(([existingUser]) => {
               if (!existingUser) {
-                return res.status(401).send("User not found. Please check your username or register a new account.");
+                return res.status(401).send("Utente non trovato. Controlla il tuo nome utente o la password o registra un nuovo account.");
               } else {
-                return res.status(401).send("Incorrect password. Please try again.");
+                return res.status(401).send("Utente non trovato. Controlla il tuo nome utente o la password o registra un nuovo account.");
               }
             })
             .catch(error => {
               next(error);
             });
         } else {
-          return res.status(401).send("Username and password are required.");
+          return res.status(401).send("Utente non trovato. Controlla il tuo nome utente o la password o registra un nuovo account.");
         }
         return;
       }
