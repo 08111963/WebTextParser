@@ -194,8 +194,25 @@ export function setupAuth(app: Express) {
         trialEndDate
       });
 
-      req.login(user, (err) => {
+      req.login(user, async (err) => {
         if (err) return next(err);
+        
+        // Invia email di benvenuto
+        if (user.email) {
+          try {
+            const { sendWelcomeEmail } = await import('./email-service');
+            sendWelcomeEmail(user.email, user.username)
+              .then(success => {
+                console.log(`Email di benvenuto ${success ? 'inviata' : 'non inviata'} a ${user.email}`);
+              })
+              .catch(err => {
+                console.error('Errore durante l\'invio dell\'email di benvenuto:', err);
+              });
+          } catch (emailError) {
+            console.error('Errore durante l\'importazione del servizio email:', emailError);
+          }
+        }
+        
         res.status(201).json(user);
       });
     } catch (error: any) {

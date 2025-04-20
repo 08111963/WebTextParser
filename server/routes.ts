@@ -122,6 +122,31 @@ export async function registerRoutes(app: Express): Promise<Server> {
               });
               
               console.log(`Created subscription activation notification for user ${userId}`);
+              
+              // Invia email di conferma pagamento
+              try {
+                // Ottieni i dati dell'utente
+                const user = await storage.getUser(parseInt(userId));
+                
+                if (user && user.email) {
+                  const { sendPaymentConfirmationEmail } = await import('./email-service');
+                  
+                  // Calcola la data di fine abbonamento
+                  const endDateStr = endDate.toISOString().split('T')[0];
+                  const planName = planId === 'premium-yearly' ? 'Yearly Premium Plan' : 'Monthly Premium Plan';
+                  const amount = planId === 'premium-yearly' ? '$39.99/year' : '$3.99/month';
+                  
+                  sendPaymentConfirmationEmail(user.email, user.username, planName, amount, endDateStr)
+                    .then(success => {
+                      console.log(`Email di conferma pagamento ${success ? 'inviata' : 'non inviata'} a ${user.email}`);
+                    })
+                    .catch(err => {
+                      console.error('Errore durante l\'invio dell\'email di conferma pagamento:', err);
+                    });
+                }
+              } catch (emailError) {
+                console.error('Errore durante l\'invio dell\'email di conferma pagamento:', emailError);
+              }
             } catch (error) {
               console.error(`Failed to create notification for user ${userId}:`, error);
             }
@@ -251,6 +276,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
             actionUrl: "/pricing",
             expiresAt: trialEndDate
           });
+          
+          // Invia anche un'email di avviso
+          try {
+            // Ottieni i dati dell'utente completi
+            const user = await storage.getUser(parseInt(userId));
+            
+            if (user && user.email) {
+              const { sendTrialExpiringEmail } = await import('./email-service');
+              
+              sendTrialExpiringEmail(user.email, user.username, daysLeft)
+                .then(success => {
+                  console.log(`Email di avviso scadenza trial ${success ? 'inviata' : 'non inviata'} a ${user.email}`);
+                })
+                .catch(err => {
+                  console.error('Errore durante l\'invio dell\'email di avviso scadenza trial:', err);
+                });
+            }
+          } catch (emailError) {
+            console.error('Errore durante l\'invio dell\'email di avviso scadenza trial:', emailError);
+          }
         }
       }
       
@@ -278,6 +323,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
           actionUrl: "/pricing",
           expiresAt: gracePeriodEndDate
         });
+        
+        // Invia anche un'email di notifica scadenza
+        try {
+          // Ottieni i dati dell'utente completi
+          const user = await storage.getUser(parseInt(userId));
+          
+          if (user && user.email) {
+            const { sendSubscriptionEndedEmail } = await import('./email-service');
+            
+            sendSubscriptionEndedEmail(user.email, user.username)
+              .then(success => {
+                console.log(`Email di notifica scadenza trial ${success ? 'inviata' : 'non inviata'} a ${user.email}`);
+              })
+              .catch(err => {
+                console.error('Errore durante l\'invio dell\'email di notifica scadenza trial:', err);
+              });
+          }
+        } catch (emailError) {
+          console.error('Errore durante l\'invio dell\'email di notifica scadenza trial:', emailError);
+        }
       }
       
       // Se non ha abbonamento, forzare la scadenza del trial per il test (solo per demo)
