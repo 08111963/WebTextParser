@@ -47,7 +47,6 @@ export async function sendEmail(options: EmailOptions): Promise<boolean> {
       console.log('Specific Resend error details:', {
         message: error.message,
         name: error.name,
-        statusCode: error.statusCode,
       });
       
       return false;

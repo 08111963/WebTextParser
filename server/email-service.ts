@@ -1,9 +1,8 @@
 /**
  * Email Service - Central manager for sending emails
  * 
- * Supports Resend API, SMTP service and development fallback
+ * Supports Resend API and development fallback
  */
-import * as smtpService from './smtp-service';
 import * as resendService from './resend-service';
 
 // Type definition for email sending functions
@@ -23,7 +22,6 @@ let isEmailServiceAvailable = false;
 let emailServiceError: Error | null = null;
 let emailServiceProvider = 'fallback';
 let resendTestResult = false;
-let smtpTestResult = false;
 
 // Function to create a fallback function that simulates sending an email
 function createFallbackEmailFunction(emailType: string): EmailFunction {
@@ -48,19 +46,12 @@ const fallbackEmailService: EmailService = {
 
 // Variable that will contain the email service (or fallback)
 let emailService: EmailService = fallbackEmailService;
-let backupEmailService: EmailService | null = null;
 
-// Check if configurations are available
+// Check if Resend API key is configured
 const isResendConfigured = !!process.env.RESEND_API_KEY;
-const isSmtpConfigured = !!(
-  process.env.SMTP_HOST && 
-  process.env.SMTP_PORT && 
-  process.env.SMTP_USER && 
-  process.env.SMTP_PASSWORD
-);
 
 // Configure Resend API service
-async function checkAndConfigureResend(): Promise<boolean> {
+async function configureResendService(): Promise<boolean> {
   if (!isResendConfigured) {
     console.log('[Email Service] Resend API key not configured');
     return false;
@@ -87,79 +78,20 @@ async function checkAndConfigureResend(): Promise<boolean> {
   }
 }
 
-// Configure SMTP service
-async function checkAndConfigureSMTP(): Promise<boolean> {
-  if (!isSmtpConfigured) {
-    console.log('[Email Service] SMTP not configured');
-    return false;
-  }
-  
-  try {
-    console.log('[Email Service] Testing SMTP connection...');
-    const testResult = await smtpService.testSMTPConnection();
-    smtpTestResult = testResult;
-    
-    if (testResult) {
-      // If we don't have a primary email service yet, set SMTP as primary
-      if (!isEmailServiceAvailable) {
-        emailService = smtpService;
-        isEmailServiceAvailable = true;
-        emailServiceProvider = 'smtp';
-        console.log('[Email Service] SMTP service configured as primary!');
-      } else {
-        // Otherwise, set as backup
-        backupEmailService = smtpService;
-        console.log('[Email Service] SMTP service configured as backup!');
-      }
-      return true;
-    } else {
-      throw new Error('SMTP connection test failed');
-    }
-  } catch (error) {
-    if (!isEmailServiceAvailable) {
-      emailServiceError = error instanceof Error ? error : new Error(String(error));
-    }
-    console.error('[Email Service] Error configuring SMTP service:', error);
-    return false;
-  }
-}
-
 // Initial configuration
 (async function initializeService() {
   try {
-    // First try to configure SMTP since it has less restrictions in test mode
-    const smtpConfigured = await checkAndConfigureSMTP();
+    // Try to configure Resend
+    const resendConfigured = await configureResendService();
     
-    // Then try to configure Resend as backup if available
-    if (smtpConfigured && isResendConfigured) {
-      try {
-        console.log('[Email Service] Testing Resend API connection as backup...');
-        const testResult = await resendService.testResendConnection();
-        resendTestResult = testResult;
-        
-        if (testResult) {
-          backupEmailService = resendService;
-          console.log('[Email Service] Resend service configured as backup!');
-        }
-      } catch (error) {
-        console.error('[Email Service] Error configuring Resend as backup:', error);
-      }
-    } else if (!smtpConfigured && isResendConfigured) {
-      // If SMTP fails but Resend is available, try Resend as primary
-      const resendConfigured = await checkAndConfigureResend();
-      
-      if (!resendConfigured) {
-        console.log('[Email Service] No email services available, using simulation');
-      }
-    } else if (!smtpConfigured) {
-      console.log('[Email Service] No email services available, using simulation');
+    if (!resendConfigured) {
+      console.log('[Email Service] No email service available, using simulation');
     }
   } catch (error) {
     console.error('[Email Service] Unexpected error during initialization:', error);
   } finally {
     // Log current service status
-    console.log(`[Email Service] Primary provider: ${emailServiceProvider}`);
-    console.log(`[Email Service] Backup provider: ${backupEmailService ? (backupEmailService === resendService ? 'resend' : 'smtp') : 'none'}`);
+    console.log(`[Email Service] Provider: ${emailServiceProvider}`);
     console.log(`[Email Service] Service available: ${isEmailServiceAvailable ? 'Yes' : 'No'}`);
   }
 })().catch(error => {
@@ -170,80 +102,39 @@ async function checkAndConfigureSMTP(): Promise<boolean> {
 export const emailServiceStatus = {
   get isAvailable() { return isEmailServiceAvailable; },
   get provider() { return emailServiceProvider; },
-  get backupProvider() { return backupEmailService ? (backupEmailService === resendService ? 'resend' : 'smtp') : 'none'; },
-  get isSmtpConfigured() { return isSmtpConfigured; },
   get isResendConfigured() { return isResendConfigured; },
   get resendTestResult() { return resendTestResult; },
-  get smtpTestResult() { return smtpTestResult; },
   get error() { return emailServiceError; }
 };
 
-// Helper function to retry sending email with backup service if primary fails
-async function sendWithRetry(
-  sendFn: (service: EmailService) => Promise<boolean>,
-  maxRetries: number = 2
-): Promise<boolean> {
-  // Try with primary service first
-  console.log(`[Email Service] Trying primary service (${emailServiceProvider})...`);
-  try {
-    const result = await sendFn(emailService);
-    if (result) {
-      console.log(`[Email Service] Primary service (${emailServiceProvider}) succeeded!`);
-      return true;
-    } else {
-      console.log(`[Email Service] Primary service (${emailServiceProvider}) failed with false result`);
-    }
-  } catch (error) {
-    console.error(`[Email Service] Error sending with primary service (${emailServiceProvider}):`, error);
-  }
-  
-  // If primary failed and we have a backup, try with backup
-  if (backupEmailService) {
-    console.log(`[Email Service] Primary service (${emailServiceProvider}) failed, trying backup service...`);
-    try {
-      const result = await sendFn(backupEmailService);
-      if (result) {
-        console.log('[Email Service] Backup service succeeded!');
-        return true;
-      } else {
-        console.log('[Email Service] Backup service failed with false result');
-      }
-    } catch (error) {
-      console.error('[Email Service] Error sending with backup service:', error);
-    }
-  }
-  
-  // If we've reached this point, both primary and backup failed
-  // Just return false instead of throwing an error
-  console.error('[Email Service] All email services failed');
-  return false;
-}
-
-// Helper function to ensure at least one email service is ready
+// Helper function to ensure email service is ready
 async function ensureEmailServiceReady(): Promise<boolean> {
   // If the service is already available, return true
   if (isEmailServiceAvailable) {
     return true;
   }
   
-  // Try to initialize services again
-  let serviceReady = false;
-  
-  if (isResendConfigured) {
-    serviceReady = await checkAndConfigureResend();
-  }
-  
-  if (!serviceReady && isSmtpConfigured) {
-    serviceReady = await checkAndConfigureSMTP();
-  }
-  
-  return serviceReady;
+  // Try to initialize again
+  return await configureResendService();
 }
 
-// Export all email sending functions with retry mechanism
+// Export all email sending functions
 export async function sendWelcomeEmail(email: string, username: string): Promise<boolean> {
   await ensureEmailServiceReady();
-  return sendWithRetry((service) => service.sendWelcomeEmail(email, username));
+  
+  try {
+    console.log(`[Email Service] Sending welcome email to ${email} using ${emailServiceProvider}...`);
+    const result = await emailService.sendWelcomeEmail(email, username);
+    if (result) {
+      console.log(`[Email Service] Welcome email sent successfully to ${email}`);
+    } else {
+      console.log(`[Email Service] Failed to send welcome email to ${email}`);
+    }
+    return result;
+  } catch (error) {
+    console.error(`[Email Service] Error sending welcome email to ${email}:`, error);
+    return false;
+  }
 }
 
 export async function sendPaymentConfirmationEmail(
@@ -254,9 +145,20 @@ export async function sendPaymentConfirmationEmail(
   endDate: string
 ): Promise<boolean> {
   await ensureEmailServiceReady();
-  return sendWithRetry((service) => 
-    service.sendPaymentConfirmationEmail(email, username, planName, amount, endDate)
-  );
+  
+  try {
+    console.log(`[Email Service] Sending payment confirmation email to ${email} using ${emailServiceProvider}...`);
+    const result = await emailService.sendPaymentConfirmationEmail(email, username, planName, amount, endDate);
+    if (result) {
+      console.log(`[Email Service] Payment confirmation email sent successfully to ${email}`);
+    } else {
+      console.log(`[Email Service] Failed to send payment confirmation email to ${email}`);
+    }
+    return result;
+  } catch (error) {
+    console.error(`[Email Service] Error sending payment confirmation email to ${email}:`, error);
+    return false;
+  }
 }
 
 export async function sendTrialExpiringEmail(
@@ -265,9 +167,20 @@ export async function sendTrialExpiringEmail(
   daysLeft: number
 ): Promise<boolean> {
   await ensureEmailServiceReady();
-  return sendWithRetry((service) => 
-    service.sendTrialExpiringEmail(email, username, daysLeft)
-  );
+  
+  try {
+    console.log(`[Email Service] Sending trial expiring email to ${email} using ${emailServiceProvider}...`);
+    const result = await emailService.sendTrialExpiringEmail(email, username, daysLeft);
+    if (result) {
+      console.log(`[Email Service] Trial expiring email sent successfully to ${email}`);
+    } else {
+      console.log(`[Email Service] Failed to send trial expiring email to ${email}`);
+    }
+    return result;
+  } catch (error) {
+    console.error(`[Email Service] Error sending trial expiring email to ${email}:`, error);
+    return false;
+  }
 }
 
 export async function sendSubscriptionEndedEmail(
@@ -275,9 +188,20 @@ export async function sendSubscriptionEndedEmail(
   username: string
 ): Promise<boolean> {
   await ensureEmailServiceReady();
-  return sendWithRetry((service) => 
-    service.sendSubscriptionEndedEmail(email, username)
-  );
+  
+  try {
+    console.log(`[Email Service] Sending subscription ended email to ${email} using ${emailServiceProvider}...`);
+    const result = await emailService.sendSubscriptionEndedEmail(email, username);
+    if (result) {
+      console.log(`[Email Service] Subscription ended email sent successfully to ${email}`);
+    } else {
+      console.log(`[Email Service] Failed to send subscription ended email to ${email}`);
+    }
+    return result;
+  } catch (error) {
+    console.error(`[Email Service] Error sending subscription ended email to ${email}:`, error);
+    return false;
+  }
 }
 
 export async function sendPasswordResetEmail(
@@ -286,7 +210,18 @@ export async function sendPasswordResetEmail(
   resetToken: string
 ): Promise<boolean> {
   await ensureEmailServiceReady();
-  return sendWithRetry((service) => 
-    service.sendPasswordResetEmail(email, username, resetToken)
-  );
+  
+  try {
+    console.log(`[Email Service] Sending password reset email to ${email} using ${emailServiceProvider}...`);
+    const result = await emailService.sendPasswordResetEmail(email, username, resetToken);
+    if (result) {
+      console.log(`[Email Service] Password reset email sent successfully to ${email}`);
+    } else {
+      console.log(`[Email Service] Failed to send password reset email to ${email}`);
+    }
+    return result;
+  } catch (error) {
+    console.error(`[Email Service] Error sending password reset email to ${email}:`, error);
+    return false;
+  }
 }

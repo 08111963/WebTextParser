@@ -48,8 +48,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       console.log('Email service status:', emailServiceStatus);
       
-      // For testing only, send a test email to a dummy address
-      const testResult = await sendWelcomeEmail('test@example.com', 'Test User');
+      // For testing only, send a test email to Resend's testing address
+      const testResult = await sendWelcomeEmail('delivered@resend.dev', 'Test User');
       
       res.json({
         status: emailServiceStatus,
