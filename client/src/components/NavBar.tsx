@@ -18,7 +18,7 @@ export default function NavBar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [location] = useLocation();
   const { user, logoutMutation } = useAuth();
-  const { subscription } = useSubscription();
+  const { isPremium, plan } = useSubscription();
   const { navigateTo } = useConditionalNavigation();
 
   const closeMenu = () => setIsMenuOpen(false);
@@ -88,7 +88,7 @@ export default function NavBar() {
                       <span>Settings</span>
                     </DropdownMenuItem>
                     
-                    {!subscription?.active && (
+                    {plan === "trial" && (
                       <>
                         <DropdownMenuSeparator />
                         <DropdownMenuItem>
@@ -168,7 +168,7 @@ export default function NavBar() {
                   Settings
                 </Button>
                 
-                {!subscription?.active && (
+                {plan === "trial" && (
                   <Link href="/pricing" onClick={closeMenu}>
                     <Button variant="outline" size="sm" className="w-full justify-start">
                       <DollarSign className="h-4 w-4 mr-2" />

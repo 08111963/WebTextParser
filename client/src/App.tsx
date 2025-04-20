@@ -15,6 +15,7 @@ import PrivacyPolicy from "@/pages/PrivacyPolicy";
 import TermsOfService from "@/pages/TermsOfService";
 import Guide from "@/pages/Guide";
 import Footer from "./components/Footer";
+import NavBar from "./components/NavBar";
 import { AuthProvider } from "@/hooks/use-auth";
 import { SubscriptionProvider } from "@/hooks/use-subscription";
 import { ProtectedRoute } from "./lib/protected-route";
@@ -58,6 +59,7 @@ function App() {
           <SubscriptionProvider>
             <ConditionalNavigationProvider>
               <div className="flex flex-col min-h-screen">
+                <NavBar />
                 <main className="flex-grow">
                   <Toaster />
                   <Router />
