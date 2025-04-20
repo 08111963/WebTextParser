@@ -63,7 +63,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
-  // Nuovo endpoint per testare l'invio di email a un indirizzo specifico
+  // Endpoint to test sending an email to a specific address
   app.post('/api/send-test-email', async (req, res) => {
     try {
       const { email } = req.body;
@@ -75,23 +75,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       const { emailServiceStatus, sendWelcomeEmail } = await import('./email-service');
-      console.log(`Tentativo di invio email di test a: ${email}`);
+      console.log(`Attempting to send test email to: ${email}`);
       
-      // Invia un'email di test all'indirizzo specificato
+      // Send a test email to the specified address
       const testResult = await sendWelcomeEmail(email, 'Test User');
       
-      console.log(`Risultato invio email a ${email}: ${testResult ? 'Successo' : 'Fallito'}`);
+      console.log(`Result of sending email to ${email}: ${testResult ? 'Success' : 'Failed'}`);
       
       res.json({
         status: emailServiceStatus,
         emailSent: testResult,
         sentTo: email,
         message: testResult 
-          ? "Email di test inviata con successo!" 
-          : "Impossibile inviare l'email di test."
+          ? "Test email sent successfully!" 
+          : "Unable to send test email."
       });
     } catch (error) {
-      console.error('Errore durante l\'invio dell\'email di test:', error);
+      console.error('Error sending test email:', error);
       res.status(500).json({ 
         error: error instanceof Error ? error.message : String(error) 
       });

@@ -16,9 +16,17 @@ export interface EmailOptions {
 
 /**
  * Sends an email using Resend API
+ * 
+ * Note: In testing mode, Resend only allows sending to:
+ * 1. The email verified with your account
+ * 2. The special testing email (delivered@resend.dev)
+ * 
+ * For production use, you must verify a domain and use an email address
+ * from that domain in the "from" field.
  */
 export async function sendEmail(options: EmailOptions): Promise<boolean> {
   try {
+    // Resend requires a verified domain or using onboarding@resend.dev for testing
     const { data, error } = await resend.emails.send({
       from: 'NutriEasy <onboarding@resend.dev>',
       to: options.to,
@@ -29,6 +37,12 @@ export async function sendEmail(options: EmailOptions): Promise<boolean> {
 
     if (error) {
       console.error('Error sending email with Resend:', error);
+      
+      // Check if the error is due to unverified domain restrictions
+      if (error.statusCode === 403 && error.message?.includes('can only send testing emails')) {
+        console.log('Resend is in testing mode. To send to any email address, verify a domain at resend.com/domains');
+      }
+      
       return false;
     }
 
@@ -209,12 +223,13 @@ export async function sendPasswordResetEmail(
 
 /**
  * Tests the Resend connection
+ * Note: Resend requires using their special test email address for testing
  */
 export async function testResendConnection(): Promise<boolean> {
   try {
     const { data, error } = await resend.emails.send({
       from: 'NutriEasy <onboarding@resend.dev>',
-      to: 'test@example.com',
+      to: 'delivered@resend.dev', // Special address for testing
       subject: 'Test Connection - NutriEasy',
       html: '<p>This is a test email to verify Resend service connectivity.</p>'
     });
