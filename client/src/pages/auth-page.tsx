@@ -10,7 +10,10 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { Loader2, ChevronLeft, Home, Eye, EyeOff } from "lucide-react";
+import { Loader2, ChevronLeft, Home, Eye, EyeOff, AlertCircle } from "lucide-react";
+import { apiRequest } from "@/lib/queryClient";
+import { useMutation } from "@tanstack/react-query";
+import { useToast } from "@/hooks/use-toast";
 
 const loginSchema = z.object({
   username: z.string().min(3, "Username must be at least 3 characters"),
@@ -35,6 +38,7 @@ type RegisterFormValues = z.infer<typeof registerSchema>;
 
 export default function AuthPage() {
   const { user, isLoading, loginMutation, registerMutation } = useAuth();
+  const { toast } = useToast();
   const [activeTab, setActiveTab] = useState<string>("login");
   const [loc] = useLocation();
   const [redirectPath, setRedirectPath] = useState<string>("/home");
@@ -43,6 +47,35 @@ export default function AuthPage() {
   const [showLoginPassword, setShowLoginPassword] = useState<boolean>(false);
   const [showRegisterPassword, setShowRegisterPassword] = useState<boolean>(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState<boolean>(false);
+  const [isCheckingPreviousRegistration, setIsCheckingPreviousRegistration] = useState<boolean>(false);
+  
+  // Mutation for checking if the email has already been used for registration
+  const checkRegistrationMutation = useMutation({
+    mutationFn: async (data: { email: string }) => {
+      // Get client IP address (this will be more accurate when done on the server)
+      const ipResponse = await fetch('https://api.ipify.org?format=json');
+      const ipData = await ipResponse.json();
+      const ipAddress = ipData.ip;
+      
+      const response = await apiRequest("POST", "/api/check-registration", {
+        email: data.email,
+        ipAddress
+      });
+      
+      return await response.json();
+    },
+    onSuccess: (data) => {
+      if (data.hasPreviousRegistration) {
+        setRegisterError(data.message);
+      }
+    },
+    onError: (error) => {
+      console.error("Error checking registration:", error);
+    },
+    onSettled: () => {
+      setIsCheckingPreviousRegistration(false);
+    }
+  });
   
   useEffect(() => {
     // Check if there's a redirect parameter in the URL
@@ -98,12 +131,34 @@ export default function AuthPage() {
     });
   };
 
-  const onRegisterSubmit = (values: RegisterFormValues) => {
-    registerMutation.mutate({
-      username: values.username,
-      email: values.email,
-      password: values.password,
-    });
+  const onRegisterSubmit = async (values: RegisterFormValues) => {
+    // Reset any existing error
+    setRegisterError(null);
+    
+    // First check if this email has already been used for a trial
+    setIsCheckingPreviousRegistration(true);
+    
+    try {
+      // Check for previous registrations with this email
+      await checkRegistrationMutation.mutateAsync({ email: values.email });
+      
+      // If there's no error (duplicate registration), proceed with registration
+      if (!registerError) {
+        registerMutation.mutate({
+          username: values.username,
+          email: values.email,
+          password: values.password,
+        });
+      }
+    } catch (error) {
+      // If check fails, continue with registration anyway
+      console.error("Error checking previous registrations:", error);
+      registerMutation.mutate({
+        username: values.username,
+        email: values.email,
+        password: values.password,
+      });
+    }
   };
 
   // If the user is already authenticated, redirect to the specified path or protected home
@@ -358,11 +413,15 @@ export default function AuthPage() {
                       <Button 
                         type="submit" 
                         className="w-full" 
-                        disabled={registerMutation.isPending}
+                        disabled={registerMutation.isPending || isCheckingPreviousRegistration}
                       >
                         {registerMutation.isPending ? (
                           <>
                             <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Registering...
+                          </>
+                        ) : isCheckingPreviousRegistration ? (
+                          <>
+                            <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Checking registration...
                           </>
                         ) : (
                           "Register"
