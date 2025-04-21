@@ -14,6 +14,7 @@ import AuthPage from "@/pages/auth-page";
 import PrivacyPolicy from "@/pages/PrivacyPolicy";
 import TermsOfService from "@/pages/TermsOfService";
 import Guide from "@/pages/Guide";
+import InstallApp from "@/pages/InstallApp";
 import Footer from "./components/Footer";
 import NavBar from "./components/NavBar";
 // Rimossi gli import non necessari
