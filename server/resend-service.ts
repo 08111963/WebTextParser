@@ -42,11 +42,19 @@ export async function sendEmail(options: EmailOptions): Promise<boolean> {
       originalEmailRedirected = true;
     }
     
-    // Resend requires a verified domain or using onboarding@resend.dev for testing
+    // In production, use the verified domain.
+    // In test mode without a verified domain, use onboarding@resend.dev
+    // Determine whether to use the verified domain or test email
+    const isVerifiedDomain = true; // Cambia questo a 'true' quando il dominio è verificato
+    
     const { data, error } = await resend.emails.send({
-      from: 'NutriEasy <onboarding@resend.dev>',
-      to: destinationEmail,
-      subject: originalEmailRedirected ? `[TEST MODE - Original recipient: ${options.to}] ${options.subject}` : options.subject,
+      from: isVerifiedDomain 
+        ? 'NutriEasy <info@tuodominio.com>' // Sostituisci 'tuodominio.com' con il tuo dominio verificato
+        : 'NutriEasy <onboarding@resend.dev>',
+      to: isVerifiedDomain ? options.to : destinationEmail,
+      subject: (!isVerifiedDomain && originalEmailRedirected) 
+        ? `[TEST MODE - Original recipient: ${options.to}] ${options.subject}` 
+        : options.subject,
       html: options.html || '',
       text: options.text
     });
@@ -254,8 +262,13 @@ export async function sendPasswordResetEmail(
  */
 export async function testResendConnection(): Promise<boolean> {
   try {
+    // Determine whether to use the verified domain or test email
+    const isVerifiedDomain = true; // Cambia questo a 'true' quando il dominio è verificato
+    
     const { data, error } = await resend.emails.send({
-      from: 'NutriEasy <onboarding@resend.dev>',
+      from: isVerifiedDomain 
+        ? 'NutriEasy <info@tuodominio.com>' // Sostituisci 'tuodominio.com' con il tuo dominio verificato
+        : 'NutriEasy <onboarding@resend.dev>',
       to: 'delivered@resend.dev', // Special address for testing
       subject: 'Test Connection - NutriEasy',
       html: '<p>This is a test email to verify Resend service connectivity.</p>'
