@@ -20,7 +20,7 @@ const InstallQRCodes = () => {
         <TabsContent value="ios">
           <Card>
             <CardHeader>
-              <CardTitle>Install on iOS</CardTitle>
+              <CardTitle className="text-green-600">Install on iOS</CardTitle>
               <CardDescription>
                 Scan this QR code with the camera of your iOS device, then follow the instructions to install the app.
               </CardDescription>
@@ -32,7 +32,7 @@ const InstallQRCodes = () => {
                 className="w-64 h-64 mb-4"
               />
               <div className="text-sm text-center mt-4 max-w-md">
-                <p className="font-semibold mb-2">To install the app on iOS:</p>
+                <p className="font-semibold mb-2 text-green-600">To install the app on iOS:</p>
                 <ol className="list-decimal list-inside text-left">
                   <li>Scan the QR code with your camera</li>
                   <li>Open the site in Safari browser</li>
@@ -48,7 +48,7 @@ const InstallQRCodes = () => {
         <TabsContent value="android">
           <Card>
             <CardHeader>
-              <CardTitle>Install on Android</CardTitle>
+              <CardTitle className="text-green-600">Install on Android</CardTitle>
               <CardDescription>
                 Scan this QR code with the camera of your Android device, then follow the instructions to install the app.
               </CardDescription>
@@ -60,7 +60,7 @@ const InstallQRCodes = () => {
                 className="w-64 h-64 mb-4"
               />
               <div className="text-sm text-center mt-4 max-w-md">
-                <p className="font-semibold mb-2">To install the app on Android:</p>
+                <p className="font-semibold mb-2 text-green-600">To install the app on Android:</p>
                 <ol className="list-decimal list-inside text-left">
                   <li>Scan the QR code with your camera</li>
                   <li>Open the site in Chrome</li>

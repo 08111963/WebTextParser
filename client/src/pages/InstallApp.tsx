@@ -10,7 +10,7 @@ export default function InstallApp() {
   return (
     <div className="container mx-auto py-10 px-4">
       <div className="text-center mb-10">
-        <h1 className="text-4xl font-bold text-primary mb-4">Install NutriEasy</h1>
+        <h1 className="text-4xl font-bold text-green-600 mb-4">Install NutriEasy</h1>
         <p className="text-xl text-gray-600 max-w-xl mx-auto">
           Quickly access NutriEasy from your device and enjoy a complete experience even offline.
         </p>
@@ -76,7 +76,7 @@ export default function InstallApp() {
       
       <div className="flex justify-center mt-8">
         <Link href="/">
-          <Button className="flex items-center gap-2">
+          <Button className="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white">
             <Home className="h-4 w-4" />
             Return to Homepage
           </Button>

@@ -38,8 +38,8 @@ export default function NavBar() {
         <div className="flex justify-between items-center h-16">
           {/* Logo and name */}
           <Link href="/" className="flex items-center space-x-2">
-            <Bolt className="h-8 w-8 text-primary" />
-            <span className="text-xl font-bold text-primary">NutriEasy</span>
+            <Bolt className="h-8 w-8 text-green-600" />
+            <span className="text-xl font-bold text-green-600">NutriEasy</span>
           </Link>
 
           {/* Desktop navigation */}
@@ -117,7 +117,7 @@ export default function NavBar() {
               </>
             ) : (
               <Link href="/auth">
-                <Button size="sm">
+                <Button size="sm" className="bg-green-600 hover:bg-green-700 text-white">
                   Login / Register
                 </Button>
               </Link>
@@ -202,7 +202,7 @@ export default function NavBar() {
               </>
             ) : (
               <Link href="/auth" onClick={closeMenu}>
-                <Button size="sm" className="w-full">
+                <Button size="sm" className="w-full bg-green-600 hover:bg-green-700 text-white">
                   Login / Register
                 </Button>
               </Link>
