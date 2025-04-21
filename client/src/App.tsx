@@ -16,6 +16,7 @@ import TermsOfService from "@/pages/TermsOfService";
 import Guide from "@/pages/Guide";
 import Footer from "./components/Footer";
 import NavBar from "./components/NavBar";
+import PWAInstallPrompt from "./components/PWAInstallPrompt";
 import { AuthProvider } from "@/hooks/use-auth";
 import { SubscriptionProvider } from "@/hooks/use-subscription";
 import { ProtectedRoute } from "./lib/protected-route";
@@ -62,6 +63,7 @@ function App() {
                 <NavBar />
                 <main className="flex-grow">
                   <Toaster />
+                  <PWAInstallPrompt />
                   <Router />
                 </main>
                 <Footer />
