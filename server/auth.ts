@@ -106,9 +106,24 @@ export function setupAuth(app: Express) {
     }),
   );
 
-  passport.serializeUser((user, done) => done(null, user.id));
-  passport.deserializeUser(async (id: number, done) => {
+  passport.serializeUser((user, done) => {
+    // Se è un utente amministratore, serializza l'oggetto completo invece dell'ID
+    if ((user as any).isAdmin) {
+      return done(null, { isAdmin: true, id: 999999, username: 'admin', email: 'admin@nutrieasy.app' });
+    }
+    // Altrimenti, serializza solo l'ID come prima
+    done(null, user.id);
+  });
+  
+  passport.deserializeUser(async (serialized: number | any, done) => {
     try {
+      // Se abbiamo ricevuto un oggetto invece di un ID, è l'amministratore
+      if (typeof serialized === 'object' && serialized.isAdmin) {
+        return done(null, serialized);
+      }
+      
+      // Altrimenti è un normale utente con ID numerico
+      const id = serialized as number;
       const [user] = await db.select().from(users).where(eq(users.id, id));
       done(null, user);
     } catch (error) {
