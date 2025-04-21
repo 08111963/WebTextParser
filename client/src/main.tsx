@@ -9,17 +9,6 @@ Chart.defaults.elements.arc.borderWidth = 1;
 Chart.defaults.elements.arc.borderColor = '#fff';
 Chart.defaults.font.family = "'Inter', sans-serif";
 
-// Registra il service worker per funzionalità PWA
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/service-worker.js')
-      .then(registration => {
-        console.log('Service Worker registrato con successo:', registration.scope);
-      })
-      .catch(error => {
-        console.log('Registrazione Service Worker fallita:', error);
-      });
-  });
-}
+// Nota: la registrazione del service worker è gestita tramite register-sw.js in index.html
 
 createRoot(document.getElementById("root")!).render(<App />);
