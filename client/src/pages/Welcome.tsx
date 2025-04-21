@@ -70,7 +70,7 @@ export default function Welcome() {
       </div>
 
       {/* Install App Section */}
-      <div className="bg-white py-8">
+      <div id="install-section" className="bg-white py-8">
         <div className="container mx-auto px-4">
           <h2 className="text-3xl font-bold text-center mb-8">Install NutriEasy App</h2>
           <SimpleInstallInstructions />

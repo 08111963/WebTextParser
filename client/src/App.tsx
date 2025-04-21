@@ -16,9 +16,7 @@ import TermsOfService from "@/pages/TermsOfService";
 import Guide from "@/pages/Guide";
 import Footer from "./components/Footer";
 import NavBar from "./components/NavBar";
-import { Download } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import PWAInstallGuide from "./components/PWAInstallGuide";
+// Rimossi gli import non necessari
 import { AuthProvider } from "@/hooks/use-auth";
 import { SubscriptionProvider } from "@/hooks/use-subscription";
 import { ProtectedRoute } from "./lib/protected-route";
@@ -67,23 +65,7 @@ function App() {
                   <Toaster />
                   <Router />
                 </main>
-                <div className="fixed bottom-4 right-4 z-[9999]">
-                  <Button 
-                    onClick={() => {
-                      const dialog = document.getElementById('pwa-install-guide');
-                      if (dialog) {
-                        (dialog as any).showModal();
-                      }
-                    }}
-                    variant="default"
-                    size="lg"
-                    className="rounded-full shadow-lg bg-primary hover:bg-primary/90 text-white"
-                  >
-                    <Download className="h-5 w-5 mr-2" />
-                    <span>Install App</span>
-                  </Button>
-                </div>
-                <PWAInstallGuide />
+                {/* Il pulsante di installazione è ora gestito dalla pagina Welcome */}
                 <Footer />
               </div>
             </ConditionalNavigationProvider>

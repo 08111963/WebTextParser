@@ -58,19 +58,12 @@ export default function NavBar() {
               </Button>
             </Link>
             
-            <Button 
-              variant="ghost" 
-              size="sm"
-              onClick={() => {
-                const dialog = document.getElementById('pwa-install-guide');
-                if (dialog) {
-                  (dialog as any).showModal();
-                }
-              }}
-            >
-              <Download className="h-4 w-4 mr-1" />
-              Install App
-            </Button>
+            <Link href="/#install-section">
+              <Button variant="ghost" size="sm">
+                <Download className="h-4 w-4 mr-1" />
+                Install App
+              </Button>
+            </Link>
             
             {user ? (
               <>
@@ -163,21 +156,16 @@ export default function NavBar() {
               </Button>
             </Link>
             
-            <Button 
-              variant="outline" 
-              size="sm" 
-              className="w-full justify-start"
-              onClick={() => {
-                closeMenu();
-                const dialog = document.getElementById('pwa-install-guide');
-                if (dialog) {
-                  (dialog as any).showModal();
-                }
-              }}
-            >
-              <Download className="h-4 w-4 mr-2" />
-              Install App
-            </Button>
+            <Link href="/#install-section" onClick={closeMenu}>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="w-full justify-start"
+              >
+                <Download className="h-4 w-4 mr-2" />
+                Install App
+              </Button>
+            </Link>
             
             {user ? (
               <>
