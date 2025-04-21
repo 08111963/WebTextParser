@@ -1,6 +1,8 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Apple, Smartphone } from "lucide-react";
+import iosQRCode from "@assets/qrcodes/ios_install_qrcode.png";
+import androidQRCode from "@assets/qrcodes/android_install_qrcode.png";
 
 const InstallQRCodes = () => {
   return (
@@ -27,7 +29,7 @@ const InstallQRCodes = () => {
             </CardHeader>
             <CardContent className="flex flex-col items-center">
               <img 
-                src="/qrcodes/ios_install_qrcode.png" 
+                src={iosQRCode}
                 alt="QR Code per installazione su iOS" 
                 className="w-64 h-64 mb-4"
               />
@@ -55,7 +57,7 @@ const InstallQRCodes = () => {
             </CardHeader>
             <CardContent className="flex flex-col items-center">
               <img 
-                src="/qrcodes/android_install_qrcode.png" 
+                src={androidQRCode}
                 alt="QR Code per installazione su Android" 
                 className="w-64 h-64 mb-4"
               />
