@@ -79,19 +79,19 @@ function App() {
                     className="rounded-full shadow-lg bg-primary hover:bg-primary/90 text-white"
                   >
                     <Download className="h-5 w-5 mr-2" />
-                    <span>Installa App</span>
+                    <span>Install App</span>
                   </Button>
                 </div>
                 <dialog id="pwa-install-instructions" className="p-6 rounded-lg shadow-lg bg-white max-w-md mx-auto">
-                  <h3 className="text-lg font-bold mb-4">Installa NutriEasy</h3>
-                  <p className="mb-4">Installa NutriEasy sul tuo dispositivo per avere un accesso più rapido e un'esperienza migliore anche offline.</p>
+                  <h3 className="text-lg font-bold mb-4">Install NutriEasy</h3>
+                  <p className="mb-4">Install NutriEasy on your device for faster access and better offline experience.</p>
                   
                   <div className="rounded-md bg-amber-50 p-4 text-amber-800 mb-4">
-                    <p className="text-sm font-medium">Per installare NutriEasy sul tuo dispositivo:</p>
+                    <p className="text-sm font-medium">To install NutriEasy on your device:</p>
                     <ul className="text-sm list-disc pl-5 mt-2">
-                      <li>Per iOS: tocca l'icona di condivisione, quindi "Aggiungi a Home"</li>
-                      <li>Per Android: tocca i tre punti nel browser, quindi "Installa app"</li>
-                      <li>Per Desktop: cerca l'icona di installazione nella barra degli indirizzi</li>
+                      <li>For iOS: tap the share icon, then "Add to Home Screen"</li>
+                      <li>For Android: tap the three dots in your browser, then "Install app"</li>
+                      <li>For Desktop: look for the installation icon in the address bar</li>
                     </ul>
                   </div>
                   
@@ -102,7 +102,7 @@ function App() {
                         (dialog as any).close();
                       }
                     }}>
-                      Ho capito
+                      Got it
                     </Button>
                   </div>
                 </dialog>

@@ -69,7 +69,7 @@ export default function NavBar() {
               }}
             >
               <Download className="h-4 w-4 mr-1" />
-              Installa App
+              Install App
             </Button>
             
             {user ? (
@@ -176,7 +176,7 @@ export default function NavBar() {
               }}
             >
               <Download className="h-4 w-4 mr-2" />
-              Installa App
+              Install App
             </Button>
             
             {user ? (
