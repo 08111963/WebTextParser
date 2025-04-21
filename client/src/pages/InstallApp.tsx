@@ -61,9 +61,9 @@ export default function InstallApp() {
                 </p>
               </div>
             </div>
-            <div className="bg-blue-50 rounded-md p-4 mt-6">
-              <h3 className="font-semibold text-blue-700 mb-2">Benefits of Installation</h3>
-              <ul className="list-disc list-inside text-blue-700">
+            <div className="bg-green-50 rounded-md p-4 mt-6">
+              <h3 className="font-semibold text-green-700 mb-2">Benefits of Installation</h3>
+              <ul className="list-disc list-inside text-green-700">
                 <li>Quick access from the application bar or desktop</li>
                 <li>Offline functionality when you don't have a connection</li>
                 <li>Better performance and full-screen usage</li>
