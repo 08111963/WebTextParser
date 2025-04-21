@@ -1,11 +1,11 @@
 import { useAuth } from "@/hooks/use-auth";
 import { Loader2 } from "lucide-react";
-import { Redirect } from "wouter";
+import { Redirect, RouteComponentProps } from "wouter";
 
 export function ProtectedRoute({
   component: Component,
 }: {
-  component: React.ComponentType;
+  component: React.ComponentType<any>;
 }) {
   const { user, isLoading } = useAuth();
 
@@ -21,5 +21,6 @@ export function ProtectedRoute({
     return <Redirect to="/auth" />;
   }
 
+  // Passa i props necessari al componente
   return <Component />;
 }
