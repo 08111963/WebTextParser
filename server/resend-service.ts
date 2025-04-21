@@ -42,17 +42,14 @@ export async function sendEmail(options: EmailOptions): Promise<boolean> {
       originalEmailRedirected = true;
     }
     
-    // In production, use the verified domain.
-    // In test mode without a verified domain, use onboarding@resend.dev
-    // Determine whether to use the verified domain or test email
-    const isVerifiedDomain = true; // Il dominio webauralis.eu è verificato
+    // In test mode without a verified domain, use onboarding@resend.dev and redirect to test email
+    // In the future, in production with a verified domain, you can set isVerifiedDomain to true
+    const isVerifiedDomain = false; // Usando la modalità di reindirizzamento per i test
     
     const { data, error } = await resend.emails.send({
-      from: isVerifiedDomain 
-        ? 'NutriEasy <postmaster@webauralis.eu>' // Usando l'indirizzo email del dominio verificato
-        : 'NutriEasy <onboarding@resend.dev>',
-      to: isVerifiedDomain ? options.to : destinationEmail,
-      subject: (!isVerifiedDomain && originalEmailRedirected) 
+      from: 'NutriEasy <onboarding@resend.dev>', // Email predefinita per sviluppo
+      to: destinationEmail, // Invia all'indirizzo reindirizzato (delivered@resend.dev)
+      subject: originalEmailRedirected 
         ? `[TEST MODE - Original recipient: ${options.to}] ${options.subject}` 
         : options.subject,
       html: options.html || '',
@@ -262,13 +259,9 @@ export async function sendPasswordResetEmail(
  */
 export async function testResendConnection(): Promise<boolean> {
   try {
-    // Determine whether to use the verified domain or test email
-    const isVerifiedDomain = true; // Il dominio webauralis.eu è verificato
-    
+    // In test mode, use the default testing email for development
     const { data, error } = await resend.emails.send({
-      from: isVerifiedDomain 
-        ? 'NutriEasy <postmaster@webauralis.eu>' // Usando l'indirizzo email del dominio verificato
-        : 'NutriEasy <onboarding@resend.dev>',
+      from: 'NutriEasy <onboarding@resend.dev>',
       to: 'delivered@resend.dev', // Special address for testing
       subject: 'Test Connection - NutriEasy',
       html: '<p>This is a test email to verify Resend service connectivity.</p>'
