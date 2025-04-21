@@ -6,17 +6,19 @@
     <meta name="theme-color" content="#4f46e5" />
     <meta name="description" content="NutriEasy - Nutrition tracking and meal planning app" />
     
-    <!-- PWA manifest -->
-    <link rel="manifest" href="/manifest.json" />
+    <!-- PWA manifest temporaneamente commentato per risolvere problemi di messaggi di installazione -->
+    <!-- <link rel="manifest" href="/manifest.json" /> -->
     
-    <!-- PWA icons -->
+    <!-- Manteniamo l'icona base -->
     <link rel="icon" type="image/svg+xml" sizes="192x192" href="/icons/icon-192x192.svg" />
-    <link rel="apple-touch-icon" href="/icons/icon-192x192.svg" />
     
-    <!-- iOS PWA meta tags -->
+    <!-- iOS PWA meta tags temporaneamente commentati -->
+    <!-- 
+    <link rel="apple-touch-icon" href="/icons/icon-192x192.svg" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="apple-mobile-web-app-title" content="NutriEasy" />
+    -->
     
     <title>NutriEasy</title>
   </head>
@@ -24,7 +26,7 @@
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
     
-    <!-- Registrazione service worker -->
+    <!-- La registrazione del service worker è mantenuta ma il worker è stato modificato -->
     <script src="/register-sw.js"></script>
     
     <!-- This is a replit script which adds a banner on the top of the page when opened in development mode outside the replit environment -->
