@@ -58,12 +58,7 @@ export default function NavBar() {
               </Button>
             </Link>
             
-            <Link href="/#install-section">
-              <Button variant="ghost" size="sm">
-                <Download className="h-4 w-4 mr-1" />
-                Install App
-              </Button>
-            </Link>
+            <InstallButton />
             
             {user ? (
               <>
@@ -156,16 +151,9 @@ export default function NavBar() {
               </Button>
             </Link>
             
-            <Link href="/#install-section" onClick={closeMenu}>
-              <Button 
-                variant="outline" 
-                size="sm" 
-                className="w-full justify-start"
-              >
-                <Download className="h-4 w-4 mr-2" />
-                Install App
-              </Button>
-            </Link>
+            <div className="w-full">
+              <InstallButton />
+            </div>
             
             {user ? (
               <>
