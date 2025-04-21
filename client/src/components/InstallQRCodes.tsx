@@ -20,25 +20,25 @@ const InstallQRCodes = () => {
         <TabsContent value="ios">
           <Card>
             <CardHeader>
-              <CardTitle>Installa su iOS</CardTitle>
+              <CardTitle>Install on iOS</CardTitle>
               <CardDescription>
-                Scansiona questo QR code con la fotocamera del tuo dispositivo iOS, poi segui le istruzioni per installare l'app.
+                Scan this QR code with the camera of your iOS device, then follow the instructions to install the app.
               </CardDescription>
             </CardHeader>
             <CardContent className="flex flex-col items-center">
               <img 
                 src="/qrcodes/ios_install_qrcode.png"
-                alt="QR Code per installazione su iOS" 
+                alt="QR Code for iOS installation" 
                 className="w-64 h-64 mb-4"
               />
               <div className="text-sm text-center mt-4 max-w-md">
-                <p className="font-semibold mb-2">Per installare l'app su iOS:</p>
+                <p className="font-semibold mb-2">To install the app on iOS:</p>
                 <ol className="list-decimal list-inside text-left">
-                  <li>Scansiona il QR code con la fotocamera</li>
-                  <li>Apri il sito nel browser Safari</li>
-                  <li>Tocca l'icona "Condividi" nella barra degli strumenti</li>
-                  <li>Seleziona "Aggiungi a Home"</li>
-                  <li>Conferma toccando "Aggiungi"</li>
+                  <li>Scan the QR code with your camera</li>
+                  <li>Open the site in Safari browser</li>
+                  <li>Tap the "Share" icon in the toolbar</li>
+                  <li>Select "Add to Home Screen"</li>
+                  <li>Confirm by tapping "Add"</li>
                 </ol>
               </div>
             </CardContent>
@@ -48,25 +48,25 @@ const InstallQRCodes = () => {
         <TabsContent value="android">
           <Card>
             <CardHeader>
-              <CardTitle>Installa su Android</CardTitle>
+              <CardTitle>Install on Android</CardTitle>
               <CardDescription>
-                Scansiona questo QR code con la fotocamera del tuo dispositivo Android, poi segui le istruzioni per installare l'app.
+                Scan this QR code with the camera of your Android device, then follow the instructions to install the app.
               </CardDescription>
             </CardHeader>
             <CardContent className="flex flex-col items-center">
               <img 
                 src="/qrcodes/android_install_qrcode.png"
-                alt="QR Code per installazione su Android" 
+                alt="QR Code for Android installation" 
                 className="w-64 h-64 mb-4"
               />
               <div className="text-sm text-center mt-4 max-w-md">
-                <p className="font-semibold mb-2">Per installare l'app su Android:</p>
+                <p className="font-semibold mb-2">To install the app on Android:</p>
                 <ol className="list-decimal list-inside text-left">
-                  <li>Scansiona il QR code con la fotocamera</li>
-                  <li>Apri il sito in Chrome</li>
-                  <li>Tocca il menu con i tre puntini in alto a destra</li>
-                  <li>Seleziona "Installa app" o "Aggiungi a schermata Home"</li>
-                  <li>Conferma toccando "Installa"</li>
+                  <li>Scan the QR code with your camera</li>
+                  <li>Open the site in Chrome</li>
+                  <li>Tap the menu with three dots in the top right</li>
+                  <li>Select "Install app" or "Add to Home screen"</li>
+                  <li>Confirm by tapping "Install"</li>
                 </ol>
               </div>
             </CardContent>
