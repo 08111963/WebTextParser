@@ -1,7 +1,8 @@
 import { useState } from "react";
-import { Download, Smartphone, Laptop } from "lucide-react";
+import { Download, Smartphone, Laptop, Home } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import InstallQRCodes from "@/components/InstallQRCodes";
+import { Link } from "wouter";
 
 export default function InstallApp() {
   const [deviceType, setDeviceType] = useState<"mobile" | "desktop">("mobile");
@@ -71,6 +72,15 @@ export default function InstallApp() {
             </div>
           </div>
         )}
+      </div>
+      
+      <div className="flex justify-center mt-8">
+        <Link href="/">
+          <Button className="flex items-center gap-2">
+            <Home className="h-4 w-4" />
+            Return to Homepage
+          </Button>
+        </Link>
       </div>
     </div>
   );
