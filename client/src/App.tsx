@@ -18,6 +18,7 @@ import Footer from "./components/Footer";
 import NavBar from "./components/NavBar";
 import { Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import PWAInstallGuide from "./components/PWAInstallGuide";
 import { AuthProvider } from "@/hooks/use-auth";
 import { SubscriptionProvider } from "@/hooks/use-subscription";
 import { ProtectedRoute } from "./lib/protected-route";
@@ -69,7 +70,7 @@ function App() {
                 <div className="fixed bottom-4 right-4 z-[9999]">
                   <Button 
                     onClick={() => {
-                      const dialog = document.getElementById('pwa-install-instructions');
+                      const dialog = document.getElementById('pwa-install-guide');
                       if (dialog) {
                         (dialog as any).showModal();
                       }
@@ -82,30 +83,7 @@ function App() {
                     <span>Install App</span>
                   </Button>
                 </div>
-                <dialog id="pwa-install-instructions" className="p-6 rounded-lg shadow-lg bg-white max-w-md mx-auto">
-                  <h3 className="text-lg font-bold mb-4">Install NutriEasy</h3>
-                  <p className="mb-4">Install NutriEasy on your device for faster access and better offline experience.</p>
-                  
-                  <div className="rounded-md bg-amber-50 p-4 text-amber-800 mb-4">
-                    <p className="text-sm font-medium">To install NutriEasy on your device:</p>
-                    <ul className="text-sm list-disc pl-5 mt-2">
-                      <li>For iOS: tap the share icon, then "Add to Home Screen"</li>
-                      <li>For Android: tap the three dots in your browser, then "Install app"</li>
-                      <li>For Desktop: look for the installation icon in the address bar</li>
-                    </ul>
-                  </div>
-                  
-                  <div className="flex justify-end">
-                    <Button onClick={() => {
-                      const dialog = document.getElementById('pwa-install-instructions');
-                      if (dialog) {
-                        (dialog as any).close();
-                      }
-                    }}>
-                      Got it
-                    </Button>
-                  </div>
-                </dialog>
+                <PWAInstallGuide />
                 <Footer />
               </div>
             </ConditionalNavigationProvider>

@@ -62,7 +62,7 @@ export default function NavBar() {
               variant="ghost" 
               size="sm"
               onClick={() => {
-                const dialog = document.getElementById('pwa-install-instructions');
+                const dialog = document.getElementById('pwa-install-guide');
                 if (dialog) {
                   (dialog as any).showModal();
                 }
@@ -169,7 +169,7 @@ export default function NavBar() {
               className="w-full justify-start"
               onClick={() => {
                 closeMenu();
-                const dialog = document.getElementById('pwa-install-instructions');
+                const dialog = document.getElementById('pwa-install-guide');
                 if (dialog) {
                   (dialog as any).showModal();
                 }
