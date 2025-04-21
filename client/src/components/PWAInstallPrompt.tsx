@@ -102,12 +102,15 @@ const PWAInstallPrompt = () => {
   return (
     <>
       {/* Pulsante fisso in basso a destra */}
-      <div className="fixed bottom-20 right-4 z-50">
+      <div className="fixed bottom-24 right-4 z-[9999]">
         <Button 
           onClick={handleInstallClick} 
-          className="rounded-full p-3 shadow-lg"
+          variant="default"
+          size="lg"
+          className="rounded-full shadow-lg bg-primary hover:bg-primary/90 text-white"
         >
-          <Download className="h-6 w-6" />
+          <Download className="h-5 w-5 mr-2" />
+          <span>Installa App</span>
         </Button>
       </div>
 
