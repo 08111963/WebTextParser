@@ -4,7 +4,7 @@ import { Bolt, PieChart, Calendar, Plus, BarChart3, User, Lock, UserRound, Shiel
 import { useConditionalNavigation } from '@/lib/conditional-route';
 import PremiumFeature from '@/components/PremiumFeature';
 import { useAuth } from '@/hooks/use-auth';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -24,11 +24,39 @@ export default function Welcome() {
   const { user, adminAccessMutation } = useAuth();
   const [adminCode, setAdminCode] = useState('');
   const [showAdminDialog, setShowAdminDialog] = useState(false);
+  const [keySequence, setKeySequence] = useState('');
   
   const handleAdminAccess = () => {
     adminAccessMutation.mutate({ code: adminCode });
     setShowAdminDialog(false);
   };
+
+  // Implementazione del rilevamento combinazione tasti segreta
+  useEffect(() => {
+    const secretCode = 'admin2024';
+    
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Aggiungi il tasto premuto alla sequenza
+      const updatedSequence = keySequence + e.key;
+      
+      // Conserva solo gli ultimi n caratteri della sequenza dove n è la lunghezza del codice segreto
+      const newSequence = updatedSequence.slice(-secretCode.length);
+      setKeySequence(newSequence);
+      
+      // Verifica se la sequenza corrisponde al codice segreto
+      if (newSequence === secretCode) {
+        setShowAdminDialog(true);
+        setKeySequence('');  // Reset della sequenza dopo l'attivazione
+      }
+    };
+    
+    window.addEventListener('keydown', handleKeyDown);
+    
+    // Pulizia dell'event listener
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [keySequence]);
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -324,18 +352,7 @@ export default function Welcome() {
             </Button>
           </div>
           
-          {/* Admin Access Trigger */}
-          <div className="mt-8">
-            <Button 
-              variant="ghost"
-              size="sm"
-              className="text-white/70 hover:text-white hover:bg-primary-dark flex items-center gap-1.5"
-              onClick={() => setShowAdminDialog(true)}
-            >
-              <Shield className="h-4 w-4" />
-              Administrator Access
-            </Button>
-          </div>
+          {/* Nascosto, senza pulsante visibile */}
         </div>
       </div>
     </div>
