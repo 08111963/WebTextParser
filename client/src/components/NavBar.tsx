@@ -9,7 +9,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Bolt, Menu, X, User, Book, Home, LogOut, Settings, HelpCircle, DollarSign } from "lucide-react";
+import { Bolt, Menu, X, User, Book, Home, LogOut, Settings, HelpCircle, DollarSign, Download } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import { useSubscription } from "@/hooks/use-subscription";
 import { useConditionalNavigation } from "@/lib/conditional-route";
@@ -57,6 +57,20 @@ export default function NavBar() {
                 Pricing
               </Button>
             </Link>
+            
+            <Button 
+              variant="ghost" 
+              size="sm"
+              onClick={() => {
+                const dialog = document.getElementById('pwa-install-instructions');
+                if (dialog) {
+                  (dialog as any).showModal();
+                }
+              }}
+            >
+              <Download className="h-4 w-4 mr-1" />
+              Installa App
+            </Button>
             
             {user ? (
               <>
@@ -148,6 +162,22 @@ export default function NavBar() {
                 Pricing
               </Button>
             </Link>
+            
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="w-full justify-start"
+              onClick={() => {
+                closeMenu();
+                const dialog = document.getElementById('pwa-install-instructions');
+                if (dialog) {
+                  (dialog as any).showModal();
+                }
+              }}
+            >
+              <Download className="h-4 w-4 mr-2" />
+              Installa App
+            </Button>
             
             {user ? (
               <>
