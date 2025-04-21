@@ -254,6 +254,52 @@ export default function Welcome() {
         </div>
       </div>
 
+      {/* Admin Access Dialog */}
+      <Dialog open={showAdminDialog} onOpenChange={setShowAdminDialog}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Shield className="h-5 w-5 text-primary" />
+              Administrator Access
+            </DialogTitle>
+            <DialogDescription>
+              This special access is reserved for administrators. Please enter your access code.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex items-center space-x-2 py-4">
+            <div className="grid flex-1 gap-2">
+              <Label htmlFor="admin-code">Admin Access Code</Label>
+              <Input
+                id="admin-code"
+                type="password"
+                placeholder="Enter your admin code"
+                value={adminCode}
+                onChange={(e) => setAdminCode(e.target.value)}
+              />
+            </div>
+          </div>
+          <DialogFooter className="sm:justify-between">
+            <DialogClose asChild>
+              <Button type="button" variant="outline">
+                Cancel
+              </Button>
+            </DialogClose>
+            <Button 
+              type="button" 
+              onClick={handleAdminAccess}
+              disabled={!adminCode || adminAccessMutation.isPending}
+              className="bg-primary text-white hover:bg-primary/90"
+            >
+              {adminAccessMutation.isPending ? (
+                <>Loading...</>
+              ) : (
+                <>Access System</>
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
       {/* Call to Action */}
       <div className="bg-primary text-white py-12 text-center">
         <div className="container mx-auto px-4">
@@ -275,6 +321,19 @@ export default function Welcome() {
               className="bg-white border-2 border-white text-primary hover:bg-gray-100 font-bold py-3 px-8 rounded-md text-lg"
             >
               {user ? "Explore Demo" : "Try with Free Account"}
+            </Button>
+          </div>
+          
+          {/* Admin Access Trigger */}
+          <div className="mt-8">
+            <Button 
+              variant="ghost"
+              size="sm"
+              className="text-white/70 hover:text-white hover:bg-primary-dark flex items-center gap-1.5"
+              onClick={() => setShowAdminDialog(true)}
+            >
+              <Shield className="h-4 w-4" />
+              Administrator Access
             </Button>
           </div>
         </div>
