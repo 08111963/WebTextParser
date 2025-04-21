@@ -16,7 +16,8 @@ import TermsOfService from "@/pages/TermsOfService";
 import Guide from "@/pages/Guide";
 import Footer from "./components/Footer";
 import NavBar from "./components/NavBar";
-import PWAInstallPrompt from "./components/PWAInstallPrompt";
+import { Download } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { AuthProvider } from "@/hooks/use-auth";
 import { SubscriptionProvider } from "@/hooks/use-subscription";
 import { ProtectedRoute } from "./lib/protected-route";
@@ -63,9 +64,48 @@ function App() {
                 <NavBar />
                 <main className="flex-grow">
                   <Toaster />
-                  <PWAInstallPrompt />
                   <Router />
                 </main>
+                <div className="fixed bottom-4 right-4 z-[9999]">
+                  <Button 
+                    onClick={() => {
+                      const dialog = document.getElementById('pwa-install-instructions');
+                      if (dialog) {
+                        (dialog as any).showModal();
+                      }
+                    }}
+                    variant="default"
+                    size="lg"
+                    className="rounded-full shadow-lg bg-primary hover:bg-primary/90 text-white"
+                  >
+                    <Download className="h-5 w-5 mr-2" />
+                    <span>Installa App</span>
+                  </Button>
+                </div>
+                <dialog id="pwa-install-instructions" className="p-6 rounded-lg shadow-lg bg-white max-w-md mx-auto">
+                  <h3 className="text-lg font-bold mb-4">Installa NutriEasy</h3>
+                  <p className="mb-4">Installa NutriEasy sul tuo dispositivo per avere un accesso più rapido e un'esperienza migliore anche offline.</p>
+                  
+                  <div className="rounded-md bg-amber-50 p-4 text-amber-800 mb-4">
+                    <p className="text-sm font-medium">Per installare NutriEasy sul tuo dispositivo:</p>
+                    <ul className="text-sm list-disc pl-5 mt-2">
+                      <li>Per iOS: tocca l'icona di condivisione, quindi "Aggiungi a Home"</li>
+                      <li>Per Android: tocca i tre punti nel browser, quindi "Installa app"</li>
+                      <li>Per Desktop: cerca l'icona di installazione nella barra degli indirizzi</li>
+                    </ul>
+                  </div>
+                  
+                  <div className="flex justify-end">
+                    <Button onClick={() => {
+                      const dialog = document.getElementById('pwa-install-instructions');
+                      if (dialog) {
+                        (dialog as any).close();
+                      }
+                    }}>
+                      Ho capito
+                    </Button>
+                  </div>
+                </dialog>
                 <Footer />
               </div>
             </ConditionalNavigationProvider>
