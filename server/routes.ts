@@ -48,7 +48,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       console.log('Email service status:', emailServiceStatus);
       
-      // For testing only, send a test email (will go to Mailtrap if configured, otherwise will be logged)
+      // Send a test email that will be logged to the console
       const testEmail = 'test@example.com'; 
       const testResult = await sendWelcomeEmail(testEmail, 'Test User');
       
