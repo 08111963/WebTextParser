@@ -35,6 +35,7 @@ function Router() {
       <Route path="/privacy-policy" component={PrivacyPolicy} />
       <Route path="/terms-of-service" component={TermsOfService} />
       <Route path="/guide" component={Guide} />
+      <Route path="/install" component={InstallApp} />
       
       {/* Proteggiamo le pagine che richiedono autenticazione */}
       <Route path="/home">

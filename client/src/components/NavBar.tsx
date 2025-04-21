@@ -58,17 +58,12 @@ export default function NavBar() {
               </Button>
             </Link>
             
-            <Button 
-              variant="ghost" 
-              size="sm"
-              onClick={() => {
-                // Qui eventualmente chiameremo la funzione di installazione
-                // del navigatore quando disponibile
-              }}
-            >
-              <Download className="h-4 w-4 mr-1" />
-              Install App
-            </Button>
+            <Link href="/install">
+              <Button variant="ghost" size="sm">
+                <Download className="h-4 w-4 mr-1" />
+                Install App
+              </Button>
+            </Link>
             
             {user ? (
               <>
@@ -161,20 +156,16 @@ export default function NavBar() {
               </Button>
             </Link>
             
-            <div className="w-full">
+            <Link href="/install" onClick={closeMenu} className="w-full">
               <Button 
                 variant="outline" 
                 size="sm" 
                 className="w-full justify-start"
-                onClick={() => {
-                  // Qui eventualmente chiameremo la funzione di installazione
-                  // del navigatore quando disponibile
-                }}
               >
                 <Download className="h-4 w-4 mr-2" />
                 Install App
               </Button>
-            </div>
+            </Link>
             
             {user ? (
               <>
