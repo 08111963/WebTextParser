@@ -320,6 +320,36 @@ export function setupAuth(app: Express) {
     });
   });
 
+  // Accesso come amministratore (accesso speciale senza registrazione)
+  app.post("/api/admin-access", async (req, res, next) => {
+    try {
+      const { code } = req.body;
+      
+      // Controlla se il codice corrisponde a quello dell'amministratore
+      if (code === "nutri-admin-2024") {
+        // Crea un utente amministratore temporaneo
+        const adminUser = {
+          id: 999999,  // ID speciale per l'amministratore
+          username: "admin",
+          email: "admin@nutrieasy.app",
+          password: "",  // Non è necessaria una password reale
+          isAdmin: true  // Flag speciale per identificare l'amministratore
+        };
+        
+        // Login manuale
+        req.login(adminUser, (err) => {
+          if (err) return next(err);
+          return res.status(200).json(adminUser);
+        });
+      } else {
+        return res.status(401).send("Invalid admin access code");
+      }
+    } catch (error) {
+      console.error("Admin access error:", error);
+      next(error);
+    }
+  });
+
   // Ottieni utente corrente
   app.get("/api/user", (req, res) => {
     if (!req.isAuthenticated()) return res.sendStatus(401);

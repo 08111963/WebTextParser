@@ -1,15 +1,34 @@
 import { useLocation } from 'wouter';
 import { Button } from '@/components/ui/button';
-import { Bolt, PieChart, Calendar, Plus, BarChart3, User, Lock, UserRound } from 'lucide-react';
+import { Bolt, PieChart, Calendar, Plus, BarChart3, User, Lock, UserRound, Shield } from 'lucide-react';
 import { useConditionalNavigation } from '@/lib/conditional-route';
 import PremiumFeature from '@/components/PremiumFeature';
 import { useAuth } from '@/hooks/use-auth';
-// Import rimosso
+import { useState } from 'react';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  DialogFooter,
+  DialogClose,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 export default function Welcome() {
   const [, navigate] = useLocation();
   const { navigateTo, LoginDialog } = useConditionalNavigation();
-  const { user } = useAuth();
+  const { user, adminAccessMutation } = useAuth();
+  const [adminCode, setAdminCode] = useState('');
+  const [showAdminDialog, setShowAdminDialog] = useState(false);
+  
+  const handleAdminAccess = () => {
+    adminAccessMutation.mutate({ code: adminCode });
+    setShowAdminDialog(false);
+  };
 
   return (
     <div className="flex flex-col min-h-screen">

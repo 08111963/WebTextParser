@@ -15,6 +15,7 @@ type AuthContextType = {
   loginMutation: UseMutationResult<User, Error, LoginData>;
   logoutMutation: UseMutationResult<void, Error, void>;
   registerMutation: UseMutationResult<User, Error, RegisterData>;
+  adminAccessMutation: UseMutationResult<User, Error, {code: string}>;
   refetchUser: () => void;
 };
 
@@ -128,6 +129,28 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     },
   });
 
+  // Implementazione dell'accesso come amministratore
+  const adminAccessMutation = useMutation({
+    mutationFn: async (data: {code: string}) => {
+      const res = await apiRequest("POST", "/api/admin-access", data);
+      return await res.json();
+    },
+    onSuccess: (user: User) => {
+      queryClient.setQueryData(["/api/user"], user);
+      toast({
+        title: "Admin Access Granted",
+        description: "Welcome, Administrator! You now have full access to all modules.",
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Admin Access Failed",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
   return (
     <AuthContext.Provider
       value={{
@@ -137,6 +160,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         loginMutation,
         logoutMutation,
         registerMutation,
+        adminAccessMutation,
         refetchUser,
       }}
     >

@@ -17,6 +17,7 @@ export function ProtectedRoute({
     );
   }
 
+  // Verifica se l'utente è autenticato o se è un amministratore
   if (!user) {
     return <Redirect to="/auth" />;
   }
