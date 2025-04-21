@@ -48,8 +48,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       console.log('Email service status:', emailServiceStatus);
       
-      // For testing only, send a test email to Resend's testing address
-      const testResult = await sendWelcomeEmail('delivered@resend.dev', 'Test User');
+      // For testing only, send a test email (will go to Mailtrap if configured, otherwise will be logged)
+      const testEmail = 'test@example.com'; 
+      const testResult = await sendWelcomeEmail(testEmail, 'Test User');
       
       res.json({
         status: emailServiceStatus,

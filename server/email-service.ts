@@ -1,9 +1,9 @@
 /**
- * Email Service - Mock email service for development and testing
+ * Email Service - Central manager for sending emails
  * 
- * This service simulates sending emails by logging them to the console.
- * It can be replaced with a real email service implementation in production.
+ * Supports Mailtrap for email testing and fallback for development.
  */
+import * as mailtrapService from './mailtrap-service';
 
 // Type definition for email sending functions
 type EmailFunction = (email: string, username: string, ...args: any[]) => Promise<boolean>;
@@ -17,10 +17,11 @@ interface EmailService {
   sendPasswordResetEmail: (email: string, username: string, resetToken: string) => Promise<boolean>;
 }
 
-// Flags for email service status
-let isEmailServiceAvailable = true; // Always available since it's a simulation
+// Flags for checking if email service is available
+let isEmailServiceAvailable = false;
 let emailServiceError: Error | null = null;
-let emailServiceProvider = 'mock';
+let emailServiceProvider = 'fallback';
+let mailtrapTestResult = false;
 
 // Function to create a mock email function that logs email details
 function createMockEmailFunction(emailType: string): EmailFunction {
@@ -66,13 +67,70 @@ const mockEmailService: EmailService = {
   sendPasswordResetEmail: createMockEmailFunction('password'),
 };
 
-// Use mock service as the email service
-const emailService: EmailService = mockEmailService;
+// Variable that will contain the email service (or fallback)
+let emailService: EmailService = mockEmailService;
 
-// Email service status
+// Check if Mailtrap is configured
+const isMailtrapConfigured = 
+  !!process.env.MAILTRAP_HOST && 
+  !!process.env.MAILTRAP_PORT && 
+  !!process.env.MAILTRAP_USERNAME && 
+  !!process.env.MAILTRAP_PASSWORD;
+
+// Configure Mailtrap service
+async function configureMailtrapService(): Promise<boolean> {
+  if (!isMailtrapConfigured) {
+    console.log('[Email Service] Mailtrap not configured');
+    return false;
+  }
+  
+  try {
+    console.log('[Email Service] Testing Mailtrap connection...');
+    const testResult = await mailtrapService.testMailtrapConnection();
+    mailtrapTestResult = testResult;
+    
+    if (testResult) {
+      emailService = mailtrapService;
+      isEmailServiceAvailable = true;
+      emailServiceProvider = 'mailtrap';
+      console.log('[Email Service] Mailtrap service configured successfully!');
+      return true;
+    } else {
+      throw new Error('Mailtrap connection test failed');
+    }
+  } catch (error) {
+    emailServiceError = error instanceof Error ? error : new Error(String(error));
+    console.error('[Email Service] Error configuring Mailtrap service:', error);
+    return false;
+  }
+}
+
+// Initial configuration
+(async function initializeService() {
+  try {
+    // Try to configure Mailtrap
+    const mailtrapConfigured = await configureMailtrapService();
+    
+    if (!mailtrapConfigured) {
+      console.log('[Email Service] No email service available, using simulation');
+    }
+  } catch (error) {
+    console.error('[Email Service] Unexpected error during initialization:', error);
+  } finally {
+    // Log current service status
+    console.log(`[Email Service] Provider: ${emailServiceProvider}`);
+    console.log(`[Email Service] Service available: ${isEmailServiceAvailable ? 'Yes' : 'No'}`);
+  }
+})().catch(error => {
+  console.error('[Email Service] Fatal initialization error:', error);
+});
+
+// Email service status and configuration
 export const emailServiceStatus = {
   get isAvailable() { return isEmailServiceAvailable; },
   get provider() { return emailServiceProvider; },
+  get isMailtrapConfigured() { return isMailtrapConfigured; },
+  get mailtrapTestResult() { return mailtrapTestResult; },
   get error() { return emailServiceError; }
 };
 
