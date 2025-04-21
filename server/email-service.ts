@@ -1,9 +1,9 @@
 /**
  * Email Service - Central manager for sending emails
  * 
- * Supports Mailtrap for email testing and fallback for development.
+ * Supports SendGrid for email and fallback for development.
  */
-import * as mailtrapService from './mailtrap-service';
+import * as sendgridService from './sendgrid-service';
 
 // Type definition for email sending functions
 type EmailFunction = (email: string, username: string, ...args: any[]) => Promise<boolean>;
@@ -21,7 +21,7 @@ interface EmailService {
 let isEmailServiceAvailable = false;
 let emailServiceError: Error | null = null;
 let emailServiceProvider = 'fallback';
-let mailtrapTestResult = false;
+let sendgridTestResult = false;
 
 // Function to create a mock email function that logs email details
 function createMockEmailFunction(emailType: string): EmailFunction {
@@ -70,37 +70,33 @@ const mockEmailService: EmailService = {
 // Variable that will contain the email service (or fallback)
 let emailService: EmailService = mockEmailService;
 
-// Check if Mailtrap is configured
-const isMailtrapConfigured = 
-  !!process.env.MAILTRAP_HOST && 
-  !!process.env.MAILTRAP_PORT && 
-  !!process.env.MAILTRAP_USERNAME && 
-  !!process.env.MAILTRAP_PASSWORD;
+// Check if SendGrid is configured
+const isSendGridConfigured = !!process.env.BREVO_API_KEY;
 
-// Configure Mailtrap service
-async function configureMailtrapService(): Promise<boolean> {
-  if (!isMailtrapConfigured) {
-    console.log('[Email Service] Mailtrap not configured');
+// Configure SendGrid service
+async function configureSendGridService(): Promise<boolean> {
+  if (!isSendGridConfigured) {
+    console.log('[Email Service] SendGrid not configured');
     return false;
   }
   
   try {
-    console.log('[Email Service] Testing Mailtrap connection...');
-    const testResult = await mailtrapService.testMailtrapConnection();
-    mailtrapTestResult = testResult;
+    console.log('[Email Service] Testing SendGrid connection...');
+    const testResult = await sendgridService.testSendGridConnection();
+    sendgridTestResult = testResult;
     
     if (testResult) {
-      emailService = mailtrapService;
+      emailService = sendgridService;
       isEmailServiceAvailable = true;
-      emailServiceProvider = 'mailtrap';
-      console.log('[Email Service] Mailtrap service configured successfully!');
+      emailServiceProvider = 'sendgrid';
+      console.log('[Email Service] SendGrid service configured successfully!');
       return true;
     } else {
-      throw new Error('Mailtrap connection test failed');
+      throw new Error('SendGrid connection test failed');
     }
   } catch (error) {
     emailServiceError = error instanceof Error ? error : new Error(String(error));
-    console.error('[Email Service] Error configuring Mailtrap service:', error);
+    console.error('[Email Service] Error configuring SendGrid service:', error);
     return false;
   }
 }
@@ -108,10 +104,10 @@ async function configureMailtrapService(): Promise<boolean> {
 // Initial configuration
 (async function initializeService() {
   try {
-    // Try to configure Mailtrap
-    const mailtrapConfigured = await configureMailtrapService();
+    // Try to configure SendGrid
+    const sendgridConfigured = await configureSendGridService();
     
-    if (!mailtrapConfigured) {
+    if (!sendgridConfigured) {
       console.log('[Email Service] No email service available, using simulation');
     }
   } catch (error) {
@@ -129,8 +125,8 @@ async function configureMailtrapService(): Promise<boolean> {
 export const emailServiceStatus = {
   get isAvailable() { return isEmailServiceAvailable; },
   get provider() { return emailServiceProvider; },
-  get isMailtrapConfigured() { return isMailtrapConfigured; },
-  get mailtrapTestResult() { return mailtrapTestResult; },
+  get isSendGridConfigured() { return isSendGridConfigured; },
+  get sendgridTestResult() { return sendgridTestResult; },
   get error() { return emailServiceError; }
 };
 

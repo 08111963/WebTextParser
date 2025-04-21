@@ -1,50 +1,58 @@
 /**
- * Mailtrap Service - Service for sending emails using Mailtrap
+ * SendGrid Service - Service for sending emails using SendGrid
  */
-import * as nodemailer from 'nodemailer';
+import * as sgMail from '@sendgrid/mail';
 
-// Check if all required Mailtrap environment variables are set
-const isMailtrapConfigured = 
-  !!process.env.MAILTRAP_HOST && 
-  !!process.env.MAILTRAP_PORT && 
-  !!process.env.MAILTRAP_USERNAME && 
-  !!process.env.MAILTRAP_PASSWORD;
+// Check if SendGrid API key is configured
+const isSendGridConfigured = !!process.env.BREVO_API_KEY;
 
-// Initialize transporter
-let transporter: nodemailer.Transporter | null = null;
-
-if (isMailtrapConfigured) {
+// Initialize SendGrid
+if (isSendGridConfigured && process.env.BREVO_API_KEY) {
   try {
-    transporter = nodemailer.createTransport({
-      host: process.env.MAILTRAP_HOST,
-      port: Number(process.env.MAILTRAP_PORT),
-      auth: {
-        user: process.env.MAILTRAP_USERNAME,
-        pass: process.env.MAILTRAP_PASSWORD,
-      },
-    });
-    console.log('[Mailtrap Service] Mailtrap transport configured successfully!');
+    sgMail.setApiKey(process.env.BREVO_API_KEY);
+    console.log('[SendGrid Service] SendGrid configured successfully!');
   } catch (error) {
-    console.error('[Mailtrap Service] Error configuring Mailtrap transport:', error);
+    console.error('[SendGrid Service] Error configuring SendGrid:', error);
   }
 }
 
 /**
- * Test the Mailtrap connection
+ * Test the SendGrid connection
  */
-export async function testMailtrapConnection(): Promise<boolean> {
-  if (!transporter) {
-    console.error('[Mailtrap Service] Mailtrap transport not configured');
+export async function testSendGridConnection(): Promise<boolean> {
+  if (!isSendGridConfigured) {
+    console.error('[SendGrid Service] SendGrid API key not configured');
     return false;
   }
 
   try {
-    // Verify connection configuration
-    await transporter.verify();
-    console.log('[Mailtrap Service] Mailtrap connection verified');
+    // Send a test email to verify connectivity
+    const testResult = await sendTestEmail();
+    console.log('[SendGrid Service] SendGrid connection verified');
+    return testResult;
+  } catch (error) {
+    console.error('[SendGrid Service] SendGrid connection test failed:', error);
+    return false;
+  }
+}
+
+/**
+ * Send a test email
+ */
+async function sendTestEmail(): Promise<boolean> {
+  try {
+    const msg = {
+      to: 'test@example.com',
+      from: 'nutrieasy@example.com', // Use a verified sender in SendGrid
+      subject: 'SendGrid Test',
+      text: 'This is a test email from SendGrid',
+      html: '<p>This is a test email from SendGrid</p>',
+    };
+
+    await sgMail.send(msg);
     return true;
   } catch (error) {
-    console.error('[Mailtrap Service] Mailtrap connection test failed:', error);
+    console.error('[SendGrid Service] Error sending test email:', error);
     return false;
   }
 }
@@ -53,15 +61,15 @@ export async function testMailtrapConnection(): Promise<boolean> {
  * Send a welcome email
  */
 export async function sendWelcomeEmail(email: string, username: string): Promise<boolean> {
-  if (!transporter) {
-    console.error('[Mailtrap Service] Mailtrap transport not configured');
+  if (!isSendGridConfigured) {
+    console.error('[SendGrid Service] SendGrid API key not configured');
     return false;
   }
 
   try {
-    const mailOptions = {
-      from: '"NutriEasy" <nutrieasy@example.com>',
+    const msg = {
       to: email,
+      from: 'nutrieasy@example.com', // Use a verified sender in SendGrid
       subject: 'Welcome to NutriEasy!',
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 5px;">
@@ -84,11 +92,11 @@ export async function sendWelcomeEmail(email: string, username: string): Promise
       `,
     };
 
-    const info = await transporter.sendMail(mailOptions);
-    console.log('[Mailtrap Service] Welcome email sent:', info.messageId);
+    await sgMail.send(msg);
+    console.log('[SendGrid Service] Welcome email sent to:', email);
     return true;
   } catch (error) {
-    console.error('[Mailtrap Service] Error sending welcome email:', error);
+    console.error('[SendGrid Service] Error sending welcome email:', error);
     return false;
   }
 }
@@ -103,15 +111,15 @@ export async function sendPaymentConfirmationEmail(
   amount: string, 
   endDate: string
 ): Promise<boolean> {
-  if (!transporter) {
-    console.error('[Mailtrap Service] Mailtrap transport not configured');
+  if (!isSendGridConfigured) {
+    console.error('[SendGrid Service] SendGrid API key not configured');
     return false;
   }
 
   try {
-    const mailOptions = {
-      from: '"NutriEasy" <nutrieasy@example.com>',
+    const msg = {
       to: email,
+      from: 'nutrieasy@example.com', // Use a verified sender in SendGrid
       subject: 'Payment Confirmation - NutriEasy',
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 5px;">
@@ -134,11 +142,11 @@ export async function sendPaymentConfirmationEmail(
       `,
     };
 
-    const info = await transporter.sendMail(mailOptions);
-    console.log('[Mailtrap Service] Payment confirmation email sent:', info.messageId);
+    await sgMail.send(msg);
+    console.log('[SendGrid Service] Payment confirmation email sent to:', email);
     return true;
   } catch (error) {
-    console.error('[Mailtrap Service] Error sending payment confirmation email:', error);
+    console.error('[SendGrid Service] Error sending payment confirmation email:', error);
     return false;
   }
 }
@@ -151,15 +159,15 @@ export async function sendTrialExpiringEmail(
   username: string, 
   daysLeft: number
 ): Promise<boolean> {
-  if (!transporter) {
-    console.error('[Mailtrap Service] Mailtrap transport not configured');
+  if (!isSendGridConfigured) {
+    console.error('[SendGrid Service] SendGrid API key not configured');
     return false;
   }
 
   try {
-    const mailOptions = {
-      from: '"NutriEasy" <nutrieasy@example.com>',
+    const msg = {
       to: email,
+      from: 'nutrieasy@example.com', // Use a verified sender in SendGrid
       subject: `Your NutriEasy Trial Ends in ${daysLeft} Days`,
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 5px;">
@@ -187,11 +195,11 @@ export async function sendTrialExpiringEmail(
       `,
     };
 
-    const info = await transporter.sendMail(mailOptions);
-    console.log('[Mailtrap Service] Trial expiring email sent:', info.messageId);
+    await sgMail.send(msg);
+    console.log('[SendGrid Service] Trial expiring email sent to:', email);
     return true;
   } catch (error) {
-    console.error('[Mailtrap Service] Error sending trial expiring email:', error);
+    console.error('[SendGrid Service] Error sending trial expiring email:', error);
     return false;
   }
 }
@@ -203,15 +211,15 @@ export async function sendSubscriptionEndedEmail(
   email: string, 
   username: string
 ): Promise<boolean> {
-  if (!transporter) {
-    console.error('[Mailtrap Service] Mailtrap transport not configured');
+  if (!isSendGridConfigured) {
+    console.error('[SendGrid Service] SendGrid API key not configured');
     return false;
   }
 
   try {
-    const mailOptions = {
-      from: '"NutriEasy" <nutrieasy@example.com>',
+    const msg = {
       to: email,
+      from: 'nutrieasy@example.com', // Use a verified sender in SendGrid
       subject: 'Your NutriEasy Subscription Has Ended',
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 5px;">
@@ -240,11 +248,11 @@ export async function sendSubscriptionEndedEmail(
       `,
     };
 
-    const info = await transporter.sendMail(mailOptions);
-    console.log('[Mailtrap Service] Subscription ended email sent:', info.messageId);
+    await sgMail.send(msg);
+    console.log('[SendGrid Service] Subscription ended email sent to:', email);
     return true;
   } catch (error) {
-    console.error('[Mailtrap Service] Error sending subscription ended email:', error);
+    console.error('[SendGrid Service] Error sending subscription ended email:', error);
     return false;
   }
 }
@@ -257,16 +265,16 @@ export async function sendPasswordResetEmail(
   username: string, 
   resetToken: string
 ): Promise<boolean> {
-  if (!transporter) {
-    console.error('[Mailtrap Service] Mailtrap transport not configured');
+  if (!isSendGridConfigured) {
+    console.error('[SendGrid Service] SendGrid API key not configured');
     return false;
   }
 
   try {
     const resetLink = `https://nutrieasy.app/reset-password?token=${resetToken}`;
-    const mailOptions = {
-      from: '"NutriEasy" <nutrieasy@example.com>',
+    const msg = {
       to: email,
+      from: 'nutrieasy@example.com', // Use a verified sender in SendGrid
       subject: 'Reset Your NutriEasy Password',
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 5px;">
@@ -287,11 +295,11 @@ export async function sendPasswordResetEmail(
       `,
     };
 
-    const info = await transporter.sendMail(mailOptions);
-    console.log('[Mailtrap Service] Password reset email sent:', info.messageId);
+    await sgMail.send(msg);
+    console.log('[SendGrid Service] Password reset email sent to:', email);
     return true;
   } catch (error) {
-    console.error('[Mailtrap Service] Error sending password reset email:', error);
+    console.error('[SendGrid Service] Error sending password reset email:', error);
     return false;
   }
 }
