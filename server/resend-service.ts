@@ -45,11 +45,11 @@ export async function sendEmail(options: EmailOptions): Promise<boolean> {
     // In production, use the verified domain.
     // In test mode without a verified domain, use onboarding@resend.dev
     // Determine whether to use the verified domain or test email
-    const isVerifiedDomain = true; // Cambia questo a 'true' quando il dominio è verificato
+    const isVerifiedDomain = true; // Il dominio webauralis.eu è verificato
     
     const { data, error } = await resend.emails.send({
       from: isVerifiedDomain 
-        ? 'NutriEasy <info@tuodominio.com>' // Sostituisci 'tuodominio.com' con il tuo dominio verificato
+        ? 'NutriEasy <postmaster@webauralis.eu>' // Usando l'indirizzo email del dominio verificato
         : 'NutriEasy <onboarding@resend.dev>',
       to: isVerifiedDomain ? options.to : destinationEmail,
       subject: (!isVerifiedDomain && originalEmailRedirected) 
@@ -263,11 +263,11 @@ export async function sendPasswordResetEmail(
 export async function testResendConnection(): Promise<boolean> {
   try {
     // Determine whether to use the verified domain or test email
-    const isVerifiedDomain = true; // Cambia questo a 'true' quando il dominio è verificato
+    const isVerifiedDomain = true; // Il dominio webauralis.eu è verificato
     
     const { data, error } = await resend.emails.send({
       from: isVerifiedDomain 
-        ? 'NutriEasy <info@tuodominio.com>' // Sostituisci 'tuodominio.com' con il tuo dominio verificato
+        ? 'NutriEasy <postmaster@webauralis.eu>' // Usando l'indirizzo email del dominio verificato
         : 'NutriEasy <onboarding@resend.dev>',
       to: 'delivered@resend.dev', // Special address for testing
       subject: 'Test Connection - NutriEasy',
