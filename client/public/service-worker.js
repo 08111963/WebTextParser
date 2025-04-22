@@ -1,11 +1,13 @@
 // Service Worker per NutriEasy PWA
-const CACHE_NAME = 'nutrieasy-cache-v1';
+const CACHE_NAME = 'nutrieasy-cache-v2';
 const urlsToCache = [
   '/',
   '/index.html',
   '/manifest.json',
   '/icons/icon-512x512.svg',
-  '/icons/icon-192x192.svg'
+  '/icons/icon-192x192.svg',
+  '/qrcodes/android_install_qrcode.png',
+  '/qrcodes/ios_install_qrcode.png'
 ];
 
 console.log('Service Worker attivo e funzionante');
