@@ -29,8 +29,15 @@ const InstallQRCodes = () => {
               <img 
                 src="/qrcodes/ios_install_qrcode.png"
                 alt="QR Code for iOS installation" 
-                className="w-64 h-64 mb-4"
+                className="w-64 h-64 mb-4 border border-green-600 p-2 rounded-md"
               />
+              <p className="text-xs text-green-700 mb-2">URL del QR code: 
+                <a href="https://e5161ddc-3fdb-46b4-9043-35a26088e9e2-00-ol0p5x6c7mqn.spock.replit.dev" 
+                   target="_blank" 
+                   className="underline ml-1">
+                  Apri direttamente
+                </a>
+              </p>
               <div className="text-sm text-center mt-4 max-w-md">
                 <p className="font-semibold mb-2 text-green-600">To install the app on iOS:</p>
                 <ol className="list-decimal list-inside text-left">
