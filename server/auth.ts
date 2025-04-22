@@ -106,15 +106,40 @@ export function setupAuth(app: Express) {
     }),
   );
 
-  // Semplifichiamo la gestione delle sessioni
-  passport.serializeUser((user, done) => {
-    // Serializziamo sempre l'intero utente per evitare problemi con l'admin
-    done(null, user);
+  // Serializzazione e deserializzazione degli utenti
+  passport.serializeUser((user: Express.User, done) => {
+    // Serializziamo l'ID utente (o l'oggetto intero per l'admin)
+    if ((user as any).isAdmin) {
+      // Per l'admin, serializziamo l'oggetto completo
+      done(null, user);
+    } else {
+      // Per gli utenti normali, serializziamo solo l'ID
+      done(null, user.id);
+    }
   });
   
-  passport.deserializeUser((user, done) => {
-    // Ritorniamo l'utente serializzato direttamente
-    done(null, user);
+  passport.deserializeUser(async (serialized: any, done) => {
+    try {
+      // Se è un oggetto con isAdmin, è l'admin serializzato
+      if (typeof serialized === 'object' && serialized?.isAdmin) {
+        return done(null, serialized as Express.User);
+      }
+      
+      // Altrimenti, è un ID utente normale
+      const userId = typeof serialized === 'object' ? serialized.id : serialized as number;
+      
+      // Recupera l'utente dal database
+      const [user] = await db.select().from(users).where(eq(users.id, userId));
+      
+      if (!user) {
+        return done(null, false);
+      }
+      
+      done(null, user);
+    } catch (error) {
+      console.error("Error deserializing user:", error);
+      done(error, false);
+    }
   });
 
   // Registrazione nuovo utente

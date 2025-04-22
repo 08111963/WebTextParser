@@ -31,6 +31,14 @@ const stripe = process.env.STRIPE_SECRET_KEY
 
 // Middleware to protect routes that require authentication
 function isAuthenticated(req: Request, res: Response, next: NextFunction) {
+  console.log("Auth check:", { 
+    isAuthenticated: req.isAuthenticated(),
+    hasUser: !!req.user,
+    userId: req.user?.id,
+    sessionId: req.sessionID,
+    cookies: req.headers.cookie
+  });
+  
   if (req.isAuthenticated()) {
     return next();
   }
