@@ -279,7 +279,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // e lo stato dell'abbonamento dell'utente
   app.get('/api/trial-status', isAuthenticated, async (req, res) => {
     try {
-      // Una volta che il middleware isAuthenticated è passato, req.user è sempre definito
+      // Verifica se l'utente è un amministratore
+      if ((req.user as any).isAdmin) {
+        // Fornisci dati fittizi per l'amministratore
+        return res.status(200).json({
+          trialActive: true,
+          trialEnded: false,
+          daysRemaining: 9999,
+          subscription: {
+            active: true,
+            plan: "admin",
+            startDate: new Date().toISOString(),
+            endDate: new Date(2099, 11, 31).toISOString()
+          },
+          gracePeriod: null
+        });
+      }
+      
+      // Per utenti normali, procedi come prima
       const userId = req.user!.id.toString();
       const userProfile = await storage.getUserProfile(userId);
       
@@ -487,6 +504,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Get meals for user (route protetta)
   app.get("/api/meals", isAuthenticated, async (req, res) => {
     try {
+      // Se è l'amministratore, restituisci un array vuoto o dati di esempio
+      if ((req.user as any).isAdmin) {
+        return res.json([]);
+      }
+      
       const userId = req.query.userId as string;
       
       if (!userId) {
@@ -622,6 +644,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Get all nutritional goals for user (route protetta)
   app.get("/api/nutrition-goals", isAuthenticated, async (req, res) => {
     try {
+      // Se è l'amministratore, restituisci un array vuoto o dati di esempio
+      if ((req.user as any).isAdmin) {
+        return res.json([]);
+      }
+      
       const userId = req.query.userId as string;
       
       if (!userId) {
@@ -641,6 +668,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Get active nutritional goal for user (route protetta)
   app.get("/api/nutrition-goals/active", isAuthenticated, async (req, res) => {
     try {
+      // Se è l'amministratore, restituisci un obiettivo predefinito
+      if ((req.user as any).isAdmin) {
+        return res.json({
+          id: 999,
+          userId: "999999",
+          title: "Admin Goal",
+          description: "Default goal for admin",
+          calories: 2500,
+          proteins: 150,
+          carbs: 300,
+          fats: 80,
+          isActive: true,
+          createdAt: new Date(),
+          updatedAt: new Date()
+        });
+      }
+      
       const userId = req.query.userId as string;
       
       if (!userId) {
@@ -757,6 +801,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Get all progress entries for user (route protetta)
   app.get("/api/progress", isAuthenticated, async (req, res) => {
     try {
+      // Se è l'amministratore, restituisci un array vuoto o dati di esempio
+      if ((req.user as any).isAdmin) {
+        return res.json([]);
+      }
+      
       const userId = req.query.userId as string;
       
       if (!userId) {
@@ -858,6 +907,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Get user profile (route protetta)
   app.get("/api/user-profile", isAuthenticated, async (req, res) => {
     try {
+      // Se è l'amministratore, restituisci un profilo predefinito
+      if ((req.user as any).isAdmin) {
+        return res.json({
+          id: 999,
+          userId: "999999",
+          name: "Administrator",
+          age: 35,
+          gender: "altro",
+          height: 180,
+          weight: 75,
+          activityLevel: "moderata",
+          createdAt: new Date(),
+          updatedAt: new Date()
+        });
+      }
+      
       const userId = req.query.userId as string;
       
       if (!userId) {
