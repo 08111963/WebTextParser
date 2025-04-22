@@ -75,7 +75,7 @@ const profileFormSchema = z.object({
   }).max(250, {
     message: "Height must be at most 250 cm",
   }),
-  activityLevel: z.enum(["sedentary", "light", "moderate", "active", "very active"], {
+  activityLevel: z.enum(["sedentary", "light", "moderate", "active", "very_active"], {
     required_error: "Please select an activity level",
   }),
 });
@@ -150,13 +150,13 @@ export default function UserProfile() {
     error: profileError,
     isError,
     refetch: refetchProfile
-  } = useQuery<UserProfileType>({
+  } = useQuery<UserProfileType | null>({
     queryKey: ["/api/user-profile"],
     queryFn: async () => {
       try {
-        // Caso speciale per l'utente admin con ID 999999
+        // Special case for admin user with ID 999999
         if (user?.id === 999999) {
-          console.log("Utente admin rilevato, restituisco il profilo hardcoded");
+          console.log("Admin user detected, returning hardcoded profile");
           return {
             id: 999,
             userId: "999999",
@@ -171,41 +171,44 @@ export default function UserProfile() {
           } as UserProfileType;
         }
         
-        // Non includiamo l'userId nella query, l'API lo recupererà dall'utente autenticato
+        // The API will get the user ID from the authenticated user
         console.log("User ID for profile request:", user?.id);
-        console.log("Auth user object:", user);
         
         const res = await apiRequest("GET", "/api/user-profile");
         
         if (!res.ok) {
-          console.error(`Profile API error: ${res.status} ${res.statusText}`);
           if (res.status === 401) {
             throw new Error("Authentication required");
+          }
+          if (res.status === 404) {
+            console.log("No user profile found, will show create profile form");
+            return null;
           }
           const errorText = await res.text();
           throw new Error(`Failed to fetch profile: ${errorText}`);
         }
         
-        // Aggiungi log per debug
-        const clone = res.clone();
-        clone.text().then(responseText => {
-          console.log("User profile API response:", responseText);
-        }).catch(err => {
-          console.error("Error getting response text:", err);
-        });
-        
         return await res.json();
       } catch (err) {
-        // If the error is "User profile not found", return null instead of throwing an error
         console.error("Error fetching user profile:", err);
-        if (err instanceof Error && err.message.includes("User profile not found")) {
+        if (err instanceof Error && 
+            (err.message.includes("User profile not found") || 
+             err.message.includes("404"))) {
           return null;
         }
         throw err;
       }
     },
     enabled: !!user,
-    retry: 1,
+    retry: (failureCount, error) => {
+      // Don't retry if it's a 404 error (profile not found)
+      if (error instanceof Error && 
+          (error.message.includes("User profile not found") || 
+           error.message.includes("404"))) {
+        return false;
+      }
+      return failureCount < 2;
+    },
   });
 
   // Profile edit form
@@ -235,18 +238,19 @@ export default function UserProfile() {
   };
 
   // Function to map old Italian activity level values to new English values
-  const mapActivityLevel = (level: string): "sedentary" | "light" | "moderate" | "active" | "very active" => {
-    const levelMap: Record<string, "sedentary" | "light" | "moderate" | "active" | "very active"> = {
+  const mapActivityLevel = (level: string): "sedentary" | "light" | "moderate" | "active" | "very_active" => {
+    const levelMap: Record<string, "sedentary" | "light" | "moderate" | "active" | "very_active"> = {
       "sedentaria": "sedentary",
       "leggera": "light",
       "moderata": "moderate",
       "attiva": "active",
-      "molto attiva": "very active",
+      "molto attiva": "very_active",
       "sedentary": "sedentary",
       "light": "light",
       "moderate": "moderate",
       "active": "active",
-      "very active": "very active"
+      "very active": "very_active",
+      "very_active": "very_active"
     };
     return levelMap[level] || "moderate";
   };
@@ -328,6 +332,127 @@ export default function UserProfile() {
     return null;
   }
 
+  // Render the common form for editing or creating profile
+  const ProfileForm = () => (
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 px-1">
+        <FormField
+          control={form.control}
+          name="name"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Name</FormLabel>
+              <FormControl>
+                <Input placeholder="Your name" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="age"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Age</FormLabel>
+              <FormControl>
+                <Input type="number" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="gender"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Gender</FormLabel>
+              <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <FormControl>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select gender" />
+                  </SelectTrigger>
+                </FormControl>
+                <SelectContent>
+                  <SelectItem value="male">Male</SelectItem>
+                  <SelectItem value="female">Female</SelectItem>
+                  <SelectItem value="other">Other</SelectItem>
+                </SelectContent>
+              </Select>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="weight"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Weight (kg)</FormLabel>
+              <FormControl>
+                <Input type="number" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="height"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Height (cm)</FormLabel>
+              <FormControl>
+                <Input type="number" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="activityLevel"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Activity Level</FormLabel>
+              <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <FormControl>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select activity level" />
+                  </SelectTrigger>
+                </FormControl>
+                <SelectContent>
+                  <SelectItem value="sedentary">Sedentary</SelectItem>
+                  <SelectItem value="light">Light</SelectItem>
+                  <SelectItem value="moderate">Moderate</SelectItem>
+                  <SelectItem value="active">Active</SelectItem>
+                  <SelectItem value="very_active">Very Active</SelectItem>
+                </SelectContent>
+              </Select>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <SheetFooter>
+          <Button type="submit" disabled={isSubmitting}>
+            {isSubmitting ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                {profile ? "Updating..." : "Creating..."}
+              </>
+            ) : (
+              <>
+                <Save className="mr-2 h-4 w-4" />
+                {profile ? "Update Profile" : "Create Profile"}
+              </>
+            )}
+          </Button>
+        </SheetFooter>
+      </form>
+    </Form>
+  );
+
   // User profile display
   return (
     <Card>
@@ -345,12 +470,36 @@ export default function UserProfile() {
           <div className="flex justify-center items-center h-32">
             <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
           </div>
-        ) : profileError && profileError.message !== "User profile not found" ? (
-          <div className="text-center py-4 text-destructive">
-            <p>An error occurred while loading the profile</p>
-            <p className="text-sm">{profileError.message}</p>
+        ) : profileError ? (
+          <div className="text-center py-4">
+            {profileError.message === "User profile not found" ? (
+              <>
+                <p className="mb-4">You don't have a profile yet. Please create one to continue.</p>
+                <Button 
+                  onClick={() => setIsOpen(true)}
+                  className="bg-green-600 hover:bg-green-700"
+                >
+                  Create Profile
+                </Button>
+              </>
+            ) : (
+              <>
+                <p>An error occurred while loading the profile</p>
+                <p className="text-sm text-destructive">{profileError.message}</p>
+              </>
+            )}
           </div>
-        ) : profile ? (
+        ) : !profile ? (
+          <div className="text-center py-4">
+            <p className="mb-4">You don't have a profile yet. Please create one to continue.</p>
+            <Button 
+              onClick={() => setIsOpen(true)}
+              className="bg-green-600 hover:bg-green-700"
+            >
+              Create Profile
+            </Button>
+          </div>
+        ) : (
           <div className="space-y-6">
             <div className="grid grid-cols-2 gap-4 p-4 border rounded-lg bg-card">
               <div>
@@ -436,281 +585,25 @@ export default function UserProfile() {
                     <SheetTitle>Edit Profile</SheetTitle>
                   </SheetHeader>
                   <ScrollArea className="h-[calc(100vh-10rem)] py-4">
-                    <Form {...form}>
-                      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 px-1">
-                        <FormField
-                          control={form.control}
-                          name="name"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Name</FormLabel>
-                              <FormControl>
-                                <Input placeholder="Your name" {...field} />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                        <FormField
-                          control={form.control}
-                          name="age"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Age</FormLabel>
-                              <FormControl>
-                                <Input type="number" {...field} />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                        <FormField
-                          control={form.control}
-                          name="gender"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Gender</FormLabel>
-                              <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                <FormControl>
-                                  <SelectTrigger>
-                                    <SelectValue placeholder="Select a gender" />
-                                  </SelectTrigger>
-                                </FormControl>
-                                <SelectContent>
-                                  <SelectItem value="male">Male</SelectItem>
-                                  <SelectItem value="female">Female</SelectItem>
-                                  <SelectItem value="other">Other</SelectItem>
-                                </SelectContent>
-                              </Select>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                        <FormField
-                          control={form.control}
-                          name="weight"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Weight (kg)</FormLabel>
-                              <FormControl>
-                                <Input type="number" step="0.1" {...field} />
-                              </FormControl>
-                              <FormDescription>
-                                Enter your weight in kilograms
-                              </FormDescription>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                        <FormField
-                          control={form.control}
-                          name="height"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Height (cm)</FormLabel>
-                              <FormControl>
-                                <Input type="number" {...field} />
-                              </FormControl>
-                              <FormDescription>
-                                Enter your height in centimeters
-                              </FormDescription>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                        <FormField
-                          control={form.control}
-                          name="activityLevel"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Activity Level</FormLabel>
-                              <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                <FormControl>
-                                  <SelectTrigger>
-                                    <SelectValue placeholder="Select a level" />
-                                  </SelectTrigger>
-                                </FormControl>
-                                <SelectContent>
-                                  <SelectItem value="sedentary">Sedentary</SelectItem>
-                                  <SelectItem value="light">Light</SelectItem>
-                                  <SelectItem value="moderate">Moderate</SelectItem>
-                                  <SelectItem value="active">Active</SelectItem>
-                                  <SelectItem value="very active">Very Active</SelectItem>
-                                </SelectContent>
-                              </Select>
-                              <FormDescription>
-                                How active you are during the day
-                              </FormDescription>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                        <SheetFooter className="pt-4">
-                          <SheetClose asChild>
-                            <Button variant="outline" type="button">Cancel</Button>
-                          </SheetClose>
-                          <Button 
-                            type="submit" 
-                            disabled={isSubmitting}
-                            className="ml-2"
-                          >
-                            {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                            <Save className="mr-2 h-4 w-4" />
-                            Save
-                          </Button>
-                        </SheetFooter>
-                      </form>
-                    </Form>
+                    <ProfileForm />
                   </ScrollArea>
                 </SheetContent>
               </Sheet>
             </div>
           </div>
-        ) : (
-          <div className="py-4">
-            <p className="text-muted-foreground mb-4">You haven't created a profile yet. Create a profile for a personalized experience.</p>
-            <Sheet open={isOpen} onOpenChange={setIsOpen}>
-              <SheetTrigger asChild>
-                <Button>
-                  <UserRound className="mr-2 h-4 w-4" />
-                  Create Profile
-                </Button>
-              </SheetTrigger>
-              <SheetContent side="right" className="w-[400px] sm:w-[540px]">
-                <SheetHeader>
-                  <SheetTitle>Create Profile</SheetTitle>
-                </SheetHeader>
-                <ScrollArea className="h-[calc(100vh-10rem)] py-4">
-                  <Form {...form}>
-                    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 px-1">
-                      <FormField
-                        control={form.control}
-                        name="name"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Name</FormLabel>
-                            <FormControl>
-                              <Input placeholder="Your name" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      <FormField
-                        control={form.control}
-                        name="age"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Age</FormLabel>
-                            <FormControl>
-                              <Input type="number" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      <FormField
-                        control={form.control}
-                        name="gender"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Gender</FormLabel>
-                            <Select onValueChange={field.onChange} defaultValue={field.value}>
-                              <FormControl>
-                                <SelectTrigger>
-                                  <SelectValue placeholder="Select a gender" />
-                                </SelectTrigger>
-                              </FormControl>
-                              <SelectContent>
-                                <SelectItem value="male">Male</SelectItem>
-                                <SelectItem value="female">Female</SelectItem>
-                                <SelectItem value="other">Other</SelectItem>
-                              </SelectContent>
-                            </Select>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      <FormField
-                        control={form.control}
-                        name="weight"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Weight (kg)</FormLabel>
-                            <FormControl>
-                              <Input type="number" step="0.1" {...field} />
-                            </FormControl>
-                            <FormDescription>
-                              Enter your weight in kilograms
-                            </FormDescription>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      <FormField
-                        control={form.control}
-                        name="height"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Height (cm)</FormLabel>
-                            <FormControl>
-                              <Input type="number" {...field} />
-                            </FormControl>
-                            <FormDescription>
-                              Enter your height in centimeters
-                            </FormDescription>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      <FormField
-                        control={form.control}
-                        name="activityLevel"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Activity Level</FormLabel>
-                            <Select onValueChange={field.onChange} defaultValue={field.value}>
-                              <FormControl>
-                                <SelectTrigger>
-                                  <SelectValue placeholder="Select a level" />
-                                </SelectTrigger>
-                              </FormControl>
-                              <SelectContent>
-                                <SelectItem value="sedentary">Sedentary</SelectItem>
-                                <SelectItem value="light">Light</SelectItem>
-                                <SelectItem value="moderate">Moderate</SelectItem>
-                                <SelectItem value="active">Active</SelectItem>
-                                <SelectItem value="very active">Very Active</SelectItem>
-                              </SelectContent>
-                            </Select>
-                            <FormDescription>
-                              How active you are during the day
-                            </FormDescription>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      <SheetFooter className="pt-4">
-                        <SheetClose asChild>
-                          <Button variant="outline" type="button">Cancel</Button>
-                        </SheetClose>
-                        <Button 
-                          type="submit" 
-                          disabled={isSubmitting}
-                          className="ml-2"
-                        >
-                          {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                          <Save className="mr-2 h-4 w-4" />
-                          Save
-                        </Button>
-                      </SheetFooter>
-                    </form>
-                  </Form>
-                </ScrollArea>
-              </SheetContent>
-            </Sheet>
-          </div>
         )}
+        
+        {/* Sheet for creating/editing profile */}
+        <Sheet open={isOpen} onOpenChange={setIsOpen}>
+          <SheetContent side="right" className="w-[400px] sm:w-[540px]">
+            <SheetHeader>
+              <SheetTitle>{profile ? "Edit Profile" : "Create Profile"}</SheetTitle>
+            </SheetHeader>
+            <ScrollArea className="h-[calc(100vh-10rem)] py-4">
+              <ProfileForm />
+            </ScrollArea>
+          </SheetContent>
+        </Sheet>
       </CardContent>
     </Card>
   );
