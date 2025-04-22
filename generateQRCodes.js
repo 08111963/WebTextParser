@@ -7,8 +7,8 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// URL dell'applicazione web - usiamo l'URL di sviluppo corrente 
-const appURL = 'https://e5161ddc-3fdb-46b4-9043-35a26088e9e2-00-ol0p5x6c7mqn.spock.replit.dev';
+// URL dell'applicazione web - usiamo l'URL di produzione permanente
+const appURL = 'https://web-text-parser-timetraker.replit.app';
 
 // Assicurati che la directory "qrcodes" esista
 const qrCodeDir = path.join(__dirname, 'client', 'public', 'qrcodes');
