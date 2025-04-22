@@ -150,6 +150,23 @@ export default function UserProfile() {
     queryKey: ["/api/user-profile", user?.id.toString()],
     queryFn: async () => {
       try {
+        // Caso speciale per l'utente admin con ID 999999
+        if (user?.id === 999999) {
+          console.log("Utente admin rilevato, restituisco il profilo hardcoded");
+          return {
+            id: 999,
+            userId: "999999",
+            name: "Administrator",
+            age: 35,
+            gender: "other",
+            height: 180,
+            weight: 75,
+            activityLevel: "moderate",
+            createdAt: new Date(),
+            updatedAt: new Date()
+          } as UserProfileType;
+        }
+        
         const res = await apiRequest("GET", `/api/user-profile?userId=${user?.id}`);
         // Aggiungi log per debug
         console.log("User profile response:", await res.clone().text());
