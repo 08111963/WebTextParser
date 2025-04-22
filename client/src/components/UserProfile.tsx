@@ -151,7 +151,7 @@ export default function UserProfile() {
     isError,
     refetch: refetchProfile
   } = useQuery<UserProfileType | null>({
-    queryKey: ["/api/user-profile"],
+    queryKey: ["/api/user-profile", user?.id], // Aggiunto l'ID utente come parte della chiave di query
     queryFn: async () => {
       try {
         // Special case for admin user with ID 999999
@@ -188,7 +188,9 @@ export default function UserProfile() {
           throw new Error(`Failed to fetch profile: ${errorText}`);
         }
         
-        return await res.json();
+        const profileData = await res.json();
+        console.log("Profilo utente ricevuto:", profileData);
+        return profileData;
       } catch (err) {
         console.error("Error fetching user profile:", err);
         if (err instanceof Error && 
@@ -209,6 +211,8 @@ export default function UserProfile() {
       }
       return failureCount < 2;
     },
+    staleTime: 0, // Forza un refresh ogni volta che il componente viene montato
+    refetchOnWindowFocus: true, // Ricarica quando la finestra ottiene il focus
   });
 
   // Profile edit form
@@ -279,7 +283,7 @@ export default function UserProfile() {
       return await res.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/user-profile"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/user-profile", user?.id] });
       toast({
         title: "Profile created",
         description: "Your profile has been created successfully!",
@@ -302,7 +306,7 @@ export default function UserProfile() {
       return await res.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/user-profile"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/user-profile", user?.id] });
       toast({
         title: "Profile updated",
         description: "Your profile has been updated successfully!",
