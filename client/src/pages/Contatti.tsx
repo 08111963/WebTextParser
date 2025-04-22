@@ -44,13 +44,7 @@ export default function Contatti() {
         </div>
         
         <div>
-          <Card className="overflow-hidden border-0 shadow-lg">
-            <CardContent className="p-0">
-              <div className="p-6">
-                <EmailResponseForm />
-              </div>
-            </CardContent>
-          </Card>
+          <EmailResponseForm />
         </div>
       </div>
 

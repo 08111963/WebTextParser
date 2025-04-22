@@ -68,14 +68,12 @@ export function EmailResponseForm() {
   }
 
   return (
-    <Card className="w-full max-w-md mx-auto">
-      <CardHeader>
-        <CardTitle>Contact Support</CardTitle>
-        <CardDescription>
+    <div className="w-full max-w-md mx-auto bg-card rounded-lg border shadow-sm">
+      <div className="p-6">
+        <h3 className="text-lg font-semibold mb-2">Contact Support</h3>
+        <p className="text-sm text-muted-foreground mb-4">
           Do you have questions, comments, or feedback? Write to us and we'll respond as soon as possible.
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
+        </p>
         {submitted ? (
           <div className="text-center p-4">
             <h3 className="text-lg font-medium text-green-600 mb-2">Thank you for contacting us!</h3>
@@ -146,7 +144,7 @@ export function EmailResponseForm() {
             </form>
           </Form>
         )}
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 }
