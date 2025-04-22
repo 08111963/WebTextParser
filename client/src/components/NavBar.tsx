@@ -85,10 +85,12 @@ export default function NavBar() {
                     <DropdownMenuLabel>My Account</DropdownMenuLabel>
                     <DropdownMenuSeparator />
                     
-                    <DropdownMenuItem onClick={() => navigateTo('profile')}>
-                      <User className="h-4 w-4 mr-2" />
-                      <span>Profile</span>
-                    </DropdownMenuItem>
+                    <Link href="/home?section=profile" onClick={closeMenu}>
+                      <DropdownMenuItem>
+                        <User className="h-4 w-4 mr-2" />
+                        <span>Profile</span>
+                      </DropdownMenuItem>
+                    </Link>
                     
                     <DropdownMenuItem onClick={() => navigateTo('settings')}>
                       <Settings className="h-4 w-4 mr-2" />
@@ -176,10 +178,12 @@ export default function NavBar() {
                   </Button>
                 </Link>
                 
-                <Button variant="outline" size="sm" className="w-full justify-start" onClick={() => navigateTo('profile')}>
-                  <User className="h-4 w-4 mr-2" />
-                  Profile
-                </Button>
+                <Link href="/home?section=profile" onClick={closeMenu}>
+                  <Button variant="outline" size="sm" className="w-full justify-start">
+                    <User className="h-4 w-4 mr-2" />
+                    Profile
+                  </Button>
+                </Link>
                 
                 <Button variant="outline" size="sm" className="w-full justify-start" onClick={() => navigateTo('settings')}>
                   <Settings className="h-4 w-4 mr-2" />
