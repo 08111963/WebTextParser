@@ -65,9 +65,11 @@ function createLogEmailFunction(emailType: string): EmailFunction {
 
 // Email service status
 export const emailServiceStatus = {
-  isAvailable: true,
-  provider: emailServiceProvider,
-  error: null
+  isActive: true,
+  mode: emailServiceProvider,
+  lastError: null as string | null,
+  failedAttempts: 0,
+  lastAttemptDate: null as number | null
 };
 
 // Create Brevo email service with fallback to logging
@@ -77,11 +79,20 @@ export const emailService: EmailService = {
       const result = await sendWelcomeEmailWithBrevo(email, username);
       if (!result) {
         console.warn('[Email Service] Brevo email sending failed, falling back to log mode');
+        emailServiceStatus.failedAttempts++;
+        emailServiceStatus.lastError = 'Email sending failed';
+        emailServiceStatus.lastAttemptDate = Date.now();
+        emailServiceStatus.mode = 'fallback-log';
         return createLogEmailFunction('welcome')(email, username);
       }
+      emailServiceStatus.mode = emailServiceProvider;
       return result;
-    } catch (error) {
+    } catch (error: any) {
       console.error('[Email Service] Error with Brevo, falling back to log mode:', error);
+      emailServiceStatus.failedAttempts++;
+      emailServiceStatus.lastError = error?.message || 'Unknown error';
+      emailServiceStatus.lastAttemptDate = Date.now();
+      emailServiceStatus.mode = 'fallback-log';
       return createLogEmailFunction('welcome')(email, username);
     }
   },
@@ -91,11 +102,20 @@ export const emailService: EmailService = {
       const result = await sendPaymentConfirmationEmailWithBrevo(email, username, planName, amount, endDate);
       if (!result) {
         console.warn('[Email Service] Brevo email sending failed, falling back to log mode');
+        emailServiceStatus.failedAttempts++;
+        emailServiceStatus.lastError = 'Email sending failed';
+        emailServiceStatus.lastAttemptDate = Date.now();
+        emailServiceStatus.mode = 'fallback-log';
         return createLogEmailFunction('payment')(email, username, planName, amount, endDate);
       }
+      emailServiceStatus.mode = emailServiceProvider;
       return result;
-    } catch (error) {
+    } catch (error: any) {
       console.error('[Email Service] Error with Brevo, falling back to log mode:', error);
+      emailServiceStatus.failedAttempts++;
+      emailServiceStatus.lastError = error?.message || 'Unknown error';
+      emailServiceStatus.lastAttemptDate = Date.now();
+      emailServiceStatus.mode = 'fallback-log';
       return createLogEmailFunction('payment')(email, username, planName, amount, endDate);
     }
   },
@@ -105,11 +125,20 @@ export const emailService: EmailService = {
       const result = await sendTrialExpiringEmailWithBrevo(email, username, daysLeft);
       if (!result) {
         console.warn('[Email Service] Brevo email sending failed, falling back to log mode');
+        emailServiceStatus.failedAttempts++;
+        emailServiceStatus.lastError = 'Email sending failed';
+        emailServiceStatus.lastAttemptDate = Date.now();
+        emailServiceStatus.mode = 'fallback-log';
         return createLogEmailFunction('trial')(email, username, daysLeft);
       }
+      emailServiceStatus.mode = emailServiceProvider;
       return result;
-    } catch (error) {
+    } catch (error: any) {
       console.error('[Email Service] Error with Brevo, falling back to log mode:', error);
+      emailServiceStatus.failedAttempts++;
+      emailServiceStatus.lastError = error?.message || 'Unknown error';
+      emailServiceStatus.lastAttemptDate = Date.now();
+      emailServiceStatus.mode = 'fallback-log';
       return createLogEmailFunction('trial')(email, username, daysLeft);
     }
   },
@@ -119,11 +148,20 @@ export const emailService: EmailService = {
       const result = await sendSubscriptionEndedEmailWithBrevo(email, username);
       if (!result) {
         console.warn('[Email Service] Brevo email sending failed, falling back to log mode');
+        emailServiceStatus.failedAttempts++;
+        emailServiceStatus.lastError = 'Email sending failed';
+        emailServiceStatus.lastAttemptDate = Date.now();
+        emailServiceStatus.mode = 'fallback-log';
         return createLogEmailFunction('subscription')(email, username);
       }
+      emailServiceStatus.mode = emailServiceProvider;
       return result;
-    } catch (error) {
+    } catch (error: any) {
       console.error('[Email Service] Error with Brevo, falling back to log mode:', error);
+      emailServiceStatus.failedAttempts++;
+      emailServiceStatus.lastError = error?.message || 'Unknown error';
+      emailServiceStatus.lastAttemptDate = Date.now();
+      emailServiceStatus.mode = 'fallback-log';
       return createLogEmailFunction('subscription')(email, username);
     }
   },
@@ -133,11 +171,20 @@ export const emailService: EmailService = {
       const result = await sendPasswordResetEmailWithBrevo(email, username, resetToken);
       if (!result) {
         console.warn('[Email Service] Brevo email sending failed, falling back to log mode');
+        emailServiceStatus.failedAttempts++;
+        emailServiceStatus.lastError = 'Email sending failed';
+        emailServiceStatus.lastAttemptDate = Date.now();
+        emailServiceStatus.mode = 'fallback-log';
         return createLogEmailFunction('password')(email, username, resetToken);
       }
+      emailServiceStatus.mode = emailServiceProvider;
       return result;
-    } catch (error) {
+    } catch (error: any) {
       console.error('[Email Service] Error with Brevo, falling back to log mode:', error);
+      emailServiceStatus.failedAttempts++;
+      emailServiceStatus.lastError = error?.message || 'Unknown error';
+      emailServiceStatus.lastAttemptDate = Date.now();
+      emailServiceStatus.mode = 'fallback-log';
       return createLogEmailFunction('password')(email, username, resetToken);
     }
   }
