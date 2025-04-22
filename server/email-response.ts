@@ -6,6 +6,8 @@
 
 import { storage } from "./storage";
 import { type Request, type Response } from "express";
+import * as fs from 'fs';
+import * as path from 'path';
 
 // Interfaccia per le risposte email
 export interface EmailResponse {
@@ -57,8 +59,6 @@ export async function createEmailResponse(req: Request, res: Response) {
     console.log("[Email Response] Nuova risposta ricevuta:", emailResponse);
     
     // Salva il messaggio in un file temporaneo per una facile visualizzazione
-    const fs = require('fs');
-    const path = require('path');
     const messagesDir = path.join(process.cwd(), 'contact_messages');
     
     // Crea la directory se non esiste
@@ -130,8 +130,6 @@ export async function getUnreadResponses(req: Request, res: Response) {
     // }
 
     // Leggi i messaggi dalla directory dei messaggi
-    const fs = require('fs');
-    const path = require('path');
     const messagesDir = path.join(process.cwd(), 'contact_messages');
     
     // Crea la directory se non esiste
@@ -142,8 +140,8 @@ export async function getUnreadResponses(req: Request, res: Response) {
     
     // Leggi tutti i file JSON nella directory (escludendo il file di log)
     const messageFiles = fs.readdirSync(messagesDir)
-      .filter(file => file.endsWith('.json'))
-      .map(file => {
+      .filter((file: string) => file.endsWith('.json'))
+      .map((file: string) => {
         try {
           const filePath = path.join(messagesDir, file);
           const fileContent = fs.readFileSync(filePath, 'utf8');
@@ -161,7 +159,7 @@ export async function getUnreadResponses(req: Request, res: Response) {
         }
       })
       .filter(Boolean) // Rimuovi eventuali file con errori
-      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()); // Ordina per data (più recente prima)
+      .sort((a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()); // Ordina per data (più recente prima)
     
     return res.json(messageFiles);
   } catch (error) {
