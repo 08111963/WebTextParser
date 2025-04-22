@@ -1,9 +1,17 @@
 /**
- * Email Service - Simple logging email service
+ * Email Service - Brevo integration with fallback to logging
  * 
- * This service simulates sending emails by logging their content to the console.
- * No real emails are sent.
+ * This service uses Brevo (formerly Sendinblue) to send emails.
+ * In case of failure, it falls back to logging the email content to the console.
  */
+
+import {
+  sendWelcomeEmailWithBrevo,
+  sendPaymentConfirmationEmailWithBrevo,
+  sendTrialExpiringEmailWithBrevo,
+  sendSubscriptionEndedEmailWithBrevo,
+  sendPasswordResetEmailWithBrevo
+} from './brevo-service';
 
 // Type definition for email sending functions
 type EmailFunction = (email: string, username: string, ...args: any[]) => Promise<boolean>;
@@ -17,13 +25,13 @@ interface EmailService {
   sendPasswordResetEmail: (email: string, username: string, resetToken: string) => Promise<boolean>;
 }
 
-// Email service provider info for logging
-const emailServiceProvider = 'log-only';
+// Email service provider info
+const emailServiceProvider = 'brevo';
 
-// Function to create a log-only email function
+// Function to create a log-only email function (fallback)
 function createLogEmailFunction(emailType: string): EmailFunction {
   return async (email: string, username: string, ...args: any[]): Promise<boolean> => {
-    console.log(`========== EMAIL SIMULATION (${emailType}) ==========`);
+    console.log(`========== EMAIL SIMULATION (${emailType}) - FALLBACK MODE ==========`);
     console.log(`Email: ${email}`);
     console.log(`Username: ${username}`);
     console.log(`Args:`, args);
@@ -62,13 +70,77 @@ export const emailServiceStatus = {
   error: null
 };
 
-// Create email service with log functions
+// Create Brevo email service with fallback to logging
 export const emailService: EmailService = {
-  sendWelcomeEmail: createLogEmailFunction('welcome'),
-  sendPaymentConfirmationEmail: createLogEmailFunction('payment'),
-  sendTrialExpiringEmail: createLogEmailFunction('trial'),
-  sendSubscriptionEndedEmail: createLogEmailFunction('subscription'),
-  sendPasswordResetEmail: createLogEmailFunction('password'),
+  sendWelcomeEmail: async (email: string, username: string) => {
+    try {
+      const result = await sendWelcomeEmailWithBrevo(email, username);
+      if (!result) {
+        console.warn('[Email Service] Brevo email sending failed, falling back to log mode');
+        return createLogEmailFunction('welcome')(email, username);
+      }
+      return result;
+    } catch (error) {
+      console.error('[Email Service] Error with Brevo, falling back to log mode:', error);
+      return createLogEmailFunction('welcome')(email, username);
+    }
+  },
+  
+  sendPaymentConfirmationEmail: async (email: string, username: string, planName: string, amount: string, endDate: string) => {
+    try {
+      const result = await sendPaymentConfirmationEmailWithBrevo(email, username, planName, amount, endDate);
+      if (!result) {
+        console.warn('[Email Service] Brevo email sending failed, falling back to log mode');
+        return createLogEmailFunction('payment')(email, username, planName, amount, endDate);
+      }
+      return result;
+    } catch (error) {
+      console.error('[Email Service] Error with Brevo, falling back to log mode:', error);
+      return createLogEmailFunction('payment')(email, username, planName, amount, endDate);
+    }
+  },
+  
+  sendTrialExpiringEmail: async (email: string, username: string, daysLeft: number) => {
+    try {
+      const result = await sendTrialExpiringEmailWithBrevo(email, username, daysLeft);
+      if (!result) {
+        console.warn('[Email Service] Brevo email sending failed, falling back to log mode');
+        return createLogEmailFunction('trial')(email, username, daysLeft);
+      }
+      return result;
+    } catch (error) {
+      console.error('[Email Service] Error with Brevo, falling back to log mode:', error);
+      return createLogEmailFunction('trial')(email, username, daysLeft);
+    }
+  },
+  
+  sendSubscriptionEndedEmail: async (email: string, username: string) => {
+    try {
+      const result = await sendSubscriptionEndedEmailWithBrevo(email, username);
+      if (!result) {
+        console.warn('[Email Service] Brevo email sending failed, falling back to log mode');
+        return createLogEmailFunction('subscription')(email, username);
+      }
+      return result;
+    } catch (error) {
+      console.error('[Email Service] Error with Brevo, falling back to log mode:', error);
+      return createLogEmailFunction('subscription')(email, username);
+    }
+  },
+  
+  sendPasswordResetEmail: async (email: string, username: string, resetToken: string) => {
+    try {
+      const result = await sendPasswordResetEmailWithBrevo(email, username, resetToken);
+      if (!result) {
+        console.warn('[Email Service] Brevo email sending failed, falling back to log mode');
+        return createLogEmailFunction('password')(email, username, resetToken);
+      }
+      return result;
+    } catch (error) {
+      console.error('[Email Service] Error with Brevo, falling back to log mode:', error);
+      return createLogEmailFunction('password')(email, username, resetToken);
+    }
+  }
 };
 
 // Export all email sending functions

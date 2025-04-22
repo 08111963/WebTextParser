@@ -85,8 +85,8 @@ export default function NavBar() {
                     <DropdownMenuLabel>My Account</DropdownMenuLabel>
                     <DropdownMenuSeparator />
                     
-                    <Link href="/profile" onClick={closeMenu}>
-                      <DropdownMenuItem>
+                    <Link href="/profile">
+                      <DropdownMenuItem onClick={closeMenu}>
                         <User className="h-4 w-4 mr-2" />
                         <span>Profile</span>
                       </DropdownMenuItem>
@@ -175,8 +175,8 @@ export default function NavBar() {
                   </Button>
                 </Link>
                 
-                <Link href="/profile" onClick={closeMenu}>
-                  <Button variant="outline" size="sm" className="w-full justify-start">
+                <Link href="/profile">
+                  <Button variant="outline" size="sm" className="w-full justify-start" onClick={closeMenu}>
                     <User className="h-4 w-4 mr-2" />
                     Profile
                   </Button>
