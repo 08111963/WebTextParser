@@ -81,8 +81,28 @@ export async function createEmailResponse(req: Request, res: Response) {
     const logEntry = `[${new Date().toISOString()}] "${subject}" from ${email}\n${message}\n\n`;
     fs.appendFileSync(logFilePath, logEntry);
     
-    // Inviamo una notifica all'amministratore via email (funzionalità futura)
-    // await sendAdminNotificationEmail(emailResponse);
+    // Invia una notifica all'amministratore via email
+    try {
+      const { sendContactNotificationEmail, sendContactConfirmationEmail } = await import('./contact-email-service');
+      
+      // Invia l'email di notifica all'admin
+      const notificationSent = await sendContactNotificationEmail(emailResponse);
+      if (notificationSent) {
+        console.log('Email di notifica per admin inviata con successo');
+      } else {
+        console.warn('Impossibile inviare email di notifica all\'admin');
+      }
+      
+      // Invia la conferma di ricezione all'utente
+      const confirmationSent = await sendContactConfirmationEmail(email, subject);
+      if (confirmationSent) {
+        console.log('Email di conferma per utente inviata con successo');
+      } else {
+        console.warn('Impossibile inviare email di conferma all\'utente');
+      }
+    } catch (error) {
+      console.error('Errore durante l\'invio delle email di notifica:', error);
+    }
 
     return res.status(201).json({ 
       success: true, 
