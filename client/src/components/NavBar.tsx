@@ -92,10 +92,7 @@ export default function NavBar() {
                       </DropdownMenuItem>
                     </Link>
                     
-                    <DropdownMenuItem onClick={() => navigateTo('settings')}>
-                      <Settings className="h-4 w-4 mr-2" />
-                      <span>Settings</span>
-                    </DropdownMenuItem>
+
                     
                     {plan === "trial" && (
                       <>
@@ -185,10 +182,7 @@ export default function NavBar() {
                   </Button>
                 </Link>
                 
-                <Button variant="outline" size="sm" className="w-full justify-start" onClick={() => navigateTo('settings')}>
-                  <Settings className="h-4 w-4 mr-2" />
-                  Settings
-                </Button>
+
                 
                 {plan === "trial" && (
                   <Link href="/pricing" onClick={closeMenu}>
