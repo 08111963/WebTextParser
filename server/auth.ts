@@ -204,10 +204,10 @@ export function setupAuth(app: Express) {
             userId: user.id.toString(),
             name: user.username, // Usiamo lo username come nome
             age: 30, // Età predefinita
-            gender: 'other', // Modificato da 'altro' a 'other'
+            gender: 'other',
             height: 170,
             weight: 70,
-            activityLevel: 'moderate' // Modificato da 'moderata' a 'moderate'
+            activityLevel: 'moderate'
           });
           
           console.log(`[Auth] Profilo utente creato per l'utente ${user.id}`);
