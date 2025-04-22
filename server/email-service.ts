@@ -11,7 +11,7 @@ import {
   sendTrialExpiringEmailWithBrevo,
   sendSubscriptionEndedEmailWithBrevo,
   sendPasswordResetEmailWithBrevo
-} from './brevo-service';
+} from './brevo-service-fetch';
 
 // Type definition for email sending functions
 type EmailFunction = (email: string, username: string, ...args: any[]) => Promise<boolean>;

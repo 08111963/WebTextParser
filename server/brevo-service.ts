@@ -11,6 +11,13 @@ import * as SibApiV3Sdk from 'sib-api-v3-sdk';
 // Configurazione del client Brevo
 const defaultClient = SibApiV3Sdk.ApiClient.instance;
 const apiKey = defaultClient.authentications['api-key'];
+
+// Verifica che la chiave API sia disponibile
+if (!process.env.BREVO_API_KEY) {
+  console.error('BREVO_API_KEY non è definita nelle variabili di ambiente');
+  throw new Error('BREVO_API_KEY missing');
+}
+
 apiKey.apiKey = process.env.BREVO_API_KEY;
 
 // Inizializzazione API per invio email
