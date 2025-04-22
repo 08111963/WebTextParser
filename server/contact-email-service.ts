@@ -2,51 +2,80 @@
  * Servizio per l'invio di email di contatto
  * 
  * Questo servizio gestisce l'invio di email quando un utente compila il modulo di contatto.
+ * Utilizza l'API di Brevo con l'implementazione fetch.
  */
 
 import { InsertEmailResponse } from './email-response';
-import * as SibApiV3Sdk from 'sib-api-v3-sdk';
 
-// Configurazione del client Brevo
-const defaultClient = SibApiV3Sdk.ApiClient.instance;
-const apiKey = defaultClient.authentications['api-key'];
+// Costante per l'URL API di Brevo
+const BREVO_API_URL = 'https://api.brevo.com/v3/smtp/email';
 
 // Verifica che la chiave API sia disponibile
 if (!process.env.BREVO_API_KEY) {
   console.error('BREVO_API_KEY non è definita nelle variabili di ambiente');
 }
 
-apiKey.apiKey = process.env.BREVO_API_KEY || '';
-
-// Inizializzazione API per invio email
-const apiInstance = new SibApiV3Sdk.TransactionalEmailsApi();
-
 // Configurazione dei mittenti e destinatari
 const adminEmail = "support@nutrieasy.eu";
 const adminName = "Support NutriEasy";
 
-// Funzione per inviare un'email di notifica all'amministratore quando arriva un messaggio dal modulo di contatto
-export async function sendContactNotificationEmail(contactMessage: InsertEmailResponse): Promise<boolean> {
+// Funzione di utilità per inviare email tramite Brevo
+async function sendEmail(to: string | string[], subject: string, htmlContent: string, textContent: string, replyTo?: {email: string, name: string}): Promise<boolean> {
   try {
+    // Verifica che la chiave API sia disponibile
     if (!process.env.BREVO_API_KEY) {
-      console.warn('BREVO_API_KEY non disponibile, impossibile inviare email di notifica contatto');
+      console.warn('BREVO_API_KEY non disponibile, impossibile inviare email');
       return false;
     }
 
+    // Prepara il destinatario nel formato corretto
+    const toArray = Array.isArray(to) 
+      ? to.map(email => ({ email }))
+      : [{ email: to }];
+
+    // Configura i dati per l'invio
+    const payload = {
+      sender: { email: adminEmail, name: adminName },
+      to: toArray,
+      subject,
+      htmlContent,
+      textContent,
+      replyTo: replyTo || { email: adminEmail, name: adminName }
+    };
+
+    // Invia la richiesta all'API di Brevo
+    const response = await fetch(BREVO_API_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'api-key': process.env.BREVO_API_KEY
+      },
+      body: JSON.stringify(payload)
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      console.error('Errore API Brevo:', errorData);
+      return false;
+    }
+
+    const data = await response.json();
+    console.log('Email inviata con successo tramite Brevo:', data);
+    return true;
+  } catch (error) {
+    console.error('Errore durante l\'invio dell\'email:', error);
+    return false;
+  }
+}
+
+// Funzione per inviare un'email di notifica all'amministratore quando arriva un messaggio dal modulo di contatto
+export async function sendContactNotificationEmail(contactMessage: InsertEmailResponse): Promise<boolean> {
+  try {
     const { email, subject, message } = contactMessage;
 
-    // Creiamo l'oggetto per l'invio dell'email
-    const sendSmtpEmail = new SibApiV3Sdk.SendSmtpEmail();
-
-    // Configura i mittenti e destinatari
-    sendSmtpEmail.sender = { email: adminEmail, name: adminName };
-    sendSmtpEmail.to = [{ email: adminEmail, name: adminName }];
-    // Il replyTo non è supportato in questa versione del tipo, lo aggiungiamo come parametro generico
-    (sendSmtpEmail as any).replyTo = { email: email, name: email.split('@')[0] };
-    
     // Configura il contenuto dell'email
     const emailSubject = `[Contatto Web] ${subject}`;
-    sendSmtpEmail.subject = emailSubject;
     
     // Contenuto HTML dell'email
     const htmlContent = `
@@ -85,22 +114,13 @@ export async function sendContactNotificationEmail(contactMessage: InsertEmailRe
     Per rispondere direttamente a questo messaggio, usa il pulsante "Rispondi" nella tua email.
     `;
 
-    sendSmtpEmail.htmlContent = htmlContent;
-    sendSmtpEmail.textContent = textContent;
-
-    // Aggiunta dell'ID univoco per tracciare la conversazione
-    const messageId = `contact-${Date.now()}@nutrieasy.eu`;
-    // Il campo headers non è supportato in questa versione del tipo, lo aggiungiamo come parametro generico
-    (sendSmtpEmail as any).headers = { 
-      "Message-ID": messageId,
-      "X-Contact-Form-ID": messageId,
-      "In-Reply-To": messageId
+    // Utilizza l'email del mittente come replyTo
+    const replyTo = { 
+      email: email, 
+      name: email.split('@')[0] 
     };
 
-    // Invio dell'email
-    const result = await apiInstance.sendTransacEmail(sendSmtpEmail);
-    console.log('Email di notifica contatto inviata con successo:', result);
-    return true;
+    return await sendEmail(adminEmail, emailSubject, htmlContent, textContent, replyTo);
   } catch (error) {
     console.error('Errore durante l\'invio dell\'email di notifica contatto:', error);
     return false;
@@ -110,22 +130,8 @@ export async function sendContactNotificationEmail(contactMessage: InsertEmailRe
 // Funzione per inviare una conferma di ricezione all'utente
 export async function sendContactConfirmationEmail(email: string, subject: string): Promise<boolean> {
   try {
-    if (!process.env.BREVO_API_KEY) {
-      console.warn('BREVO_API_KEY non disponibile, impossibile inviare email di conferma contatto');
-      return false;
-    }
-
-    // Creiamo l'oggetto per l'invio dell'email
-    const sendSmtpEmail = new SibApiV3Sdk.SendSmtpEmail();
-
-    // Configura i mittenti e destinatari
-    sendSmtpEmail.sender = { email: adminEmail, name: adminName };
-    sendSmtpEmail.to = [{ email }];
-    // Il replyTo non è supportato in questa versione del tipo, lo aggiungiamo come parametro generico
-    (sendSmtpEmail as any).replyTo = { email: adminEmail, name: adminName };
-    
     // Configura il contenuto dell'email
-    sendSmtpEmail.subject = `Conferma di ricezione: ${subject}`;
+    const emailSubject = `Conferma di ricezione: ${subject}`;
     
     // Contenuto HTML dell'email
     const htmlContent = `
@@ -167,13 +173,7 @@ export async function sendContactConfirmationEmail(email: string, subject: strin
     © 2025 NutriEasy. Tutti i diritti riservati.
     `;
 
-    sendSmtpEmail.htmlContent = htmlContent;
-    sendSmtpEmail.textContent = textContent;
-
-    // Invio dell'email
-    const result = await apiInstance.sendTransacEmail(sendSmtpEmail);
-    console.log('Email di conferma contatto inviata con successo:', result);
-    return true;
+    return await sendEmail(email, emailSubject, htmlContent, textContent);
   } catch (error) {
     console.error('Errore durante l\'invio dell\'email di conferma contatto:', error);
     return false;
