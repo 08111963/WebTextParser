@@ -80,7 +80,7 @@ export async function createEmailResponse(req: Request, res: Response) {
 export async function getUnreadResponses(req: Request, res: Response) {
   try {
     // Verifica se l'utente è un amministratore
-    if (!req.user || req.user.id !== 'admin') {
+    if (!req.user || !(req.user as any).isAdmin) {
       return res.status(403).json({ error: "Accesso non autorizzato" });
     }
 
@@ -109,7 +109,7 @@ export async function updateResponseStatus(req: Request, res: Response) {
     }
 
     // Verifica se l'utente è un amministratore
-    if (!req.user || req.user.id !== 'admin') {
+    if (!req.user || !(req.user as any).isAdmin) {
       return res.status(403).json({ error: "Accesso non autorizzato" });
     }
 

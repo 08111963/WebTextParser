@@ -1735,6 +1735,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Endpoint per gestire le risposte alle email
+  app.post('/api/email-response', async (req, res) => {
+    await createEmailResponse(req, res);
+  });
+
+  // Endpoint per ottenere le risposte alle email non lette (solo per admin)
+  app.get('/api/email-responses/unread', isAuthenticated, async (req, res) => {
+    await getUnreadResponses(req, res);
+  });
+
+  // Endpoint per aggiornare lo stato di una risposta (solo per admin)
+  app.patch('/api/email-response/:id/status', isAuthenticated, async (req, res) => {
+    await updateResponseStatus(req, res);
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
