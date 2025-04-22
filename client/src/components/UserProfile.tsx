@@ -147,7 +147,7 @@ export default function UserProfile() {
     error: profileError,
     isError
   } = useQuery<UserProfileType>({
-    queryKey: ["/api/user-profile", user?.id?.toString()],
+    queryKey: ["/api/user-profile"],
     queryFn: async () => {
       try {
         // Caso speciale per l'utente admin con ID 999999
@@ -167,13 +167,13 @@ export default function UserProfile() {
           } as UserProfileType;
         }
         
-        const userId = user?.id?.toString();
-        console.log("User ID for profile request:", userId);
+        // Non includiamo l'userId nella query, l'API lo recupererà dall'utente autenticato
+        console.log("User ID for profile request:", user?.id);
         
-        const res = await apiRequest("GET", `/api/user-profile?userId=${userId}`);
+        const res = await apiRequest("GET", "/api/user-profile");
         // Aggiungi log per debug
         const responseText = await res.clone().text();
-        console.log("User profile API URL:", `/api/user-profile?userId=${userId}`);
+        console.log("User profile API URL:", "/api/user-profile");
         console.log("User profile response:", responseText);
         return await res.json();
       } catch (err) {
@@ -256,7 +256,7 @@ export default function UserProfile() {
       return await res.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/user-profile", user?.id.toString()] });
+      queryClient.invalidateQueries({ queryKey: ["/api/user-profile"] });
       toast({
         title: "Profile created",
         description: "Your profile has been created successfully!",
@@ -279,7 +279,7 @@ export default function UserProfile() {
       return await res.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/user-profile", user?.id.toString()] });
+      queryClient.invalidateQueries({ queryKey: ["/api/user-profile"] });
       toast({
         title: "Profile updated",
         description: "Your profile has been updated successfully!",

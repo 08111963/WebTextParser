@@ -918,10 +918,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
           userId: "999999",
           name: "Administrator",
           age: 35,
-          gender: "other", // Modificato da 'altro' a 'other'
+          gender: "other",
           height: 180,
           weight: 75,
-          activityLevel: "moderate", // Modificato da 'moderata' a 'moderate'
+          activityLevel: "moderate",
           createdAt: new Date(),
           updatedAt: new Date()
         };
@@ -929,7 +929,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.json(adminProfile);
       }
       
-      const userId = req.query.userId as string;
+      // Se è fornito un userId specifico nella query, usalo. Altrimenti usa l'ID dell'utente autenticato
+      const userId = req.query.userId as string || (req.user?.id ? req.user.id.toString() : undefined);
+      
+      console.log("User profile API - Received request for user ID:", userId);
+      console.log("User profile API - Authenticated user:", req.user);
       
       if (!userId) {
         return res.status(400).json({ message: "User ID is required" });
@@ -941,6 +945,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "User profile not found" });
       }
       
+      console.log("User profile API - Found profile:", profile);
       res.json(profile);
     } catch (error) {
       res.status(500).json({ 
