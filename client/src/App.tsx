@@ -15,6 +15,7 @@ import PrivacyPolicy from "@/pages/PrivacyPolicy";
 import TermsOfService from "@/pages/TermsOfService";
 import Guide from "@/pages/Guide";
 import InstallApp from "@/pages/InstallApp";
+import Profile from "@/pages/Profile";
 import Footer from "./components/Footer";
 import NavBar from "./components/NavBar";
 // Rimossi gli import non necessari
@@ -46,6 +47,10 @@ function Router() {
       </Route>
       <Route path="/payment-success">
         <ProtectedRoute component={PaymentSuccess} />
+      </Route>
+      
+      <Route path="/profile">
+        <ProtectedRoute component={Profile} />
       </Route>
       
       {/* Fallback to 404 */}

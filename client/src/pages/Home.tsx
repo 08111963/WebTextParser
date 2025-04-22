@@ -541,7 +541,7 @@ export default function Home({
 
           <TabsContent value="profile">
             <div className="max-w-4xl mx-auto">
-              {isAuthenticated ? (
+              {user ? (
                 <UserProfile />
               ) : (
                 <div className="border rounded-lg p-8 text-center">
