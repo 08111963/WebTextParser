@@ -4,6 +4,7 @@ import { Redirect, useLocation, Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useForm } from "react-hook-form";
@@ -394,12 +395,13 @@ export default function AuthPage() {
                         render={({ field }) => (
                           <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
                             <FormControl>
-                              <input
-                                type="checkbox"
-                                className="h-4 w-4 mt-1"
-                                checked={field.value}
-                                onChange={field.onChange}
-                              />
+                              <div className="flex items-center space-x-2">
+                                <Checkbox
+                                  checked={field.value}
+                                  onCheckedChange={field.onChange}
+                                  id="terms"
+                                />
+                              </div>
                             </FormControl>
                             <div className="space-y-1 leading-none">
                               <FormLabel>

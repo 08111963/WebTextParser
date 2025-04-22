@@ -349,7 +349,7 @@ export default function UserProfile() {
           </div>
         ) : profile ? (
           <div className="space-y-6">
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-2 gap-4 p-4 border rounded-lg bg-card">
               <div>
                 <p className="text-sm font-medium text-muted-foreground">Name</p>
                 <p className="text-lg font-medium">{profile.name}</p>
@@ -376,28 +376,34 @@ export default function UserProfile() {
               </div>
             </div>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
-              <PremiumFeature
-                feature="bmi-calculator"
-                title="BMI Calculator"
-                description="Calculate and track your Body Mass Index based on your height and weight"
-              >
-                <BMICard weight={profile.weight} height={profile.height} />
-              </PremiumFeature>
+            <div className="p-4 border rounded-lg bg-card">
+              <h3 className="text-lg font-semibold mb-2">Subscription Status</h3>
+              <div className="flex items-center space-x-2 mb-4">
+                <div className={`h-3 w-3 rounded-full ${plan === 'trial' && !trialActive ? 'bg-red-500' : plan.includes('premium') ? 'bg-green-500' : 'bg-yellow-500'}`}></div>
+                <span className="font-medium">
+                  {plan === 'trial' && !trialActive ? 'Trial Expired' : 
+                   plan === 'trial' && trialActive ? 'Free Trial' :
+                   plan === 'premium-monthly' ? 'Premium Monthly' :
+                   plan === 'premium-yearly' ? 'Premium Yearly' : 'Premium'}
+                </span>
+              </div>
               
-              <PremiumFeature
-                feature="metabolism-calculator"
-                title="Metabolism Calculator"
-                description="Get personalized metabolic rate calculations based on your physical profile"
-              >
-                <MetabolismCard 
-                  weight={profile.weight} 
-                  height={profile.height} 
-                  age={profile.age}
-                  gender={profile.gender} 
-                  activityLevel={profile.activityLevel} 
-                />
-              </PremiumFeature>
+              {trialActive && trialEndDate && (
+                <p className="text-sm text-muted-foreground">
+                  Your free trial ends in {trialDaysLeft} {trialDaysLeft === 1 ? 'day' : 'days'} on{' '}
+                  {new Date(trialEndDate).toLocaleDateString()}
+                </p>
+              )}
+              
+              {plan === 'trial' && !trialActive && (
+                <div className="mt-2">
+                  <Link href="/pricing">
+                    <Button size="sm" className="bg-green-600 hover:bg-green-700">
+                      Upgrade to Premium
+                    </Button>
+                  </Link>
+                </div>
+              )}
             </div>
             
             <div className="pt-2 flex space-x-2">
