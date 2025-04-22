@@ -145,7 +145,8 @@ export default function UserProfile() {
     data: profile,
     isLoading: isProfileLoading,
     error: profileError,
-    isError
+    isError,
+    refetch: refetchProfile
   } = useQuery<UserProfileType>({
     queryKey: ["/api/user-profile"],
     queryFn: async () => {
@@ -169,12 +170,27 @@ export default function UserProfile() {
         
         // Non includiamo l'userId nella query, l'API lo recupererà dall'utente autenticato
         console.log("User ID for profile request:", user?.id);
+        console.log("Auth user object:", user);
         
         const res = await apiRequest("GET", "/api/user-profile");
+        
+        if (!res.ok) {
+          console.error(`Profile API error: ${res.status} ${res.statusText}`);
+          if (res.status === 401) {
+            throw new Error("Authentication required");
+          }
+          const errorText = await res.text();
+          throw new Error(`Failed to fetch profile: ${errorText}`);
+        }
+        
         // Aggiungi log per debug
-        const responseText = await res.clone().text();
-        console.log("User profile API URL:", "/api/user-profile");
-        console.log("User profile response:", responseText);
+        const clone = res.clone();
+        clone.text().then(responseText => {
+          console.log("User profile API response:", responseText);
+        }).catch(err => {
+          console.error("Error getting response text:", err);
+        });
+        
         return await res.json();
       } catch (err) {
         // If the error is "User profile not found", return null instead of throwing an error
@@ -186,7 +202,7 @@ export default function UserProfile() {
       }
     },
     enabled: !!user,
-    retry: false,
+    retry: 1,
   });
 
   // Profile edit form

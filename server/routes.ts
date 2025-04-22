@@ -917,6 +917,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Get user profile (route protetta)
   app.get("/api/user-profile", isAuthenticated, async (req, res) => {
+    console.log("GET /api/user-profile route called");
+    console.log("Auth status:", { 
+      isAuthenticated: req.isAuthenticated(),
+      sessionID: req.sessionID,
+      user: req.user ? { id: req.user.id, username: req.user.username } : null 
+    });
+    
     try {
       // Se è l'amministratore, restituisci un profilo predefinito
       if ((req.user as any).isAdmin) {
@@ -937,19 +944,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.json(adminProfile);
       }
       
-      // Se è fornito un userId specifico nella query, usalo. Altrimenti usa l'ID dell'utente autenticato
-      const userId = req.query.userId as string || (req.user?.id ? req.user.id.toString() : undefined);
-      
-      console.log("User profile API - Received request for user ID:", userId);
-      console.log("User profile API - Authenticated user:", req.user);
-      
-      if (!userId) {
-        return res.status(400).json({ message: "User ID is required" });
+      // Ottieni l'ID dell'utente direttamente dall'oggetto req.user
+      if (!req.user) {
+        console.log("User object is undefined even though isAuthenticated() returned true");
+        return res.status(401).json({ message: "User not authenticated" });
       }
+      
+      const userId = req.user.id.toString();
+      
+      console.log("User profile API - Using authenticated user ID:", userId);
+      console.log("User profile API - Full user object:", JSON.stringify(req.user));
       
       const profile = await storage.getUserProfile(userId);
       
       if (!profile) {
+        console.log("User profile not found for user ID:", userId);
         return res.status(404).json({ message: "User profile not found" });
       }
       
