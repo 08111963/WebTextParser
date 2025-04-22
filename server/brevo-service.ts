@@ -46,7 +46,8 @@ export async function sendEmailWithBrevo(
     const sendSmtpEmail = new SibApiV3Sdk.SendSmtpEmail();
     
     sendSmtpEmail.sender = sender;
-    sendSmtpEmail.replyTo = replyTo;
+    // Aggiungi il campo replyTo in modo compatibile con il tipo
+    (sendSmtpEmail as any).replyTo = replyTo;
     sendSmtpEmail.to = [{ email: to }];
     sendSmtpEmail.subject = subject;
     sendSmtpEmail.htmlContent = htmlContent;

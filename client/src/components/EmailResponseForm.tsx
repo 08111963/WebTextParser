@@ -11,11 +11,11 @@ import { useMutation } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 
-// Schema Zod per la validazione
+// Schema Zod for validation
 const emailResponseSchema = z.object({
-  email: z.string().email({ message: "Inserisci un indirizzo email valido" }),
-  subject: z.string().min(3, { message: "L'oggetto deve contenere almeno 3 caratteri" }),
-  message: z.string().min(10, { message: "Il messaggio deve contenere almeno 10 caratteri" }),
+  email: z.string().email({ message: "Please enter a valid email address" }),
+  subject: z.string().min(3, { message: "Subject must contain at least 3 characters" }),
+  message: z.string().min(10, { message: "Message must contain at least 10 characters" }),
 });
 
 type EmailResponseFormValues = z.infer<typeof emailResponseSchema>;
@@ -24,7 +24,7 @@ export function EmailResponseForm() {
   const { toast } = useToast();
   const [submitted, setSubmitted] = useState(false);
 
-  // Inizializziamo il form con react-hook-form
+  // Initialize the form with react-hook-form
   const form = useForm<EmailResponseFormValues>({
     resolver: zodResolver(emailResponseSchema),
     defaultValues: {
@@ -34,20 +34,20 @@ export function EmailResponseForm() {
     },
   });
 
-  // Mutazione per inviare la risposta
+  // Mutation to send the response
   const emailResponseMutation = useMutation({
     mutationFn: async (data: EmailResponseFormValues) => {
       const response = await apiRequest("POST", "/api/email-response", data);
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || "Si è verificato un errore nell'invio della risposta");
+        throw new Error(errorData.error || "An error occurred while sending your message");
       }
       return response.json();
     },
     onSuccess: () => {
       toast({
-        title: "Risposta inviata",
-        description: "La tua risposta è stata inviata con successo. Ti contatteremo presto.",
+        title: "Message Sent",
+        description: "Your message has been sent successfully. We will contact you soon.",
         variant: "default",
       });
       form.reset();
@@ -55,14 +55,14 @@ export function EmailResponseForm() {
     },
     onError: (error) => {
       toast({
-        title: "Errore",
-        description: error instanceof Error ? error.message : "Si è verificato un errore nell'invio della risposta",
+        title: "Error",
+        description: error instanceof Error ? error.message : "An error occurred while sending your message",
         variant: "destructive",
       });
     },
   });
 
-  // Funzione per gestire il submit del form
+  // Function to handle form submission
   function onSubmit(data: EmailResponseFormValues) {
     emailResponseMutation.mutate(data);
   }
@@ -70,24 +70,24 @@ export function EmailResponseForm() {
   return (
     <Card className="w-full max-w-md mx-auto">
       <CardHeader>
-        <CardTitle>Contatta il Supporto</CardTitle>
+        <CardTitle>Contact Support</CardTitle>
         <CardDescription>
-          Hai domande, commenti o feedback? Scrivici e ti risponderemo il prima possibile.
+          Do you have questions, comments, or feedback? Write to us and we'll respond as soon as possible.
         </CardDescription>
       </CardHeader>
       <CardContent>
         {submitted ? (
           <div className="text-center p-4">
-            <h3 className="text-lg font-medium text-green-600 mb-2">Grazie per averci contattato!</h3>
+            <h3 className="text-lg font-medium text-green-600 mb-2">Thank you for contacting us!</h3>
             <p className="text-gray-600">
-              Abbiamo ricevuto il tuo messaggio e ti risponderemo al più presto.
+              We have received your message and will respond as soon as possible.
             </p>
             <Button 
               variant="outline" 
               onClick={() => setSubmitted(false)}
               className="mt-4"
             >
-              Invia un altro messaggio
+              Send another message
             </Button>
           </div>
         ) : (
@@ -100,7 +100,7 @@ export function EmailResponseForm() {
                   <FormItem>
                     <FormLabel>Email</FormLabel>
                     <FormControl>
-                      <Input placeholder="tua.email@esempio.com" {...field} />
+                      <Input placeholder="your.email@example.com" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -111,9 +111,9 @@ export function EmailResponseForm() {
                 name="subject"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Oggetto</FormLabel>
+                    <FormLabel>Subject</FormLabel>
                     <FormControl>
-                      <Input placeholder="Oggetto del messaggio" {...field} />
+                      <Input placeholder="Message subject" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -124,10 +124,10 @@ export function EmailResponseForm() {
                 name="message"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Messaggio</FormLabel>
+                    <FormLabel>Message</FormLabel>
                     <FormControl>
                       <Textarea 
-                        placeholder="Scrivi il tuo messaggio qui..." 
+                        placeholder="Write your message here..." 
                         className="min-h-[120px]" 
                         {...field} 
                       />
@@ -141,7 +141,7 @@ export function EmailResponseForm() {
                 className="w-full"
                 disabled={emailResponseMutation.isPending}
               >
-                {emailResponseMutation.isPending ? "Invio in corso..." : "Invia messaggio"}
+                {emailResponseMutation.isPending ? "Sending..." : "Send message"}
               </Button>
             </form>
           </Form>
