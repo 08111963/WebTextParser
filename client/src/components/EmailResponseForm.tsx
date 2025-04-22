@@ -48,7 +48,7 @@ export function EmailResponseForm() {
       toast({
         title: "Risposta inviata",
         description: "La tua risposta è stata inviata con successo. Ti contatteremo presto.",
-        variant: "success",
+        variant: "default",
       });
       form.reset();
       setSubmitted(true);

@@ -9,7 +9,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Bolt, Menu, X, User, Book, Home, LogOut, Settings, HelpCircle, DollarSign, Download } from "lucide-react";
+import { Bolt, Menu, X, User, Book, Home, LogOut, Settings, HelpCircle, DollarSign, Download, MessageCircle } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import { useSubscription } from "@/hooks/use-subscription";
 import { useConditionalNavigation } from "@/lib/conditional-route";
@@ -62,6 +62,13 @@ export default function NavBar() {
               <Button variant="ghost" size="sm">
                 <Download className="h-4 w-4 mr-1" />
                 Install App
+              </Button>
+            </Link>
+
+            <Link href="/contatti">
+              <Button variant={isActive("/contatti") ? "default" : "ghost"} size="sm">
+                <MessageCircle className="h-4 w-4 mr-1" />
+                Contatti
               </Button>
             </Link>
             
@@ -163,6 +170,17 @@ export default function NavBar() {
               >
                 <Download className="h-4 w-4 mr-2" />
                 Install App
+              </Button>
+            </Link>
+
+            <Link href="/contatti" onClick={closeMenu} className="w-full">
+              <Button 
+                variant={isActive("/contatti") ? "default" : "outline"} 
+                size="sm" 
+                className="w-full justify-start"
+              >
+                <MessageCircle className="h-4 w-4 mr-2" />
+                Contatti
               </Button>
             </Link>
             

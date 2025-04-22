@@ -16,6 +16,7 @@ import TermsOfService from "@/pages/TermsOfService";
 import Guide from "@/pages/Guide";
 import InstallApp from "@/pages/InstallApp";
 import Profile from "@/pages/Profile";
+import Contatti from "@/pages/Contatti";
 import Footer from "./components/Footer";
 import NavBar from "./components/NavBar";
 // Rimossi gli import non necessari
@@ -37,6 +38,7 @@ function Router() {
       <Route path="/terms-of-service" component={TermsOfService} />
       <Route path="/guide" component={Guide} />
       <Route path="/install" component={InstallApp} />
+      <Route path="/contatti" component={Contatti} />
       
       {/* Proteggiamo le pagine che richiedono autenticazione */}
       <Route path="/home">
