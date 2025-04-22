@@ -68,7 +68,7 @@ export default function NavBar() {
             <Link href="/contatti">
               <Button variant={isActive("/contatti") ? "default" : "ghost"} size="sm">
                 <MessageCircle className="h-4 w-4 mr-1" />
-                Contatti
+                Contact
               </Button>
             </Link>
             
@@ -180,7 +180,7 @@ export default function NavBar() {
                 className="w-full justify-start"
               >
                 <MessageCircle className="h-4 w-4 mr-2" />
-                Contatti
+                Contact
               </Button>
             </Link>
             
