@@ -18,7 +18,7 @@ export const userProfiles = pgTable("user_profiles", {
   gender: text("gender").notNull(),
   weight: real("weight").notNull(), // in kg
   height: integer("height").notNull(), // in cm
-  activityLevel: text("activity_level").notNull().default('moderata'),
+  activityLevel: text("activity_level").notNull().default('moderate'),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
@@ -184,8 +184,8 @@ export const insertUserProfileSchema = createInsertSchema(userProfiles)
     age: z.coerce.number().min(1).max(120),
     weight: z.coerce.number().min(20).max(300), // in kg
     height: z.coerce.number().min(50).max(250), // in cm
-    gender: z.enum(["maschio", "femmina", "altro"]),
-    activityLevel: z.enum(["sedentaria", "leggera", "moderata", "attiva", "molto attiva"]),
+    gender: z.enum(["male", "female", "other"]),
+    activityLevel: z.enum(["sedentary", "light", "moderate", "active", "very active"]),
   });
 
 export type InsertUser = z.infer<typeof insertUserSchema>;
