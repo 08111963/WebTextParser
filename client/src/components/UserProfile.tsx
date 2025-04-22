@@ -7,6 +7,8 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { UserProfile as UserProfileType } from "@shared/schema";
 import { useToast } from "@/hooks/use-toast";
+import { useSubscription } from "@/hooks/use-subscription";
+import { Link } from "wouter";
 
 // Import componenti per i calcoli fitness
 import BMICard from "@/components/BMICard";
@@ -83,6 +85,7 @@ type ProfileFormValues = z.infer<typeof profileFormSchema>;
 export default function UserProfile() {
   const { user } = useAuth();
   const { toast } = useToast();
+  const { plan, isPremium, trialActive, trialDaysLeft, trialEndDate } = useSubscription();
   const queryClient = useQueryClient();
   const [isOpen, setIsOpen] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
