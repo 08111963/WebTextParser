@@ -26,7 +26,13 @@ const apiInstance = new SibApiV3Sdk.TransactionalEmailsApi();
 // Inizializzazione dell'oggetto per l'invio delle email
 const sender = {
   name: "NutriEasy",
-  email: "noreply@nutrieasy.com",
+  email: "support@nutrieasy.eu",
+};
+
+// Configurazione per email di risposta
+const replyTo = {
+  email: "support@nutrieasy.eu",
+  name: "Support NutriEasy"
 };
 
 // Funzione per inviare un'email tramite Brevo
@@ -40,6 +46,7 @@ export async function sendEmailWithBrevo(
     const sendSmtpEmail = new SibApiV3Sdk.SendSmtpEmail();
     
     sendSmtpEmail.sender = sender;
+    sendSmtpEmail.replyTo = replyTo;
     sendSmtpEmail.to = [{ email: to }];
     sendSmtpEmail.subject = subject;
     sendSmtpEmail.htmlContent = htmlContent;
