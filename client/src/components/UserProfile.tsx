@@ -151,9 +151,12 @@ export default function UserProfile() {
     queryFn: async () => {
       try {
         const res = await apiRequest("GET", `/api/user-profile?userId=${user?.id}`);
+        // Aggiungi log per debug
+        console.log("User profile response:", await res.clone().text());
         return await res.json();
       } catch (err) {
         // If the error is "User profile not found", return null instead of throwing an error
+        console.error("Error fetching user profile:", err);
         if (err instanceof Error && err.message.includes("User profile not found")) {
           return null;
         }
