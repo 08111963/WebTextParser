@@ -32,7 +32,7 @@ const InstallQRCodes = () => {
                 className="w-64 h-64 mb-4 border border-green-600 p-2 rounded-md"
               />
               <p className="text-xs text-green-700 mb-2">URL del QR code: 
-                <a href="https://e5161ddc-3fdb-46b4-9043-35a26088e9e2-00-ol0p5x6c7mqn.spock.replit.dev" 
+                <a href="https://web-text-parser-timetraker.replit.app" 
                    target="_blank" 
                    className="underline ml-1">
                   Apri direttamente
@@ -67,7 +67,7 @@ const InstallQRCodes = () => {
                 className="w-64 h-64 mb-4 border border-green-600 p-2 rounded-md"
               />
               <p className="text-xs text-green-700 mb-2">URL del QR code: 
-                <a href="https://e5161ddc-3fdb-46b4-9043-35a26088e9e2-00-ol0p5x6c7mqn.spock.replit.dev" 
+                <a href="https://web-text-parser-timetraker.replit.app" 
                    target="_blank" 
                    className="underline ml-1">
                   Apri direttamente
