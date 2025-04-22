@@ -147,7 +147,7 @@ export default function UserProfile() {
     error: profileError,
     isError
   } = useQuery<UserProfileType>({
-    queryKey: ["/api/user-profile", user?.id.toString()],
+    queryKey: ["/api/user-profile", user?.id?.toString()],
     queryFn: async () => {
       try {
         // Caso speciale per l'utente admin con ID 999999
@@ -167,9 +167,14 @@ export default function UserProfile() {
           } as UserProfileType;
         }
         
-        const res = await apiRequest("GET", `/api/user-profile?userId=${user?.id}`);
+        const userId = user?.id?.toString();
+        console.log("User ID for profile request:", userId);
+        
+        const res = await apiRequest("GET", `/api/user-profile?userId=${userId}`);
         // Aggiungi log per debug
-        console.log("User profile response:", await res.clone().text());
+        const responseText = await res.clone().text();
+        console.log("User profile API URL:", `/api/user-profile?userId=${userId}`);
+        console.log("User profile response:", responseText);
         return await res.json();
       } catch (err) {
         // If the error is "User profile not found", return null instead of throwing an error
