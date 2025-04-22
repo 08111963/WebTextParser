@@ -231,7 +231,7 @@ export function setupAuth(app: Express) {
             userId: user.id.toString(),
             name: user.username, // Usiamo lo username come nome
             age: 30, // Età predefinita
-            gender: 'other',
+            gender: req.body.gender || 'other', // Usa il gender dalla registrazione se presente
             height: 170,
             weight: 70,
             activityLevel: 'moderate'

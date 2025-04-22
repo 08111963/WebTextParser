@@ -11,6 +11,7 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Loader2, ChevronLeft, Home, Eye, EyeOff, AlertCircle } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
 import { useMutation } from "@tanstack/react-query";
@@ -24,6 +25,9 @@ const loginSchema = z.object({
 const registerSchema = z.object({
   username: z.string().min(3, "Username must be at least 3 characters"),
   email: z.string().email("Please enter a valid email address"),
+  gender: z.enum(["male", "female", "other"], {
+    required_error: "Please select a gender",
+  }),
   password: z.string().min(6, "Password must be at least 6 characters"),
   confirmPassword: z.string().min(6, "Please confirm your password"),
   acceptTerms: z.boolean().refine(val => val === true, {
@@ -119,6 +123,7 @@ export default function AuthPage() {
     defaultValues: {
       username: "",
       email: "",
+      gender: "other",
       password: "",
       confirmPassword: "",
       acceptTerms: false,
@@ -148,6 +153,7 @@ export default function AuthPage() {
         registerMutation.mutate({
           username: values.username,
           email: values.email,
+          gender: values.gender,
           password: values.password,
         });
       }
@@ -157,6 +163,7 @@ export default function AuthPage() {
       registerMutation.mutate({
         username: values.username,
         email: values.email,
+        gender: values.gender,
         password: values.password,
       });
     }
@@ -321,6 +328,28 @@ export default function AuthPage() {
                             <FormControl>
                               <Input type="email" placeholder="name@example.com" {...field} />
                             </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={registerForm.control}
+                        name="gender"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Gender</FormLabel>
+                            <Select onValueChange={field.onChange} defaultValue={field.value}>
+                              <FormControl>
+                                <SelectTrigger>
+                                  <SelectValue placeholder="Select a gender" />
+                                </SelectTrigger>
+                              </FormControl>
+                              <SelectContent>
+                                <SelectItem value="male">Male</SelectItem>
+                                <SelectItem value="female">Female</SelectItem>
+                                <SelectItem value="other">Other</SelectItem>
+                              </SelectContent>
+                            </Select>
                             <FormMessage />
                           </FormItem>
                         )}
