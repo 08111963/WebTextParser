@@ -15,7 +15,13 @@ if (!process.env.BREVO_API_KEY) {
 // Inizializzazione dell'oggetto per l'invio delle email con dominio verificato
 const sender = {
   name: "NutriEasy",
-  email: "noreply@nutrieasy.eu",
+  email: "supporto@nutrieasy.eu",
+};
+
+// Configurazione per email di risposta
+const replyTo = {
+  email: "supporto@nutrieasy.eu",
+  name: "Supporto NutriEasy"
 };
 
 // Funzione per inviare un'email tramite Brevo
@@ -33,6 +39,7 @@ export async function sendEmailWithBrevo(
 
     const payload = {
       sender,
+      replyTo,
       to: [{ email: to }],
       subject,
       htmlContent,

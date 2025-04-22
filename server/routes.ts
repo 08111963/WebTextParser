@@ -9,6 +9,7 @@ import {
   insertUserProfileSchema, 
   User
 } from "@shared/schema";
+import { createEmailResponse, getUnreadResponses, updateResponseStatus } from "./email-response";
 
 // Estendi il tipo Request per includere la proprietà user
 declare global {
