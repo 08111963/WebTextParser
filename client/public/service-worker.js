@@ -1,5 +1,5 @@
 // Service Worker per NutriEasy PWA
-const CACHE_NAME = 'nutrieasy-cache-v2';
+const CACHE_NAME = 'nutrieasy-cache-v3';
 const urlsToCache = [
   '/',
   '/index.html',
@@ -24,35 +24,67 @@ self.addEventListener('install', event => {
   self.skipWaiting();
 });
 
-// Gestione delle richieste di rete
+// Gestione delle richieste di rete con strategia network-first per pagine HTML
 self.addEventListener('fetch', event => {
-  event.respondWith(
-    caches.match(event.request)
-      .then(response => {
-        // Cache hit - return response
-        if (response) {
+  const requestUrl = new URL(event.request.url);
+  
+  // Se è una richiesta di una pagina HTML o l'homepage, usa network-first
+  if (requestUrl.pathname === '/' || 
+      requestUrl.pathname.endsWith('.html') ||
+      requestUrl.pathname.includes('/api/')) {
+    event.respondWith(
+      fetch(event.request)
+        .then(response => {
+          // Clona la risposta per il caching
+          const responseToCache = response.clone();
+          caches.open(CACHE_NAME).then(cache => {
+            cache.put(event.request, responseToCache);
+          });
           return response;
-        }
-        return fetch(event.request).then(
-          response => {
-            // Controlla se riceviamo una risposta valida
-            if(!response || response.status !== 200 || response.type !== 'basic') {
-              return response;
-            }
-
-            // Clona la risposta
-            const responseToCache = response.clone();
-
-            caches.open(CACHE_NAME)
-              .then(cache => {
-                cache.put(event.request, responseToCache);
+        })
+        .catch(() => {
+          // Se la rete fallisce, prova a usare la cache
+          return caches.match(event.request);
+        })
+    );
+  } else {
+    // Per tutte le altre richieste, usa cache-first
+    event.respondWith(
+      caches.match(event.request)
+        .then(response => {
+          // Cache hit - return response
+          if (response) {
+            // Aggiorna anche in background
+            fetch(event.request).then(freshResponse => {
+              caches.open(CACHE_NAME).then(cache => {
+                cache.put(event.request, freshResponse);
               });
-
+            }).catch(() => {});
             return response;
           }
-        );
-      })
-    );
+          
+          // Se non c'è nella cache, recupera dalla rete
+          return fetch(event.request).then(
+            response => {
+              // Controlla se riceviamo una risposta valida
+              if(!response || response.status !== 200 || response.type !== 'basic') {
+                return response;
+              }
+
+              // Clona la risposta
+              const responseToCache = response.clone();
+
+              caches.open(CACHE_NAME)
+                .then(cache => {
+                  cache.put(event.request, responseToCache);
+                });
+
+              return response;
+            }
+          );
+        })
+      );
+  }
 });
 
 // Gestione dell'attivazione
