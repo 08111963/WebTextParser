@@ -670,7 +670,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       // Se è l'amministratore, restituisci un obiettivo predefinito
       if ((req.user as any).isAdmin) {
-        return res.json({
+        console.log("Sono nell'API nutrition-goals/active e l'utente è un amministratore");
+        const adminGoal = {
           id: 999,
           userId: "999999",
           title: "Admin Goal",
@@ -682,7 +683,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
           isActive: true,
           createdAt: new Date(),
           updatedAt: new Date()
-        });
+        };
+        console.log("Restituisco l'obiettivo amministratore:", JSON.stringify(adminGoal));
+        return res.json(adminGoal);
       }
       
       const userId = req.query.userId as string;
@@ -909,18 +912,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       // Se è l'amministratore, restituisci un profilo predefinito
       if ((req.user as any).isAdmin) {
-        return res.json({
+        console.log("Sono nell'API user-profile e l'utente è un amministratore");
+        const adminProfile = {
           id: 999,
           userId: "999999",
           name: "Administrator",
           age: 35,
-          gender: "altro",
+          gender: "other", // Modificato da 'altro' a 'other'
           height: 180,
           weight: 75,
-          activityLevel: "moderata",
+          activityLevel: "moderate", // Modificato da 'moderata' a 'moderate'
           createdAt: new Date(),
           updatedAt: new Date()
-        });
+        };
+        console.log("Restituisco il profilo amministratore:", JSON.stringify(adminProfile));
+        return res.json(adminProfile);
       }
       
       const userId = req.query.userId as string;
