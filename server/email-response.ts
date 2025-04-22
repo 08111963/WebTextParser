@@ -1,7 +1,7 @@
 /**
- * Gestore delle risposte alle email
+ * Email Response Handler
  * 
- * Questo modulo gestisce la ricezione e l'elaborazione delle risposte degli utenti alle email inviate dal sistema.
+ * This module handles receiving and processing user responses to emails sent by the system.
  */
 
 import { storage } from "./storage";
@@ -85,23 +85,23 @@ export async function createEmailResponse(req: Request, res: Response) {
     try {
       const { sendContactNotificationEmail, sendContactConfirmationEmail } = await import('./contact-email-service');
       
-      // Invia l'email di notifica all'admin
+      // Send the notification email to admin
       const notificationSent = await sendContactNotificationEmail(emailResponse);
       if (notificationSent) {
-        console.log('Email di notifica per admin inviata con successo');
+        console.log('Email notification for admin sent successfully');
       } else {
-        console.warn('Impossibile inviare email di notifica all\'admin');
+        console.warn('Unable to send notification email to admin');
       }
       
-      // Invia la conferma di ricezione all'utente
+      // Send the confirmation receipt to the user
       const confirmationSent = await sendContactConfirmationEmail(email, subject);
       if (confirmationSent) {
-        console.log('Email di conferma per utente inviata con successo');
+        console.log('Confirmation email for user sent successfully');
       } else {
-        console.warn('Impossibile inviare email di conferma all\'utente');
+        console.warn('Unable to send confirmation email to user');
       }
     } catch (error) {
-      console.error('Errore durante l\'invio delle email di notifica:', error);
+      console.error('Error sending notification emails:', error);
     }
 
     return res.status(201).json({ 

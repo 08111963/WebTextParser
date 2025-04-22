@@ -1,39 +1,39 @@
 /**
- * Servizio per l'invio di email di contatto
+ * Contact Email Service
  * 
- * Questo servizio gestisce l'invio di email quando un utente compila il modulo di contatto.
- * Utilizza l'API di Brevo con l'implementazione fetch.
+ * This service handles sending emails when a user fills out the contact form.
+ * It uses the Brevo API with a fetch implementation.
  */
 
 import { InsertEmailResponse } from './email-response';
 
-// Costante per l'URL API di Brevo
+// Constant for the Brevo API URL
 const BREVO_API_URL = 'https://api.brevo.com/v3/smtp/email';
 
-// Verifica che la chiave API sia disponibile
+// Check if the API key is available
 if (!process.env.BREVO_API_KEY) {
-  console.error('BREVO_API_KEY non è definita nelle variabili di ambiente');
+  console.error('BREVO_API_KEY is not defined in environment variables');
 }
 
-// Configurazione dei mittenti e destinatari
+// Configure senders and recipients
 const adminEmail = "support@nutrieasy.eu";
 const adminName = "Support NutriEasy";
 
-// Funzione di utilità per inviare email tramite Brevo
+// Utility function to send emails via Brevo
 async function sendEmail(to: string | string[], subject: string, htmlContent: string, textContent: string, replyTo?: {email: string, name: string}): Promise<boolean> {
   try {
-    // Verifica che la chiave API sia disponibile
+    // Check if the API key is available
     if (!process.env.BREVO_API_KEY) {
-      console.warn('BREVO_API_KEY non disponibile, impossibile inviare email');
+      console.warn('BREVO_API_KEY not available, unable to send email');
       return false;
     }
 
-    // Prepara il destinatario nel formato corretto
+    // Prepare the recipient in the correct format
     const toArray = Array.isArray(to) 
       ? to.map(email => ({ email }))
       : [{ email: to }];
 
-    // Configura i dati per l'invio
+    // Configure the data for sending
     const payload = {
       sender: { email: adminEmail, name: adminName },
       to: toArray,
@@ -43,7 +43,7 @@ async function sendEmail(to: string | string[], subject: string, htmlContent: st
       replyTo: replyTo || { email: adminEmail, name: adminName }
     };
 
-    // Invia la richiesta all'API di Brevo
+    // Send the request to the Brevo API
     const response = await fetch(BREVO_API_URL, {
       method: 'POST',
       headers: {
@@ -56,65 +56,65 @@ async function sendEmail(to: string | string[], subject: string, htmlContent: st
 
     if (!response.ok) {
       const errorData = await response.json();
-      console.error('Errore API Brevo:', errorData);
+      console.error('Brevo API Error:', errorData);
       return false;
     }
 
     const data = await response.json();
-    console.log('Email inviata con successo tramite Brevo:', data);
+    console.log('Email sent successfully via Brevo:', data);
     return true;
   } catch (error) {
-    console.error('Errore durante l\'invio dell\'email:', error);
+    console.error('Error sending email:', error);
     return false;
   }
 }
 
-// Funzione per inviare un'email di notifica all'amministratore quando arriva un messaggio dal modulo di contatto
+// Function to send a notification email to the administrator when a message comes from the contact form
 export async function sendContactNotificationEmail(contactMessage: InsertEmailResponse): Promise<boolean> {
   try {
     const { email, subject, message } = contactMessage;
 
-    // Configura il contenuto dell'email
-    const emailSubject = `[Contatto Web] ${subject}`;
+    // Configure email content
+    const emailSubject = `[Website Contact] ${subject}`;
     
-    // Contenuto HTML dell'email
+    // HTML email content
     const htmlContent = `
     <html>
       <body style="font-family: Arial, sans-serif; line-height: 1.6; max-width: 600px; margin: 0 auto;">
         <div style="background-color: #4CAF50; padding: 20px; text-align: center;">
-          <h1 style="color: white; margin: 0;">Nuovo messaggio dal sito web</h1>
+          <h1 style="color: white; margin: 0;">New message from website</h1>
         </div>
         <div style="padding: 20px;">
-          <p><strong>Da:</strong> ${email}</p>
-          <p><strong>Oggetto:</strong> ${subject}</p>
+          <p><strong>From:</strong> ${email}</p>
+          <p><strong>Subject:</strong> ${subject}</p>
           <div style="background-color: #f9f9f9; border-left: 4px solid #4CAF50; padding: 15px; margin: 15px 0;">
             <p style="white-space: pre-line;">${message}</p>
           </div>
-          <p style="margin-top: 20px;">Per rispondere direttamente a questo messaggio, usa il pulsante "Rispondi" nella tua email.</p>
+          <p style="margin-top: 20px;">To reply directly to this message, use the "Reply" button in your email client.</p>
         </div>
         <div style="background-color: #f5f5f5; padding: 10px; font-size: 12px; text-align: center; color: #777;">
-          <p>NutriEasy - Sistema di notifica contatti</p>
+          <p>NutriEasy - Contact Notification System</p>
         </div>
       </body>
     </html>
     `;
 
-    // Contenuto testuale dell'email (per client che non supportano HTML)
+    // Plain text email content (for clients that don't support HTML)
     const textContent = `
-    Nuovo messaggio dal sito web
+    New message from website
     ---------------------------
     
-    Da: ${email}
-    Oggetto: ${subject}
+    From: ${email}
+    Subject: ${subject}
     
-    Messaggio:
+    Message:
     ${message}
     
     ---------------------------
-    Per rispondere direttamente a questo messaggio, usa il pulsante "Rispondi" nella tua email.
+    To reply directly to this message, use the "Reply" button in your email client.
     `;
 
-    // Utilizza l'email del mittente come replyTo
+    // Use sender's email as replyTo
     const replyTo = { 
       email: email, 
       name: email.split('@')[0] 
@@ -122,60 +122,60 @@ export async function sendContactNotificationEmail(contactMessage: InsertEmailRe
 
     return await sendEmail(adminEmail, emailSubject, htmlContent, textContent, replyTo);
   } catch (error) {
-    console.error('Errore durante l\'invio dell\'email di notifica contatto:', error);
+    console.error('Error sending contact notification email:', error);
     return false;
   }
 }
 
-// Funzione per inviare una conferma di ricezione all'utente
+// Function to send a confirmation receipt to the user
 export async function sendContactConfirmationEmail(email: string, subject: string): Promise<boolean> {
   try {
-    // Configura il contenuto dell'email
-    const emailSubject = `Conferma di ricezione: ${subject}`;
+    // Configure email content
+    const emailSubject = `Receipt Confirmation: ${subject}`;
     
-    // Contenuto HTML dell'email
+    // HTML email content
     const htmlContent = `
     <html>
       <body style="font-family: Arial, sans-serif; line-height: 1.6; max-width: 600px; margin: 0 auto;">
         <div style="background-color: #4CAF50; padding: 20px; text-align: center;">
-          <h1 style="color: white; margin: 0;">Abbiamo ricevuto il tuo messaggio</h1>
+          <h1 style="color: white; margin: 0;">We've received your message</h1>
         </div>
         <div style="padding: 20px;">
-          <p>Grazie per averci contattato.</p>
-          <p>Questo è un messaggio automatico per confermare che abbiamo ricevuto la tua richiesta con oggetto: <strong>${subject}</strong>.</p>
-          <p>Ti risponderemo il prima possibile.</p>
-          <p>Cordiali saluti,<br>Il Team di NutriEasy</p>
+          <p>Thank you for contacting us.</p>
+          <p>This is an automatic message to confirm that we have received your request with subject: <strong>${subject}</strong>.</p>
+          <p>We will respond as soon as possible.</p>
+          <p>Best regards,<br>The NutriEasy Team</p>
         </div>
         <div style="background-color: #f5f5f5; padding: 10px; font-size: 12px; text-align: center; color: #777;">
-          <p>Hai ricevuto questa email perché hai utilizzato il modulo di contatto sul nostro sito. Se non hai inviato alcun messaggio, per favore ignora questa email.</p>
-          <p>&copy; 2025 NutriEasy. Tutti i diritti riservati.</p>
+          <p>You are receiving this email because you used the contact form on our website. If you did not send any message, please ignore this email.</p>
+          <p>&copy; 2025 NutriEasy. All rights reserved.</p>
         </div>
       </body>
     </html>
     `;
 
-    // Contenuto testuale dell'email (per client che non supportano HTML)
+    // Plain text email content (for clients that don't support HTML)
     const textContent = `
-    Abbiamo ricevuto il tuo messaggio
+    We've received your message
     
-    Grazie per averci contattato.
+    Thank you for contacting us.
     
-    Questo è un messaggio automatico per confermare che abbiamo ricevuto la tua richiesta con oggetto: ${subject}.
+    This is an automatic message to confirm that we have received your request with subject: ${subject}.
     
-    Ti risponderemo il prima possibile.
+    We will respond as soon as possible.
     
-    Cordiali saluti,
-    Il Team di NutriEasy
+    Best regards,
+    The NutriEasy Team
     
     ---
-    Hai ricevuto questa email perché hai utilizzato il modulo di contatto sul nostro sito. 
-    Se non hai inviato alcun messaggio, per favore ignora questa email.
-    © 2025 NutriEasy. Tutti i diritti riservati.
+    You are receiving this email because you used the contact form on our website.
+    If you did not send any message, please ignore this email.
+    © 2025 NutriEasy. All rights reserved.
     `;
 
     return await sendEmail(email, emailSubject, htmlContent, textContent);
   } catch (error) {
-    console.error('Errore durante l\'invio dell\'email di conferma contatto:', error);
+    console.error('Error sending contact confirmation email:', error);
     return false;
   }
 }
