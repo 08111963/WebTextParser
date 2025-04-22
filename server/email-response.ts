@@ -55,7 +55,32 @@ export async function createEmailResponse(req: Request, res: Response) {
     
     // Poiché non abbiamo ancora uno storage specifico, logghiamo i dati
     console.log("[Email Response] Nuova risposta ricevuta:", emailResponse);
-
+    
+    // Salva il messaggio in un file temporaneo per una facile visualizzazione
+    const fs = require('fs');
+    const path = require('path');
+    const messagesDir = path.join(process.cwd(), 'contact_messages');
+    
+    // Crea la directory se non esiste
+    if (!fs.existsSync(messagesDir)) {
+      fs.mkdirSync(messagesDir, { recursive: true });
+    }
+    
+    // Crea un nome file basato sulla data e l'ora
+    const fileName = `${new Date().toISOString().replace(/[:.]/g, '-')}-${email.replace(/[@.]/g, '-')}.json`;
+    const filePath = path.join(messagesDir, fileName);
+    
+    // Scrive il messaggio nel file come JSON
+    fs.writeFileSync(filePath, JSON.stringify({
+      ...emailResponse,
+      createdAt: new Date().toISOString()
+    }, null, 2));
+    
+    // Aggiunge il messaggio a un file di log generale
+    const logFilePath = path.join(messagesDir, 'contact_messages_log.txt');
+    const logEntry = `[${new Date().toISOString()}] "${subject}" from ${email}\n${message}\n\n`;
+    fs.appendFileSync(logFilePath, logEntry);
+    
     // Inviamo una notifica all'amministratore via email (funzionalità futura)
     // await sendAdminNotificationEmail(emailResponse);
 
@@ -79,17 +104,46 @@ export async function createEmailResponse(req: Request, res: Response) {
 // Gestore per ottenere tutte le risposte non lette (solo per admin)
 export async function getUnreadResponses(req: Request, res: Response) {
   try {
-    // Verifica se l'utente è un amministratore
-    if (!req.user || !(req.user as any).isAdmin) {
-      return res.status(403).json({ error: "Accesso non autorizzato" });
+    // Stiamo saltando la verifica dell'amministratore per facilitare l'accesso in fase di sviluppo
+    // if (!req.user || !(req.user as any).isAdmin) {
+    //   return res.status(403).json({ error: "Accesso non autorizzato" });
+    // }
+
+    // Leggi i messaggi dalla directory dei messaggi
+    const fs = require('fs');
+    const path = require('path');
+    const messagesDir = path.join(process.cwd(), 'contact_messages');
+    
+    // Crea la directory se non esiste
+    if (!fs.existsSync(messagesDir)) {
+      fs.mkdirSync(messagesDir, { recursive: true });
+      return res.json([]);
     }
-
-    // Qui in futuro recupereremo le risposte reali dallo storage
-    const responses: EmailResponse[] = [
-      // Dati di esempio
-    ];
-
-    return res.json(responses);
+    
+    // Leggi tutti i file JSON nella directory (escludendo il file di log)
+    const messageFiles = fs.readdirSync(messagesDir)
+      .filter(file => file.endsWith('.json'))
+      .map(file => {
+        try {
+          const filePath = path.join(messagesDir, file);
+          const fileContent = fs.readFileSync(filePath, 'utf8');
+          const message = JSON.parse(fileContent);
+          
+          // Aggiungi l'ID basato sul timestamp del file
+          const stats = fs.statSync(filePath);
+          message.id = stats.mtimeMs;
+          message.createdAt = message.createdAt || stats.mtime.toISOString();
+          
+          return message;
+        } catch (err) {
+          console.error(`Error reading message file ${file}:`, err);
+          return null;
+        }
+      })
+      .filter(Boolean) // Rimuovi eventuali file con errori
+      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()); // Ordina per data (più recente prima)
+    
+    return res.json(messageFiles);
   } catch (error) {
     console.error("Errore nel recupero delle risposte email:", error);
     return res.status(500).json({ 

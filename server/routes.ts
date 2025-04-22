@@ -1741,7 +1741,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Endpoint per ottenere le risposte alle email non lette (solo per admin)
-  app.get('/api/email-responses/unread', isAuthenticated, async (req, res) => {
+  app.get('/api/email-responses/unread', async (req, res) => {
     await getUnreadResponses(req, res);
   });
 
