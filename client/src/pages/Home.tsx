@@ -26,18 +26,13 @@ function createDate(dateString: string): Date {
   return new Date(dateString);
 }
 
-export default function Home({
-  requireAuth,
-  isAuthenticated,
-  user: authUser,
-}: {
-  requireAuth?: (action: string) => boolean;
-  isAuthenticated?: boolean;
-  user?: any;
-}) {
+export default function Home(props: any) {
+  const requireAuth = props.requireAuth;
+  const isAuthenticated = props.isAuthenticated === true;
+  const authUser = props.user;
   const { user: authenticatedUser } = useAuth();
   // Usa l'utente proveniente dalle props se disponibile, altrimenti usa quello dall'hook
-  const user = authUser || authenticatedUser;
+  const user = authUser || authenticatedUser || { id: 0, username: 'Guest' };
   const { toast } = useToast();
   const [loc] = useLocation();
   const params = loc.includes('?') ? loc.split('?')[1] : '';

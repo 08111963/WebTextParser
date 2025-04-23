@@ -41,7 +41,9 @@ function Router() {
       <Route path="/contatti" component={Contatti} />
       
       {/* Home può essere visualizzata anche in modalità demo */}
-      <Route path="/home" component={Home} />
+      <Route path="/home">
+        {(params) => <Home {...params} />}
+      </Route>
       <Route path="/checkout">
         <ProtectedRoute component={Checkout} />
       </Route>
