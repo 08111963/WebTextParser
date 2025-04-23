@@ -1,0 +1,13 @@
+# robots.txt for NutriEasy
+User-agent: *
+Allow: /
+
+# Pages not to be crawled
+Disallow: /profile
+Disallow: /dashboard
+Disallow: /checkout
+Disallow: /payment-success
+Disallow: /api/
+
+# Allow sitemap
+Sitemap: https://nutrieasy.eu/sitemap.xml

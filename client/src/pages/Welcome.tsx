@@ -65,9 +65,9 @@ export default function Welcome() {
       <div className="flex-grow flex flex-col items-center justify-center p-8 text-center">
         <div className="mb-6">
           <Bolt className="h-20 w-20 text-primary mx-auto" />
-          <h1 className="text-4xl font-bold text-primary mt-4">Welcome to NutriEasy</h1>
+          <h1 className="text-4xl font-bold text-primary mt-4">Welcome to NutriEasy - Smart Nutrition & Meal Planning</h1>
           <p className="text-xl text-gray-600 mt-2 max-w-md mx-auto">
-            Track your nutrition, achieve your goals, and maintain a healthy lifestyle.
+            Your AI-powered nutrition assistant to track meals, analyze nutrients, and achieve your health goals with personalized meal plans.
           </p>
           <div className="mt-6 space-y-3">
             <div>
