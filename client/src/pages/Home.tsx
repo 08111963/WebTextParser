@@ -699,21 +699,6 @@ export default function Home() {
           </TabsContent>
         </Tabs>
       </main>
-      
-      <footer className="bg-gray-100 py-4 border-t">
-        <div className="container mx-auto px-4">
-          <div className="flex flex-col md:flex-row justify-between items-center">
-            <div className="text-sm text-gray-600">
-              &copy; {new Date().getFullYear()} NutriEasy. All rights reserved.
-            </div>
-            <div className="flex space-x-6 mt-4 md:mt-0">
-              <a href="/contatti" className="text-sm text-primary hover:underline font-medium">Contact Us</a>
-              <a href="/privacy-policy" className="text-sm text-gray-600 hover:underline">Privacy Policy</a>
-              <a href="/terms-of-service" className="text-sm text-gray-600 hover:underline">Terms of Service</a>
-            </div>
-          </div>
-        </div>
-      </footer>
     </div>
   );
 }

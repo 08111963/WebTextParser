@@ -23,12 +23,12 @@ export default function Footer() {
             <Link href="/terms-of-service" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
               Terms of Service
             </Link>
-            <a 
-              href="mailto:contact@nutrieasy.com" 
-              className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+            <Link 
+              href="/contatti"
+              className="text-sm text-primary hover:text-primary/90 transition-colors font-medium"
             >
               Contact Us
-            </a>
+            </Link>
           </div>
         </div>
       </div>
