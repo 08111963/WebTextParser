@@ -678,19 +678,19 @@ export default function Home() {
                       <User className="h-12 w-12 text-primary" />
                     </div>
                   </div>
-                  <p className="text-2xl font-semibold mb-3">Profilo Utente</p>
+                  <p className="text-2xl font-semibold mb-3">User Profile</p>
                   <p className="text-lg text-muted-foreground mb-2">
-                    Per completare il tuo Profilo Accedi o Registrati
+                    To complete your Profile, please Login or Register
                   </p>
                   <p className="text-sm text-muted-foreground mb-6">
-                    Registrandoti potrai accedere al tuo profilo, impostare i tuoi dati fisici, monitorare i progressi e gestire le tue preferenze.
+                    By registering, you'll be able to access your profile, set your physical data, track your progress, and manage your preferences.
                   </p>
                   <div className="flex flex-col sm:flex-row justify-center space-y-3 sm:space-y-0 sm:space-x-3">
                     <Button size="lg" onClick={() => window.location.href = '/auth?action=register-to-complete-profile'}>
-                      Registrati Ora
+                      Register Now
                     </Button>
                     <Button size="lg" variant="outline" onClick={() => window.location.href = '/auth?mode=login'}>
-                      Accedi
+                      Log In
                     </Button>
                   </div>
                 </div>
