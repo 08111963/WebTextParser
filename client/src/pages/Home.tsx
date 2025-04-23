@@ -51,7 +51,9 @@ export default function Home() {
     : 'dashboard';
   
   const [activeTab, setActiveTab] = useState(initialTab);
-  const [demoMode, setDemoMode] = useState(isDemoMode);
+  
+  // Importante: Non utilizziamo più lo state demoMode ma solo isDemoMode
+  // che viene calcolato dinamicamente dall'URL
   
   // Effetto per resettare la posizione di scroll quando cambia la tab
   useEffect(() => {
@@ -235,14 +237,14 @@ export default function Home() {
   };
 
   // Calculate nutritional totals
-  const displayMeals = demoMode ? demoMeals : meals || [];
+  const displayMeals = isDemoMode ? demoMeals : meals || [];
   const todayMeals = displayMeals.filter((meal: any) => {
     const mealDate = new Date(meal.timestamp);
     const today = new Date();
     return mealDate.setHours(0, 0, 0, 0) === today.setHours(0, 0, 0, 0);
   });
 
-  const displayGoal = demoMode ? demoGoal : activeGoal;
+  const displayGoal = isDemoMode ? demoGoal : activeGoal;
 
   const totalCalories = todayMeals.reduce((sum: number, meal: any) => sum + meal.calories, 0);
   const totalProteins = todayMeals.reduce((sum: number, meal: any) => sum + meal.proteins, 0);
@@ -256,10 +258,10 @@ export default function Home() {
       
       <main className="container mx-auto px-4 py-6 pb-16 flex-1">
         <div className="mb-6">
-          <h1 className="text-3xl font-bold">Welcome, {demoMode ? 'Guest' : user.username}!</h1>
+          <h1 className="text-3xl font-bold">Welcome, {isDemoMode ? 'Guest' : user.username}!</h1>
           <p className="text-gray-600">Track your nutrition and reach your goals.</p>
           
-          {demoMode && (
+          {isDemoMode && (
             <div className="mt-4 p-4 rounded-md bg-blue-50 border border-blue-200">
               <div className="flex items-center">
                 <div className="bg-blue-100 p-2 rounded-full mr-3">
@@ -433,7 +435,7 @@ export default function Home() {
                           {displayGoal.description && (
                             <p className="text-sm text-muted-foreground">{displayGoal.description}</p>
                           )}
-                          {!displayGoal.description && demoMode && (
+                          {!displayGoal.description && isDemoMode && (
                             <p className="text-sm text-muted-foreground">Balanced nutrition for maintaining current weight and supporting overall health.</p>
                           )}
                           <div className="grid grid-cols-2 gap-2 mt-4">
@@ -466,7 +468,7 @@ export default function Home() {
                         onClick={() => handleInteractionRequiringAuth('goals', () => setActiveTab('goals'))}
                       >
                         <BarChart className="h-4 w-4 mr-2" />
-                        {demoMode ? 'View Goals' : (activeGoal ? 'Manage Goals' : 'Create Goal')}
+                        {isDemoMode ? 'View Goals' : (activeGoal ? 'Manage Goals' : 'Create Goal')}
                       </Button>
                     </CardFooter>
                   </Card>
@@ -510,8 +512,8 @@ export default function Home() {
                   </CardHeader>
                   <CardContent>
                     <MealList
-                      meals={demoMode ? demoMeals : (meals || [])}
-                      isLoading={mealsLoading && !demoMode}
+                      meals={isDemoMode ? demoMeals : (meals || [])}
+                      isLoading={mealsLoading && !isDemoMode}
                       userId={user.id.toString()}
                     />
                   </CardContent>
