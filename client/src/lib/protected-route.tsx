@@ -8,17 +8,17 @@ export function ProtectedRoute({
   component: React.ComponentType<any>;
 }) {
   const { user, isLoading } = useAuth();
-  const [location] = useLocation();
   
-  // Controlla se siamo in modalità demo
-  const params = location.includes('?') ? location.split('?')[1] : '';
-  const urlParams = new URLSearchParams(params);
-  const viewMode = urlParams.get('view');
+  // Controlla se siamo in modalità demo direttamente dalla URL globale
+  const searchParams = new URLSearchParams(window.location.search);
+  const viewMode = searchParams.get('view');
   const isDemoMode = viewMode === 'demo';
   
+  console.log("DEMO MODE CHECK:", { isDemoMode, viewMode, url: window.location.href });
+  
+  // In modalità demo, renderizza direttamente il componente senza controlli
   if (isDemoMode) {
-    // In modalità demo, renderizza direttamente il componente
-    // Il componente si occuperà di gestire la modalità demo
+    console.log("DEMO MODE ACTIVATED - Bypassing auth");
     return <Component />;
   }
 
@@ -30,11 +30,12 @@ export function ProtectedRoute({
     );
   }
 
-  // Verifica se l'utente è autenticato o se è un amministratore
+  // Verifica se l'utente è autenticato
   if (!user) {
+    console.log("NOT AUTHENTICATED - Redirecting to auth");
     return <Redirect to="/auth" />;
   }
 
-  // Passa i props necessari al componente
+  // Utente autenticato - renderizza il componente
   return <Component />;
 }

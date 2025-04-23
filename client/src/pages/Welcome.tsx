@@ -109,23 +109,23 @@ export default function Welcome() {
           <div className="bg-white p-6 rounded-lg shadow-md text-center">
             <h2 className="text-xl font-semibold mb-2">Track Your Meals</h2>
             <p className="text-gray-600 mb-4">Easily record what you eat and monitor calories and nutrients.</p>
-            <Button 
-              onClick={() => window.location.href = '/home?section=meals&view=demo'} 
-              className="bg-primary hover:bg-primary/80 text-white font-medium py-2 px-6 rounded-md transition-colors"
+            <a 
+              href="/home?section=meals&view=demo" 
+              className="inline-block bg-primary hover:bg-primary/80 text-white font-medium py-2 px-6 rounded-md transition-colors"
             >
               Explore Meals
-            </Button>
+            </a>
           </div>
           
           <div className="bg-white p-6 rounded-lg shadow-md text-center">
             <h2 className="text-xl font-semibold mb-2">Manage Goals</h2>
             <p className="text-gray-600 mb-4">Set personalized goals and track your progress over time.</p>
-            <Button 
-              onClick={() => window.location.href = '/home?section=goals&view=demo'} 
-              className="bg-primary hover:bg-primary/80 text-white font-medium py-2 px-6 rounded-md transition-colors"
+            <a 
+              href="/home?section=goals&view=demo"
+              className="inline-block bg-primary hover:bg-primary/80 text-white font-medium py-2 px-6 rounded-md transition-colors"
             >
               Explore Goals
-            </Button>
+            </a>
           </div>
         </div>
       </div>
@@ -357,13 +357,12 @@ export default function Welcome() {
             >
               Register
             </Button>
-            <Button 
-              onClick={() => window.location.href = '/home?section=dashboard&view=demo'} 
-              size="lg"
-              className="bg-white border-2 border-white text-primary hover:bg-gray-100 font-bold py-3 px-8 rounded-md text-lg"
+            <a 
+              href="/home?section=dashboard&view=demo" 
+              className="inline-block bg-white border-2 border-white text-primary hover:bg-gray-100 font-bold py-3 px-8 rounded-md text-lg"
             >
               {user ? "Explore Demo" : "Try with Free Account"}
-            </Button>
+            </a>
           </div>
           
           {/* Nascosto, senza pulsante visibile */}
