@@ -33,7 +33,8 @@ export function ConditionalNavigationProvider({ children }: { children: React.Re
     // Se l'utente proviene dalla pagina Welcome e sta esplorando features, mostra in modalità visualizzazione
     if (!user && (section === 'meals' || section === 'goals' || section === 'dashboard')) {
       // Naviga DIRETTAMENTE alla pagina home in modalità visualizzazione con la sezione specificata
-      navigate(`/home?section=${section}&view=demo`);
+      console.log("Demo mode navigation to:", section);
+      window.location.href = `/home?section=${section}&view=demo`;
     } 
     // Se l'utente è autenticato, naviga direttamente
     else if (user) {
