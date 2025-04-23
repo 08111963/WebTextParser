@@ -317,11 +317,13 @@ export default function Home() {
             <TabsTrigger value="goals">Goals</TabsTrigger>
             <TabsTrigger 
               value="profile" 
-              onClick={() => {
+              onClick={(e) => {
+                // Preveniamo il comportamento predefinito
                 if (isDemoMode) {
+                  e.preventDefault();
                   // Reindirizza alla pagina di registrazione se in modalità demo
                   window.location.href = '/auth?action=register-to-complete-profile';
-                  return;
+                  return false;
                 }
               }}
             >
