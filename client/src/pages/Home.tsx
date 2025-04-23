@@ -417,7 +417,13 @@ export default function Home() {
                       <Button 
                         variant="outline" 
                         className="w-full" 
-                        onClick={() => handleInteractionRequiringAuth('meals', () => setActiveTab('meals'))}
+                        onClick={() => {
+                          if (isAuthenticated) {
+                            setActiveTab('meals');
+                          } else {
+                            window.location.href = '/auth?action=register-to-add-meals';
+                          }
+                        }}
                       >
                         <Plus className="h-4 w-4 mr-2" />
                         Add Meal
@@ -467,7 +473,13 @@ export default function Home() {
                       <Button 
                         variant="outline" 
                         className="w-full" 
-                        onClick={() => handleInteractionRequiringAuth('goals', () => setActiveTab('goals'))}
+                        onClick={() => {
+                          if (isAuthenticated) {
+                            setActiveTab('goals');
+                          } else {
+                            window.location.href = '/auth?action=register-to-create-goals';
+                          }
+                        }}
                       >
                         <BarChart className="h-4 w-4 mr-2" />
                         {isDemoMode ? 'View Goals' : (activeGoal ? 'Manage Goals' : 'Create Goal')}
@@ -499,7 +511,7 @@ export default function Home() {
                   ) : (
                     <div className="border rounded-lg p-6 text-center">
                       <p className="text-muted-foreground mb-4">To add meals, please login or register</p>
-                      <Button onClick={() => handleInteractionRequiringAuth('meals', () => {})}>
+                      <Button onClick={() => window.location.href = '/auth?action=register-to-add-meals'}>
                         Login to Add Meals
                       </Button>
                     </div>
@@ -554,7 +566,7 @@ export default function Home() {
                   ) : (
                     <div className="border rounded-lg p-6 text-center">
                       <p className="text-muted-foreground mb-4">To set goals, please login or register</p>
-                      <Button onClick={() => handleInteractionRequiringAuth('goals', () => {})}>
+                      <Button onClick={() => window.location.href = '/auth?action=register-to-create-goals'}>
                         Login to Set Goals
                       </Button>
                     </div>
@@ -656,7 +668,7 @@ export default function Home() {
                   <p className="text-muted-foreground mb-6">
                     Login to view and edit your profile, set your physical data, and manage your preferences.
                   </p>
-                  <Button onClick={() => handleInteractionRequiringAuth('profile', () => {})}>
+                  <Button onClick={() => window.location.href = '/auth?action=register-to-complete-profile'}>
                     Login to Your Profile
                   </Button>
                 </div>
