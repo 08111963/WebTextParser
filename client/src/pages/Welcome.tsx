@@ -19,12 +19,26 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
 export default function Welcome() {
-  const [, navigate] = useLocation();
+  const [location, navigate] = useLocation();
   const { navigateTo, LoginDialog } = useConditionalNavigation();
   const { user, adminAccessMutation } = useAuth();
   const [adminCode, setAdminCode] = useState('');
   const [showAdminDialog, setShowAdminDialog] = useState(false);
   const [keySequence, setKeySequence] = useState('');
+  
+  // Gestione dei parametri nella query string
+  useEffect(() => {
+    // Verifica se ci sono parametri nella query string
+    const params = new URLSearchParams(window.location.search);
+    const section = params.get('section');
+    const viewMode = params.get('view');
+    
+    // Se c'è un parametro section e viewMode=demo, reindirizza alla pagina Home con i parametri corretti
+    if (section && (section === 'meals' || section === 'goals' || section === 'dashboard') && viewMode === 'demo') {
+      // Reindirizza alla Home con i parametri per mantenere la modalità demo
+      navigate(`/home?section=${section}&view=demo`);
+    }
+  }, [location, navigate]);
   
   const handleAdminAccess = () => {
     adminAccessMutation.mutate({ code: adminCode });
