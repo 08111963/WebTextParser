@@ -62,30 +62,6 @@ function Router() {
   );
 }
 
-function AppContent() {
-  const [location] = useLocation();
-  const [isDemoMode, setIsDemoMode] = useState(false);
-  
-  useEffect(() => {
-    // Controlla se siamo in modalità demo
-    const searchParams = new URLSearchParams(window.location.search);
-    setIsDemoMode(searchParams.get('view') === 'demo');
-  }, [location]);
-  
-  return (
-    <div className="flex flex-col min-h-screen">
-      {/* NavBar mostrato solo se NON siamo in modalità demo */}
-      {!isDemoMode && <NavBar />}
-      <main className="flex-grow">
-        <Toaster />
-        <Router />
-      </main>
-      {/* Il pulsante di installazione è ora gestito dalla pagina Welcome */}
-      <Footer />
-    </div>
-  );
-}
-
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
@@ -93,7 +69,15 @@ function App() {
         <AuthProvider>
           <SubscriptionProvider>
             <ConditionalNavigationProvider>
-              <AppContent />
+              <div className="flex flex-col min-h-screen">
+                <NavBar />
+                <main className="flex-grow">
+                  <Toaster />
+                  <Router />
+                </main>
+                {/* Il pulsante di installazione è ora gestito dalla pagina Welcome */}
+                <Footer />
+              </div>
             </ConditionalNavigationProvider>
           </SubscriptionProvider>
         </AuthProvider>
