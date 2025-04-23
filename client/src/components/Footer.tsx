@@ -14,18 +14,18 @@ export default function Footer() {
           </div>
           
           <div className="flex space-x-6">
-            <Link href="/guide" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+            <Link href="/guide" className="text-sm text-primary hover:text-primary/80 transition-colors">
               User Guide
             </Link>
-            <Link href="/privacy-policy" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+            <Link href="/privacy-policy" className="text-sm text-primary hover:text-primary/80 transition-colors">
               Privacy Policy
             </Link>
-            <Link href="/terms-of-service" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+            <Link href="/terms-of-service" className="text-sm text-primary hover:text-primary/80 transition-colors">
               Terms of Service
             </Link>
             <Link 
               href="/contatti"
-              className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+              className="text-sm text-primary hover:text-primary/80 transition-colors"
             >
               Contact Us
             </Link>
