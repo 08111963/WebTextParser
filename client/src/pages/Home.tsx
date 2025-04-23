@@ -15,7 +15,7 @@ import PremiumFeature from '@/components/PremiumFeature';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/use-auth';
 import { useQuery } from '@tanstack/react-query';
-import { Loader2, Plus, Calendar, BarChart, UserRound, Sparkles, Target } from 'lucide-react';
+import { Loader2, Plus, Calendar, BarChart, UserRound, User, Sparkles, Target } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -335,15 +335,7 @@ export default function Home() {
             >
               Goals
             </TabsTrigger>
-            <TabsTrigger 
-              value="profile" 
-              onClick={(e) => {
-                if (!isAuthenticated) {
-                  e.preventDefault();
-                  window.location.href = '/auth?action=register-to-complete-profile';
-                }
-              }}
-            >
+            <TabsTrigger value="profile">
               Profile
             </TabsTrigger>
           </TabsList>
@@ -677,17 +669,30 @@ export default function Home() {
 
           <TabsContent value="profile">
             <div className="max-w-4xl mx-auto">
-              {user ? (
+              {isAuthenticated ? (
                 <UserProfile />
               ) : (
-                <div className="border rounded-lg p-8 text-center">
-                  <p className="text-xl font-semibold mb-2">User Profile</p>
-                  <p className="text-muted-foreground mb-6">
-                    Login to view and edit your profile, set your physical data, and manage your preferences.
+                <div className="border rounded-lg p-8 text-center mt-8">
+                  <div className="flex justify-center mb-6">
+                    <div className="bg-primary/10 p-6 rounded-full">
+                      <User className="h-12 w-12 text-primary" />
+                    </div>
+                  </div>
+                  <p className="text-2xl font-semibold mb-3">Profilo Utente</p>
+                  <p className="text-lg text-muted-foreground mb-2">
+                    Per completare il tuo Profilo Accedi o Registrati
                   </p>
-                  <Button onClick={() => window.location.href = '/auth?action=register-to-complete-profile'}>
-                    Login to Your Profile
-                  </Button>
+                  <p className="text-sm text-muted-foreground mb-6">
+                    Registrandoti potrai accedere al tuo profilo, impostare i tuoi dati fisici, monitorare i progressi e gestire le tue preferenze.
+                  </p>
+                  <div className="flex flex-col sm:flex-row justify-center space-y-3 sm:space-y-0 sm:space-x-3">
+                    <Button size="lg" onClick={() => window.location.href = '/auth?action=register-to-complete-profile'}>
+                      Registrati Ora
+                    </Button>
+                    <Button size="lg" variant="outline" onClick={() => window.location.href = '/auth?mode=login'}>
+                      Accedi
+                    </Button>
+                  </div>
                 </div>
               )}
             </div>
