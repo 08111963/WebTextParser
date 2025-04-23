@@ -102,8 +102,8 @@ export default function Home() {
       return;
     }
     
-    // Altrimenti, reindirizza all'autenticazione
-    window.location.href = `/auth?redirect=/home?section=${action}`;
+    // Se non è in modalità demo, mostra la versione demo invece di reindirizzare
+    window.location.href = `/home?section=${action}&view=demo`;
   };
   
   // Fetch dei pasti dell'utente (solo se autenticato)
