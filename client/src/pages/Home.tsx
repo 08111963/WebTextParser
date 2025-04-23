@@ -313,17 +313,34 @@ export default function Home() {
         >
           <TabsList className="grid w-full md:w-auto grid-cols-4 mb-6">
             <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
-            <TabsTrigger value="meals">Meals</TabsTrigger>
-            <TabsTrigger value="goals">Goals</TabsTrigger>
+            <TabsTrigger 
+              value="meals" 
+              onClick={(e) => {
+                if (!isAuthenticated) {
+                  e.preventDefault();
+                  window.location.href = '/auth?action=register-to-add-meals';
+                }
+              }}
+            >
+              Meals
+            </TabsTrigger>
+            <TabsTrigger 
+              value="goals" 
+              onClick={(e) => {
+                if (!isAuthenticated) {
+                  e.preventDefault();
+                  window.location.href = '/auth?action=register-to-create-goals';
+                }
+              }}
+            >
+              Goals
+            </TabsTrigger>
             <TabsTrigger 
               value="profile" 
               onClick={(e) => {
-                // Preveniamo il comportamento predefinito
-                if (isDemoMode) {
+                if (!isAuthenticated) {
                   e.preventDefault();
-                  // Reindirizza alla pagina di registrazione se in modalità demo
                   window.location.href = '/auth?action=register-to-complete-profile';
-                  return false;
                 }
               }}
             >
