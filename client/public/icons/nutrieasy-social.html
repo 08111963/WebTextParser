@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>NutriEasy Social Image</title>
+  <style>
+    body, html {
+      margin: 0;
+      padding: 0;
+      width: 1200px;
+      height: 630px;
+      overflow: hidden;
+    }
+    .container {
+      width: 100%;
+      height: 100%;
+      background-color: #4CAF50;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      font-family: Arial, sans-serif;
+      color: white;
+      position: relative;
+    }
+    .inner-container {
+      width: 1100px;
+      height: 530px;
+      background-color: rgba(255, 255, 255, 0.1);
+      border-radius: 20px;
+      position: absolute;
+      top: 50px;
+      left: 50px;
+    }
+    .logo {
+      font-size: 0;
+      width: 300px;
+      height: 300px;
+      background-color: white;
+      border-radius: 50%;
+      position: relative;
+      margin-bottom: 20px;
+    }
+    .logo::before {
+      content: "";
+      position: absolute;
+      width: 80%;
+      height: 80%;
+      top: 10%;
+      left: 10%;
+      border-radius: 50%;
+      border: 16px solid #4CAF50;
+      border-top-color: transparent;
+      transform: rotate(45deg);
+    }
+    .logo::after {
+      content: "";
+      position: absolute;
+      width: 30%;
+      height: 30%;
+      background-color: #4CAF50;
+      border-radius: 50%;
+      top: 20%;
+      left: 35%;
+    }
+    .title {
+      font-size: 72px;
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+    .tagline {
+      font-size: 36px;
+      margin-bottom: 40px;
+    }
+    .features {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      width: 100%;
+      padding: 0 50px;
+    }
+    .feature {
+      display: flex;
+      align-items: center;
+      margin: 10px 20px;
+      width: 45%;
+    }
+    .feature-dot {
+      width: 30px;
+      height: 30px;
+      background-color: white;
+      border-radius: 50%;
+      margin-right: 15px;
+    }
+    .feature-text {
+      font-size: 24px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="inner-container"></div>
+    <div class="logo"></div>
+    <div class="title">NutriEasy</div>
+    <div class="tagline">Smart Nutrition &amp; Meal Planning</div>
+    <div class="features">
+      <div class="feature">
+        <div class="feature-dot"></div>
+        <div class="feature-text">AI-Powered Recommendations</div>
+      </div>
+      <div class="feature">
+        <div class="feature-dot"></div>
+        <div class="feature-text">Personalized Meal Plans</div>
+      </div>
+      <div class="feature">
+        <div class="feature-dot"></div>
+        <div class="feature-text">Nutrition Goal Tracking</div>
+      </div>
+      <div class="feature">
+        <div class="feature-dot"></div>
+        <div class="feature-text">Health Analysis Tools</div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
