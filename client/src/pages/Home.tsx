@@ -26,25 +26,25 @@ function createDate(dateString: string): Date {
   return new Date(dateString);
 }
 
-export default function Home({
-  requireAuth,
-  isAuthenticated,
-  user: authUser,
-}: {
-  requireAuth?: (action: string) => boolean;
-  isAuthenticated?: boolean;
-  user?: any;
-}) {
-  const { user: authenticatedUser } = useAuth();
-  // Usa l'utente proveniente dalle props se disponibile, altrimenti usa quello dall'hook
-  const user = authUser || authenticatedUser || { id: 0, username: 'Guest' };
-  const { toast } = useToast();
-  const [loc] = useLocation();
-  const params = loc.includes('?') ? loc.split('?')[1] : '';
+export default function Home() {
+  const { user: authUser } = useAuth();
+  const isAuthenticated = !!authUser;
+  const [location] = useLocation();
+  
+  // Controlla se siamo in modalità demo
+  const params = location.includes('?') ? location.split('?')[1] : '';
   const urlParams = new URLSearchParams(params);
-  const sectionParam = urlParams.get('section');
   const viewMode = urlParams.get('view');
+  const sectionParam = urlParams.get('section');
   const isDemoMode = viewMode === 'demo';
+  
+  // Crea un utente demo se non siamo autenticati o siamo in modalità demo
+  const demoUser = { id: 0, username: 'Guest', email: '', password: '' };
+  
+  // Usa l'utente reale se autenticato, altrimenti usa l'utente demo
+  const user = authUser || demoUser;
+  
+  const { toast } = useToast();
   
   const initialTab = sectionParam && ['dashboard', 'meals', 'goals', 'profile'].includes(sectionParam) 
     ? sectionParam 
