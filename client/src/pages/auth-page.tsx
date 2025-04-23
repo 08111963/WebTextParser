@@ -53,6 +53,7 @@ export default function AuthPage() {
   const [showRegisterPassword, setShowRegisterPassword] = useState<boolean>(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState<boolean>(false);
   const [isCheckingPreviousRegistration, setIsCheckingPreviousRegistration] = useState<boolean>(false);
+  const [registrationMessage, setRegistrationMessage] = useState<string | null>(null);
   
   // Mutation for checking if the email has already been used for registration
   const checkRegistrationMutation = useMutation({

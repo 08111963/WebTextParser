@@ -96,13 +96,30 @@ export default function Home() {
   
   // Preparazione per le interazioni che richiedono autenticazione
   const handleInteractionRequiringAuth = (action: string, callback: () => void) => {
-    // In modalità demo o se autenticati, procedi
-    if (isDemoMode || isAuthenticated) {
+    // Se è autenticato, procedi
+    if (isAuthenticated) {
       callback();
       return;
     }
     
-    // Se non è in modalità demo, mostra la versione demo invece di reindirizzare
+    // Se è in modalità demo, reindirizza alla pagina di autenticazione
+    if (demoMode) {
+      // Reindirizza alla pagina di registrazione con un messaggio specifico per l'azione
+      let message = "";
+      
+      if (action === 'meals') {
+        message = "register-to-add-meals";
+      } else if (action === 'goals') {
+        message = "register-to-create-goals";
+      } else if (action === 'profile') {
+        message = "register-to-complete-profile";
+      }
+      
+      window.location.href = `/auth?action=${message}`;
+      return;
+    }
+    
+    // Se non è in modalità demo, mostra la versione demo
     window.location.href = `/home?section=${action}&view=demo`;
   };
   
@@ -296,7 +313,18 @@ export default function Home() {
             <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
             <TabsTrigger value="meals">Meals</TabsTrigger>
             <TabsTrigger value="goals">Goals</TabsTrigger>
-            <TabsTrigger value="profile">Profile</TabsTrigger>
+            <TabsTrigger 
+              value="profile" 
+              onClick={() => {
+                if (demoMode) {
+                  // Reindirizza alla pagina di registrazione se in modalità demo
+                  window.location.href = '/auth?action=register-to-complete-profile';
+                  return;
+                }
+              }}
+            >
+              Profile
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="dashboard" className="space-y-4">
