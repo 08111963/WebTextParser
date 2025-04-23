@@ -43,11 +43,15 @@ export default function Home({
   const params = loc.includes('?') ? loc.split('?')[1] : '';
   const urlParams = new URLSearchParams(params);
   const sectionParam = urlParams.get('section');
+  const viewMode = urlParams.get('view');
+  const isDemoMode = viewMode === 'demo';
+  
   const initialTab = sectionParam && ['dashboard', 'meals', 'goals', 'profile'].includes(sectionParam) 
     ? sectionParam 
     : 'dashboard';
   
   const [activeTab, setActiveTab] = useState(initialTab);
+  const [demoMode, setDemoMode] = useState(isDemoMode);
   
   // Effetto per resettare la posizione di scroll quando cambia la tab
   useEffect(() => {
@@ -161,12 +165,68 @@ export default function Home({
     }
   }, [mealsError, goalError, toast]);
 
+  // Dati demo per utenti non autenticati
+  const demoMeals = [
+    {
+      id: 'd1',
+      userId: 0,
+      food: 'Grilled Chicken Salad',
+      calories: 320,
+      proteins: 35,
+      carbs: 15,
+      fats: 12,
+      mealType: 'Lunch',
+      timestamp: new Date().toISOString(),
+      notes: 'With olive oil dressing'
+    },
+    {
+      id: 'd2',
+      userId: 0,
+      food: 'Greek Yogurt with Berries',
+      calories: 180,
+      proteins: 15,
+      carbs: 22,
+      fats: 5,
+      mealType: 'Breakfast',
+      timestamp: new Date().toISOString(),
+      notes: 'Added honey'
+    },
+    {
+      id: 'd3',
+      userId: 0,
+      food: 'Salmon with Vegetables',
+      calories: 420,
+      proteins: 38,
+      carbs: 12,
+      fats: 22,
+      mealType: 'Dinner',
+      timestamp: new Date().toISOString(),
+      notes: 'Steamed broccoli and carrots'
+    }
+  ];
+
+  const demoGoal = {
+    id: 'dg1',
+    userId: 0,
+    calories: 2000,
+    proteins: 120,
+    carbs: 220,
+    fats: 65,
+    active: true,
+    startDate: new Date().toISOString(),
+    endDate: null,
+    notes: 'Maintenance diet'
+  };
+
   // Calculate nutritional totals
-  const todayMeals = meals?.filter((meal: any) => {
+  const displayMeals = demoMode ? demoMeals : meals || [];
+  const todayMeals = displayMeals.filter((meal: any) => {
     const mealDate = new Date(meal.timestamp);
     const today = new Date();
     return mealDate.setHours(0, 0, 0, 0) === today.setHours(0, 0, 0, 0);
-  }) || [];
+  });
+
+  const displayGoal = demoMode ? demoGoal : activeGoal;
 
   const totalCalories = todayMeals.reduce((sum: number, meal: any) => sum + meal.calories, 0);
   const totalProteins = todayMeals.reduce((sum: number, meal: any) => sum + meal.proteins, 0);
@@ -181,8 +241,22 @@ export default function Home({
       
       <main className="container mx-auto px-4 py-6 pb-16 flex-1">
         <div className="mb-6">
-          <h1 className="text-3xl font-bold">Welcome, {user.username}!</h1>
+          <h1 className="text-3xl font-bold">Welcome, {demoMode ? 'Guest' : user.username}!</h1>
           <p className="text-gray-600">Track your nutrition and reach your goals.</p>
+          
+          {demoMode && (
+            <div className="mt-4 p-4 rounded-md bg-blue-50 border border-blue-200">
+              <div className="flex items-center">
+                <div className="bg-blue-100 p-2 rounded-full mr-3">
+                  <div className="h-5 w-5 text-blue-600">👁️</div>
+                </div>
+                <div>
+                  <h3 className="font-medium text-blue-800">Demo Mode</h3>
+                  <p className="text-sm text-blue-600">You are currently in view-only demo mode. To track your own meals and goals, please <a href="/auth" className="text-blue-700 font-semibold hover:underline">register or log in</a>.</p>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
 
         <Tabs 
@@ -242,7 +316,7 @@ export default function Home({
                     <CardContent>
                       <div className="text-2xl font-bold">{totalCalories} kcal</div>
                       <p className="text-xs text-muted-foreground">
-                        {activeGoal ? `${Math.round((totalCalories / activeGoal.calories) * 100)}% of goal` : 'No goal set'}
+                        {displayGoal ? `${Math.round((totalCalories / displayGoal.calories) * 100)}% of goal` : 'No goal set'}
                       </p>
                     </CardContent>
                   </Card>
@@ -253,7 +327,7 @@ export default function Home({
                     <CardContent>
                       <div className="text-2xl font-bold">{totalProteins}g</div>
                       <p className="text-xs text-muted-foreground">
-                        {activeGoal ? `${Math.round((totalProteins / activeGoal.proteins) * 100)}% of goal` : 'No goal set'}
+                        {displayGoal ? `${Math.round((totalProteins / displayGoal.proteins) * 100)}% of goal` : 'No goal set'}
                       </p>
                     </CardContent>
                   </Card>
