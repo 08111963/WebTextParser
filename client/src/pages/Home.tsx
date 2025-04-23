@@ -338,7 +338,7 @@ export default function Home({
                     <CardContent>
                       <div className="text-2xl font-bold">{totalCarbs}g</div>
                       <p className="text-xs text-muted-foreground">
-                        {activeGoal ? `${Math.round((totalCarbs / activeGoal.carbs) * 100)}% of goal` : 'No goal set'}
+                        {displayGoal ? `${Math.round((totalCarbs / displayGoal.carbs) * 100)}% of goal` : 'No goal set'}
                       </p>
                     </CardContent>
                   </Card>
@@ -349,7 +349,7 @@ export default function Home({
                     <CardContent>
                       <div className="text-2xl font-bold">{totalFats}g</div>
                       <p className="text-xs text-muted-foreground">
-                        {activeGoal ? `${Math.round((totalFats / activeGoal.fats) * 100)}% of goal` : 'No goal set'}
+                        {displayGoal ? `${Math.round((totalFats / displayGoal.fats) * 100)}% of goal` : 'No goal set'}
                       </p>
                     </CardContent>
                   </Card>
@@ -401,28 +401,31 @@ export default function Home({
                       <CardDescription>Your current goal</CardDescription>
                     </CardHeader>
                     <CardContent>
-                      {activeGoal ? (
+                      {displayGoal ? (
                         <div className="space-y-2">
-                          <p className="font-medium text-xl">{activeGoal.name}</p>
-                          {activeGoal.description && (
-                            <p className="text-sm text-muted-foreground">{activeGoal.description}</p>
+                          <p className="font-medium text-xl">{displayGoal.name || "Maintenance Goal"}</p>
+                          {displayGoal.description && (
+                            <p className="text-sm text-muted-foreground">{displayGoal.description}</p>
+                          )}
+                          {!displayGoal.description && demoMode && (
+                            <p className="text-sm text-muted-foreground">Balanced nutrition for maintaining current weight and supporting overall health.</p>
                           )}
                           <div className="grid grid-cols-2 gap-2 mt-4">
                             <div className="bg-primary/10 p-2 rounded">
                               <p className="text-xs">Calories</p>
-                              <p className="font-bold">{activeGoal.calories} kcal</p>
+                              <p className="font-bold">{displayGoal.calories} kcal</p>
                             </div>
                             <div className="bg-primary/10 p-2 rounded">
                               <p className="text-xs">Protein</p>
-                              <p className="font-bold">{activeGoal.proteins}g</p>
+                              <p className="font-bold">{displayGoal.proteins}g</p>
                             </div>
                             <div className="bg-primary/10 p-2 rounded">
                               <p className="text-xs">Carbs</p>
-                              <p className="font-bold">{activeGoal.carbs}g</p>
+                              <p className="font-bold">{displayGoal.carbs}g</p>
                             </div>
                             <div className="bg-primary/10 p-2 rounded">
                               <p className="text-xs">Fat</p>
-                              <p className="font-bold">{activeGoal.fats}g</p>
+                              <p className="font-bold">{displayGoal.fats}g</p>
                             </div>
                           </div>
                         </div>
@@ -437,7 +440,7 @@ export default function Home({
                         onClick={() => handleInteractionRequiringAuth('goals', () => setActiveTab('goals'))}
                       >
                         <BarChart className="h-4 w-4 mr-2" />
-                        {activeGoal ? 'Manage Goals' : 'Create Goal'}
+                        {demoMode ? 'View Goals' : (activeGoal ? 'Manage Goals' : 'Create Goal')}
                       </Button>
                     </CardFooter>
                   </Card>
@@ -481,8 +484,8 @@ export default function Home({
                   </CardHeader>
                   <CardContent>
                     <MealList
-                      meals={meals || []}
-                      isLoading={mealsLoading}
+                      meals={demoMode ? demoMeals : (meals || [])}
+                      isLoading={mealsLoading && !demoMode}
                       userId={user.id.toString()}
                     />
                   </CardContent>
