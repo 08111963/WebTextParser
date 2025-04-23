@@ -91,6 +91,22 @@ export default function AuthPage() {
       if (redirectParam) {
         setRedirectPath(redirectParam);
       }
+      
+      // Gestire il parametro action per mostrare il messaggio appropriato
+      const actionParam = params.get('action');
+      if (actionParam) {
+        // Imposta il tab attivo su "register"
+        setActiveTab("register");
+        
+        // Imposta il messaggio in base al parametro action
+        if (actionParam === 'register-to-add-meals') {
+          setRegistrationMessage("Register to start tracking your meals and nutritional intake.");
+        } else if (actionParam === 'register-to-create-goals') {
+          setRegistrationMessage("Register to set your personal nutritional goals and track your progress.");
+        } else if (actionParam === 'register-to-complete-profile') {
+          setRegistrationMessage("Register to create and manage your nutritional profile.");
+        }
+      }
     }
   }, [loc]);
   
@@ -295,6 +311,12 @@ export default function AuthPage() {
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
+                  {registrationMessage && (
+                    <div className="mb-4 p-3 bg-primary/15 border border-primary text-primary rounded-md flex items-start">
+                      <AlertCircle className="mr-2 h-5 w-5 shrink-0" />
+                      <span>{registrationMessage}</span>
+                    </div>
+                  )}
                   {registerError && (
                     <div className="mb-4 p-3 bg-destructive/15 border border-destructive text-destructive rounded-md flex items-start">
                       <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-2 h-5 w-5 shrink-0">

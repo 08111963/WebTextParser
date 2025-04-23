@@ -103,7 +103,7 @@ export default function Home() {
     }
     
     // Se è in modalità demo, reindirizza alla pagina di autenticazione
-    if (demoMode) {
+    if (isDemoMode) {
       // Reindirizza alla pagina di registrazione con un messaggio specifico per l'azione
       let message = "";
       
@@ -316,7 +316,7 @@ export default function Home() {
             <TabsTrigger 
               value="profile" 
               onClick={() => {
-                if (demoMode) {
+                if (isDemoMode) {
                   // Reindirizza alla pagina di registrazione se in modalità demo
                   window.location.href = '/auth?action=register-to-complete-profile';
                   return;
