@@ -96,15 +96,14 @@ export default function Home() {
   
   // Preparazione per le interazioni che richiedono autenticazione
   const handleInteractionRequiringAuth = (action: string, callback: () => void) => {
-    // Se c'è la funzione requireAuth (fornita da ViewOnlyRoute) e non siamo autenticati
-    if (requireAuth && !isAuthenticated) {
-      // requireAuth mostrerà il dialog di login se necessario
-      if (!requireAuth(action)) {
-        return; // Ferma l'esecuzione se l'utente non è autenticato
-      }
+    // In modalità demo o se autenticati, procedi
+    if (isDemoMode || isAuthenticated) {
+      callback();
+      return;
     }
-    // Se siamo autenticati o non abbiamo requireAuth, procedi
-    callback();
+    
+    // Altrimenti, reindirizza all'autenticazione
+    window.location.href = `/auth?redirect=/home?section=${action}`;
   };
   
   // Fetch dei pasti dell'utente (solo se autenticato)
@@ -469,7 +468,7 @@ export default function Home() {
                   ) : (
                     <div className="border rounded-lg p-6 text-center">
                       <p className="text-muted-foreground mb-4">To add meals, please login or register</p>
-                      <Button onClick={() => requireAuth && requireAuth('meals')}>
+                      <Button onClick={() => handleInteractionRequiringAuth('meals', () => {})}>
                         Login to Add Meals
                       </Button>
                     </div>
