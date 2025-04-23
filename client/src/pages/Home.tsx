@@ -523,7 +523,7 @@ export default function Home() {
                   ) : (
                     <div className="border rounded-lg p-6 text-center">
                       <p className="text-muted-foreground mb-4">To set goals, please login or register</p>
-                      <Button onClick={() => requireAuth && requireAuth('goals')}>
+                      <Button onClick={() => handleInteractionRequiringAuth('goals', () => {})}>
                         Login to Set Goals
                       </Button>
                     </div>
@@ -625,7 +625,7 @@ export default function Home() {
                   <p className="text-muted-foreground mb-6">
                     Login to view and edit your profile, set your physical data, and manage your preferences.
                   </p>
-                  <Button onClick={() => requireAuth && requireAuth('profile')}>
+                  <Button onClick={() => handleInteractionRequiringAuth('profile', () => {})}>
                     Login to Your Profile
                   </Button>
                 </div>
