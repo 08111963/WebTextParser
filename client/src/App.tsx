@@ -40,9 +40,9 @@ function Router() {
       <Route path="/install" component={InstallApp} />
       <Route path="/contatti" component={Contatti} />
       
-      {/* Home può essere visualizzata anche in modalità demo */}
+      {/* Proteggiamo le pagine che richiedono autenticazione */}
       <Route path="/home">
-        {(params) => <Home {...params} />}
+        <ProtectedRoute component={Home} />
       </Route>
       <Route path="/checkout">
         <ProtectedRoute component={Checkout} />

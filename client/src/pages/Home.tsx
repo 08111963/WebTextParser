@@ -26,10 +26,15 @@ function createDate(dateString: string): Date {
   return new Date(dateString);
 }
 
-export default function Home(props: any) {
-  const requireAuth = props.requireAuth;
-  const isAuthenticated = props.isAuthenticated === true;
-  const authUser = props.user;
+export default function Home({
+  requireAuth,
+  isAuthenticated,
+  user: authUser,
+}: {
+  requireAuth?: (action: string) => boolean;
+  isAuthenticated?: boolean;
+  user?: any;
+}) {
   const { user: authenticatedUser } = useAuth();
   // Usa l'utente proveniente dalle props se disponibile, altrimenti usa quello dall'hook
   const user = authUser || authenticatedUser || { id: 0, username: 'Guest' };
